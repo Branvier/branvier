@@ -17,6 +17,7 @@ part 'texts.dart';
 part 'time.dart';
 part 'widget.dart';
 part 'translation.dart';
+part 'validators.dart';
 part 'api_interface.dart';
 part 'storage_interface.dart';
 

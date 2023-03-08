@@ -1,3 +1,5 @@
+part of 'export.dart';
+
 extension StrinExt on String {
   /// Capitalizes all words. ex: your name => Your Name.
   String get capitalized => split(' ').map((e) => e.capitalizeFirst).join(' ');

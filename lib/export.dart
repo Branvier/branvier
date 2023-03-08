@@ -1,5 +1,4 @@
-// ignore_for_file: public_member_api_docs, sort_constructors_first
-// library branvier_extensions;
+library branvier;
 
 import 'dart:async';
 import 'dart:convert';

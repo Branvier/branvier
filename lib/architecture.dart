@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 
-import 'extensions/export.dart';
+import 'export.dart';
 
 abstract class PageWidget<T> extends StatelessWidget {
   // ignore: prefer_const_constructors_in_immutables

@@ -1,4 +1,4 @@
-part of 'export.dart';
+part of '/branvier.dart';
 
 abstract class IApi<T> {
   ///Headers to attach to the request.

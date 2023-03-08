@@ -1,4 +1,4 @@
-part of 'export.dart';
+part of '/branvier.dart';
 
 ///
 /// An enum defines all supported directions of shimmer effect

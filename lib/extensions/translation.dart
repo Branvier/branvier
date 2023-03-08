@@ -1,4 +1,4 @@
-part of 'export.dart';
+part of '/branvier.dart';
 
 class Translation extends StatefulWidget {
   const Translation({

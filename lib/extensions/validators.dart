@@ -1,4 +1,4 @@
-part of 'export.dart';
+part of '/branvier.dart';
 
 extension StrinExt on String {
   /// Capitalizes all words. ex: your name => Your Name.

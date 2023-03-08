@@ -1,12 +1,11 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
-
-import 'export.dart';
+import 'branvier.dart';
 
 abstract class PageWidget<T> extends StatelessWidget {
-  // ignore: prefer_const_constructors_in_immutables
-  // PageWidget({super.key});
+  //ignore: prefer_const_constructors_in_immutables
+  PageWidget({super.key});
   late final T controller;
+
 }
 
 class PageBinder<T> {
@@ -32,7 +31,7 @@ class HomeController {
 }
 
 class HomePage extends PageWidget<HomeController> {
-  // HomePage({super.key});
+  HomePage({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -54,7 +53,7 @@ class CountService {
   Future<void> init() => repository.loadOne('1');
 
   Stream<int> streamOne() async* {
-    final data = await repository.loadOne('1');
+    // final data = await repository.loadOne('1');
   }
 
   void increase() {
@@ -108,20 +107,11 @@ mixin MyStorage implements IStorage {
   Future<void> write(String key, String json) => throw UnimplementedError();
 
   @override
-  Future<void> delete(String key) {
-    // TODO: implement delete
-    throw UnimplementedError();
-  }
+  Future<void> delete(String key) => throw UnimplementedError();
 
   @override
-  Future<void> deleteAll() {
-    // TODO: implement deleteAll
-    throw UnimplementedError();
-  }
+  Future<void> deleteAll() => throw UnimplementedError();
 
   @override
-  Future<Json> readAll() {
-    // TODO: implement readAll
-    throw UnimplementedError();
-  }
+  Future<Json> readAll() => throw UnimplementedError();
 }

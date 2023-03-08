@@ -1,4 +1,4 @@
-part of 'export.dart';
+part of '/branvier.dart';
 
 extension StyledText<T extends Text> on T {
   TextStyle get _style => style ?? const TextStyle();

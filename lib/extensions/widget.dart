@@ -1,4 +1,4 @@
-part of 'export.dart';
+part of '/branvier.dart';
 
 extension WidgetX on Widget {
   Widget scale(double scale) => Transform.scale(scale: scale, child: this);

@@ -7,6 +7,8 @@ environment:
   sdk: '>=2.19.3 <3.0.0'
   flutter: ">=1.17.0"
 
+main: lib/branvier.dart
+
 dependencies:
   flutter:
     sdk: flutter

@@ -1,6 +1,6 @@
 // ignore_for_file: overridden_fields, lines_longer_than_80_chars
 
-import 'package:flutter/material.dart';
+part of '/branvier.dart';
 
 enum PageTransition {
   theme,

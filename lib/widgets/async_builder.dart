@@ -1,9 +1,5 @@
-import 'dart:async';
+part of '/branvier.dart';
 
-import 'package:branvier/branvier.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_hooks/flutter_hooks.dart';
-import '../hooks/use_async.dart';
 
 class AsyncController<T> {
   late final StreamController<AsyncState<T>> _streamController;

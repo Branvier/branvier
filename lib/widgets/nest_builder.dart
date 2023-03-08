@@ -1,10 +1,10 @@
-import 'package:flutter/material.dart';
-import 'page_builder.dart';
+part of '/branvier.dart';
 
-void main() => runApp(const MaterialApp(home: Scaffold(body: _Example())));
+// void main() => runApp(const MaterialApp(home: Scaffold(body: _Example())));
 
 enum _PaymentNest { details, options, paymentType, credit, pix, bill, debit }
 
+// ignore: unused_element
 class _Example extends StatelessWidget {
   const _Example({Key? key}) : super(key: key);
 

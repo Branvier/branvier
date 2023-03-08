@@ -2,7 +2,7 @@ part of 'export.dart';
 
 abstract class IStorage {
   ///Reads the data, gets the [def] value if null.
-  Future<String?> read(String key, {String? def});
+  Future<String?> read(String key);
 
   ///Writes the data.
   Future<void> write(String key, String value);

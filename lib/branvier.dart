@@ -1,3 +1,3 @@
-library branviers;
+library branvier;
 
 export 'extensions/export.dart';

@@ -29,15 +29,17 @@ part 'widgets/async_builder.dart';
 part 'widgets/nest_builder.dart';
 part 'widgets/page_builder.dart';
 
-typedef FromTo<From, To> = To Function(From from);
+typedef InOut<In, Out> = Out Function(In value);
+typedef Input<T> = void Function(T value);
+typedef Output<T> = T Function();
+typedef Echo<T> = T Function(T value);
+
 typedef Handler<T> = T Function(T? data);
 typedef OnEvent<T> = void Function(T data);
 typedef OnBuild<T> = Widget Function(T data);
-typedef Json<T> = Map<String, T>;
-typedef Strings = List<String>;
 
-typedef Setter<T> = void Function(T value);
-typedef Getter<T> = T Function();
+typedef Then<T, R> = FutureOr<R> Function(T value);
+typedef Json<T> = Map<String, T>;
 
 ///Schedule a callback for the end of this frame.
 void postFrame(VoidCallback? callback) =>
@@ -47,5 +49,5 @@ void postFrame(VoidCallback? callback) =>
 WidgetsBinding get engine => WidgetsFlutterBinding.ensureInitialized();
 
 extension ListExt<F> on Iterable<F> {
-  List<T> list<T>(FromTo<F, T> toElement) => map<T>(toElement).toList();
+  List<T> list<T>(InOut<F, T> toElement) => map<T>(toElement).toList();
 }

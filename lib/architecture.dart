@@ -22,21 +22,32 @@ class PageBinder<T> {
   get page => _page;
 }
 
-class HomeController {
-  late final CountService count; // get<CountService>();
 
-  void onPlusTap() => count.increase();
 
-  void onMinusTap() => count.decrease();
-}
+
+
+
+
+
+
+
 
 class HomePage extends PageWidget<HomeController> {
   HomePage({super.key});
 
   @override
   Widget build(BuildContext context) {
+
     return const Placeholder();
   }
+}
+
+class HomeController {
+  late final CountService count; // get<CountService>();
+
+  void onPlusTap() => count.increase();
+
+  void onMinusTap() => count.decrease();
 }
 
 class RxState {
@@ -59,6 +70,7 @@ class CountService {
   void increase() {
     final value = state.value + 1;
     repository.saveOne('1', value);
+    
     state.value = value;
   }
 
@@ -82,7 +94,7 @@ class CountRepository with MyApi, MyStorage {
   }
 }
 
-mixin MyApi implements IApi {
+class MyApi implements Api {
   @override
   get(String path) => throw UnimplementedError();
 
@@ -99,7 +111,7 @@ mixin MyApi implements IApi {
   Map<String, String> headers = {};
 }
 
-mixin MyStorage implements IStorage {
+class MyStorage implements Storage {
   @override
   Future<String?> read(String key) => throw UnimplementedError();
 

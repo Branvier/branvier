@@ -8,7 +8,7 @@ extension CallState<T> on ValueNotifier<T> {
   T of(ValueNotifier<T> other) => value = other.value;
 
   ///Sets value after [action].
-  To update<To>(FromTo<T, To> action) {
+  To update<To>(InOut<T, To> action) {
     final value = this.value;
     final response = action(value);
     this.value = value;
@@ -40,7 +40,7 @@ extension NullNotifier<V> on ValueNotifier<V?> {
 
 extension ListNotifier<V> on ValueNotifier<List<V>> {
   ///Sets List<value> after [action].
-  To update<To>(FromTo<List<V>, To> action) {
+  To update<To>(InOut<List<V>, To> action) {
     final list = [...value];
     final response = action(list);
     value = list;
@@ -60,7 +60,7 @@ extension ListNotifier<V> on ValueNotifier<List<V>> {
   V get single => value.single;
   bool get isEmpty => value.isEmpty;
   bool get isNotEmpty => value.isNotEmpty;
-  R _<R>(FromTo<List<V>, R> action) => update(action); //short
+  R _<R>(InOut<List<V>, R> action) => update(action); //short
 
   //Increase list size.
   void add(V element) => update((list) => list.add(element));
@@ -85,7 +85,7 @@ extension ListNotifier<V> on ValueNotifier<List<V>> {
 
   //Readables.
   bool contains(Object? element) => value.contains(element);
-  Iterable<R> map<R>(FromTo<V, R> toElement) => value.map(toElement);
+  Iterable<R> map<R>(InOut<V, R> toElement) => value.map(toElement);
 
   //Operators
   V operator [](int index) => update((list) => list[index]);

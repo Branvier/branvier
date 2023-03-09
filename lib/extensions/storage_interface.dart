@@ -1,6 +1,6 @@
 part of '/branvier.dart';
 
-abstract class IStorage {
+abstract class Storage {
   ///Reads the data, gets the [def] value if null.
   Future<String?> read(String key);
 
@@ -20,7 +20,7 @@ abstract class IStorage {
 typedef JMap = Map<String, String>;
 typedef JList = List<String>;
 
-extension StorageExt on IStorage {
+extension StorageExt on Storage {
   ///Read and decodes as [T].
   Future<T?> readAs<T>(String key) async {
     final json = await read(key);

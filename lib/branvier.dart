@@ -39,6 +39,7 @@ typedef Echo<T> = T Function(T value);
 typedef Handler<T> = T Function(T? data);
 typedef OnEvent<T> = void Function(T data);
 typedef OnBuild<T> = Widget Function(T data);
+typedef OnAsync<T> = Future Function(T data);
 
 typedef Then<T, R> = FutureOr<R> Function(T value);
 typedef Json<T> = Map<String, T>;

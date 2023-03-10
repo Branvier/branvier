@@ -1,6 +1,6 @@
 part of '/branvier.dart';
 
-abstract class Api<T> {
+abstract class IApi<T> {
   ///Headers to attach to the request.
   Map<String, String> headers = {};
 
@@ -15,7 +15,7 @@ abstract class Api<T> {
   Future<T> post(String url, [data]);
 }
 
-extension IApiExt on Api {
+extension IApiExt on IApi {
   void authorize(String? token) => token == null
       ? headers.remove('authorization')
       : headers['authorization'] = token;

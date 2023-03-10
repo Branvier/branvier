@@ -94,7 +94,7 @@ class CountRepository with MyApi, MyStorage {
   }
 }
 
-class MyApi implements Api {
+class MyApi implements IApi {
   @override
   get(String path) => throw UnimplementedError();
 
@@ -111,7 +111,7 @@ class MyApi implements Api {
   Map<String, String> headers = {};
 }
 
-class MyStorage implements Storage {
+class MyStorage implements IStorage {
   @override
   Future<String?> read(String key) => throw UnimplementedError();
 

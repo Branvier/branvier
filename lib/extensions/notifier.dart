@@ -31,6 +31,7 @@ extension CallState<T> on ValueNotifier<T> {
   T switcher(T left, T right) => value = value != left ? left : right;
 
   bool get isEmpty => [{}, [], ''].contains(value);
+  String get string => value.toString();
 }
 
 extension NullNotifier<V> on ValueNotifier<V?> {

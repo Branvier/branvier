@@ -90,7 +90,7 @@ class CountRepository with MyApi, MyStorage {
   }
 
   Future<void> saveOne(String id, int data) async {
-    subkey(key, id, data.toString());
+    writeSub(key, id, data.toString());
   }
 }
 

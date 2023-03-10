@@ -10,8 +10,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 
-import 'hooks/use_async.dart';
-
 part 'extensions/context.dart';
 part 'extensions/json.dart';
 part 'extensions/notifier.dart';
@@ -28,6 +26,10 @@ part 'widgets/formx.dart';
 part 'widgets/async_builder.dart';
 part 'widgets/nest_builder.dart';
 part 'widgets/page_builder.dart';
+part 'hooks/use_animate.dart';
+part 'hooks/use_async.dart';
+part 'hooks/use_lifecycle.dart';
+part 'hooks/use_size.dart';
 
 typedef InOut<In, Out> = Out Function(In value);
 typedef Input<T> = void Function(T value);

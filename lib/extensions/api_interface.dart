@@ -20,3 +20,17 @@ extension IApiExt on IApi {
       ? headers.remove('authorization')
       : headers['authorization'] = token;
 }
+
+class MockApi with IApi {
+  @override
+  Future get(String url) async => 'data';
+
+  @override
+  Future post(String url, [data]) async => 'response';
+}
+
+extension MockApiX on MockApi {
+  Future<String> getJString() async => '"Hello, World!"';
+  Future<String> getJList() async => '["apple", "banana", "orange"]';
+  Future<String> getJMap() async => '{"name": "Antony"}';
+}

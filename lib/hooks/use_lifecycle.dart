@@ -1,6 +1,4 @@
-import 'dart:developer';
-import 'package:flutter/widgets.dart';
-import 'package:flutter_hooks/flutter_hooks.dart';
+part of '/branvier.dart';
 
 ///Returns the [LifecycleState] of the application.
 LifecycleState useLifecycle({
@@ -113,25 +111,14 @@ class LifecycleState {
 /// transitions through lifecycles.
 void useLogger(String componentName, {Map<String, dynamic> props = const {}}) {
   useInit(
-    () => log('$componentName mounted $props'),
-    dispose: () => log('$componentName unmounted'),
+    () => dev.log('$componentName mounted $props'),
+    dispose: () => dev.log('$componentName unmounted'),
   );
 
   useUpdateEffect(() {
-    log('$componentName updated $props');
+    dev.log('$componentName updated $props');
     return null;
   });
-}
-
-///Sintax sugar for [useEffect]. Called only once.
-void useInit(VoidCallback? init, {VoidCallback? dispose}) {
-  useEffect(
-    () {
-      init?.call();
-      return dispose;
-    },
-    [],
-  );
 }
 
 /// Flutter effect hook that ignores the first invocation (e.g. on mount).

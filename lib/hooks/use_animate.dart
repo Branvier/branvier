@@ -1,7 +1,4 @@
-import 'dart:async';
-
-import 'package:flutter/cupertino.dart';
-import 'package:flutter_hooks/flutter_hooks.dart';
+part of '/branvier.dart';
 
 ///On true animates to [end], false animates back to [begin].
 AnimationController useAnimateOn(

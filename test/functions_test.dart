@@ -22,10 +22,10 @@ void main() {
     expect(then, null);
 
     final or = await get().thenOr((value) => value, or: '');
-    expect(then, '');
+    expect(or, '');
 
     final nor = await get().thenOr((value) => value, or: '');
-    expect(then, '');
+    expect(nor, '');
   });
 
   test('if non-null', () async {
@@ -35,7 +35,6 @@ void main() {
 
     void onValidate(String value) {
       validated = true;
-      print(value);
     }
 
     String? validator(String? value) {

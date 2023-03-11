@@ -1,9 +1,6 @@
 part of '/branvier.dart';
 
-typedef JMap = Map<String, String>;
-typedef JList = List<String>;
-
-abstract class IStorage {
+abstract class IBox {
   ///Reads the data, gets the [def] value if null.
   Future<String?> read(String key);
 
@@ -20,10 +17,29 @@ abstract class IStorage {
   Future<Json> readAll();
 }
 
+class MockBox implements IBox {
+  static final StringMap _storage = {};
+
+  @override
+  Future<void> delete(String key) async => _storage.remove(key);
+
+  @override
+  Future<void> deleteAll() async => _storage.clear();
+
+  @override
+  Future<String?> read(String key) async => _storage[key];
+
+  @override
+  Future<Json> readAll() async => _storage;
+
+  @override
+  Future<void> write(String key, String value) async => _storage[key] = value;
+}
+
 ///Storage extension.
 ///
-///Test: 'readSubAs and writeSub' in [storage_test].
-extension StorageExt on IStorage {
+///Test: 'storage' in [storage_test]. All tested.
+extension StorageExt on IBox {
   ///Read and decodes as [T].
   Future<T?> readAs<T>(String key) async => (await read(key))?.parse<T>();
 
@@ -51,40 +67,21 @@ extension StorageExt on IStorage {
     String json, {
     bool duplicates = false,
   }) async =>
-      modifyAs<JList>(key, (data) {
+      modifyAs<Strings>(key, (data) {
         final list = [...?data, json];
         if (duplicates) return list;
         return list.toSet().toList();
       });
 
   ///Returns the current cached json and sets after [modifier].
-  Future<void> modify(String key, Handler<String> modifier) async {
+  Future<void> modify(String key, EchoGet<String> modifier) async {
     final modified = modifier(await read(key));
     await write(key, modified);
   }
 
   ///Returns the current decoded json and sets after [modifier].
-  Future<void> modifyAs<T>(String key, Handler<T> modifier) async {
+  Future<void> modifyAs<T>(String key, EchoGet<T> modifier) async {
     final modified = modifier(await readAs<T>(key));
     await write(key, jsonEncode(modified));
   }
-}
-
-class MockBox with IStorage {
-  static final JMap storage = {};
-
-  @override
-  Future<void> delete(String key) async => storage.remove(key);
-
-  @override
-  Future<void> deleteAll() async => storage.clear();
-
-  @override
-  Future<String?> read(String key) async => storage[key];
-
-  @override
-  Future<Json> readAll() async => storage;
-
-  @override
-  Future<void> write(String key, String value) async => storage[key] = value;
 }

@@ -14,7 +14,7 @@ extension DurationExt on Duration {
   Future<T> set<T>(T value) => Future.delayed(this, () => value);
 
   ///Calls [function] after [this] Duration.
-  Future<T> then<T>(Output<T>? function) => Future.delayed(this, function);
+  Future<T> then<T>(Getter<T>? function) => Future.delayed(this, function);
 }
 
 extension FutureNullable<T> on Future<T?> {
@@ -39,6 +39,5 @@ extension TypeNullable<T> on T? {
   T or([T? value]) => this ?? value!;
 
   ///Returns [onNonNull] if [T] is non-null, else [null].
-  R? non<R>(InOut<T, R> onNonNull) => this != null ? onNonNull(this!) : null;
+  R? non<R>(GetOn<T, R> onNonNull) => this != null ? onNonNull(this!) : null;
 }
-

@@ -14,6 +14,7 @@ part 'extensions/context.dart';
 part 'extensions/json.dart';
 part 'extensions/notifier.dart';
 part 'extensions/numbers.dart';
+part 'extensions/list.dart';
 part 'extensions/shimmer.dart';
 part 'extensions/texts.dart';
 part 'extensions/time.dart';
@@ -30,19 +31,7 @@ part 'hooks/use_animate.dart';
 part 'hooks/use_async.dart';
 part 'hooks/use_lifecycle.dart';
 part 'hooks/use_size.dart';
-
-typedef InOut<In, Out> = Out Function(In value);
-typedef Input<T> = void Function(T value);
-typedef Output<T> = T Function();
-typedef Echo<T> = T Function(T value);
-
-typedef Handler<T> = T Function(T? data);
-typedef OnEvent<T> = void Function(T data);
-typedef OnBuild<T> = Widget Function(T data);
-typedef OnAsync<T> = Future Function(T data);
-
-typedef Then<T, R> = FutureOr<R> Function(T value);
-typedef Json<T> = Map<String, T>;
+part 'utils/typedefs.dart';
 
 ///Schedule a callback for the end of this frame.
 void postFrame(VoidCallback? callback) =>
@@ -51,6 +40,3 @@ void postFrame(VoidCallback? callback) =>
 ///The current [WidgetsBinding].
 WidgetsBinding get engine => WidgetsFlutterBinding.ensureInitialized();
 
-extension ListExt<F> on Iterable<F> {
-  List<T> list<T>(InOut<F, T> toElement) => map<T>(toElement).toList();
-}

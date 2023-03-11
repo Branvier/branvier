@@ -111,7 +111,7 @@ class MyApi implements IApi {
   Map<String, String> headers = {};
 }
 
-class MyStorage implements IStorage {
+class MyStorage implements IBox {
   @override
   Future<String?> read(String key) => throw UnimplementedError();
 

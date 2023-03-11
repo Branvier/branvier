@@ -31,6 +31,19 @@ void main() {
     });
   });
 
+  group('parse', () {
+    test('parsing nums', () {
+      const nums = '[1.1, 9.8, 3.2]';
+      final parsed = nums.parse<List<int>>();
+      expect(parsed, [1, 10, 3]);
+    });
+    test('parsing num map', () {
+      const map = '{"a": 1.1, "b": 9.8}';
+      final parsed = map.parse<DoubleMap>();
+      expect(parsed, {'a': 1.1, 'b': 9.8});
+    });
+  });
+
   group('storage extensions', () {
     const fruits = '["apple", "banana", "orange"]'; //jlist
     const market = '{"fruits": $fruits, "from": "belém"}'; //jmap
@@ -41,7 +54,7 @@ void main() {
       await box.write('market', market);
       await box.write('town', town);
 
-      final list = await box.readAs<JList>('fruits');
+      final list = await box.readAs<Strings>('fruits');
       final map = await box.readAs<Json>('market');
       final jsonMap = await box.readAs<JsonMap>('town');
 

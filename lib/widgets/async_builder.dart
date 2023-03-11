@@ -1,6 +1,5 @@
 part of '/branvier.dart';
 
-
 class AsyncController<T> {
   late final StreamController<AsyncState<T>> _streamController;
   late AsyncState<T> _state;
@@ -71,14 +70,14 @@ class AsyncBuilder<T> extends HookWidget {
         super(key: key);
 
   ///The main async function. Useful for fetching data.
-  final Future<T> Function()? future;
-  final Stream<T> Function()? stream;
+  final FutureGet<T>? future;
+  final StreamGet<T>? stream;
 
   ///Fallback async function. Useful for initial data.
-  final Future<T> Function()? initial;
+  final FutureGet<T>? initial;
 
   ///The builder with [AsyncSnapshot] data.
-  final Widget Function(T data) builder;
+  final WidgetOn<T> builder;
 
   ///Controls the state of the [AsyncBuilder].
   final AsyncController? controller;
@@ -89,15 +88,14 @@ class AsyncBuilder<T> extends HookWidget {
   ///[Widget] that shows while [future] is not done.
   final Widget loader;
 
-  ///Wrapper [Widget] that shows while [future] is updating.
-  ///Where child parameter is the [builder] [Widget].
-  final Widget Function(Widget child)? updater;
+  ///Wraps [builder] while [future] is updating.
+  final WidgetWrapper? updater;
 
   ///[Widget] that shows while [future] is done, but empty.
   final Widget empty;
 
   ///The builder with [AsyncSnapshot] error message.
-  final Widget Function(String message)? error;
+  final WidgetOn<String>? error;
 
   @override
   Widget build(BuildContext context) {

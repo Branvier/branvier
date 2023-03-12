@@ -1,12 +1,11 @@
 part of '/branvier.dart';
 
-abstract class IApi {
+mixin IApi {
   ///Headers to attach to the request.
-  Map<String, String> headers = {};
+  final headers = <String, dynamic>{};
 
-  String baseUrl = '';
-
-  String contentType = 'application/json';
+  ///Changes the baseUrl.
+  set baseUrl(String url);
 
   ///A [get] function that returns [T].
   Future<T> get<T>(String url);
@@ -27,6 +26,9 @@ class MockApi with IApi {
 
   @override
   Future<T> post<T>(String url, [data]) async => 'response' as T;
+
+  @override
+  set baseUrl(String url) {}
 }
 
 extension MockApiX on MockApi {

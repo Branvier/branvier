@@ -38,6 +38,6 @@ extension TypeNullable<T> on T? {
   ///Marks [T] as non-nullable. On null/error fallbacks [value].
   T or([T? value]) => this ?? value!;
 
-  ///Returns [onNonNull] if [T] is non-null, else [null].
-  R? non<R>(GetOn<T, R> onNonNull) => this != null ? onNonNull(this!) : null;
+  ///Returns [onNon] if [T] is non-null, else [null].
+  R? ifNon<R>(GetOn<T, R> onNon) => this != null ? onNon(this!) : null;
 }

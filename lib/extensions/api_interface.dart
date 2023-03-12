@@ -1,6 +1,6 @@
 part of '/branvier.dart';
 
-abstract class IApi<T> {
+abstract class IApi {
   ///Headers to attach to the request.
   Map<String, String> headers = {};
 
@@ -9,10 +9,10 @@ abstract class IApi<T> {
   String contentType = 'application/json';
 
   ///A [get] function that returns [T].
-  Future<T> get(String url);
+  Future<T> get<T>(String url);
 
   ///A [post] function that returns [T].
-  Future<T> post(String url, [data]);
+  Future<T> post<T>(String url, [data]);
 }
 
 extension IApiExt on IApi {
@@ -23,10 +23,10 @@ extension IApiExt on IApi {
 
 class MockApi with IApi {
   @override
-  Future get(String url) async => 'data';
+  Future<T> get<T>(String url) async => 'data' as T;
 
   @override
-  Future post(String url, [data]) async => 'response';
+  Future<T> post<T>(String url, [data]) async => 'response' as T;
 }
 
 extension MockApiX on MockApi {

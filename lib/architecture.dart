@@ -5,7 +5,6 @@ abstract class PageWidget<T> extends StatelessWidget {
   //ignore: prefer_const_constructors_in_immutables
   PageWidget({super.key});
   late final T controller;
-
 }
 
 class PageBinder<T> {
@@ -22,22 +21,11 @@ class PageBinder<T> {
   get page => _page;
 }
 
-
-
-
-
-
-
-
-
-
-
 class HomePage extends PageWidget<HomeController> {
   HomePage({super.key});
 
   @override
   Widget build(BuildContext context) {
-
     return const Placeholder();
   }
 }
@@ -70,7 +58,7 @@ class CountService {
   void increase() {
     final value = state.value + 1;
     repository.saveOne('1', value);
-    
+
     state.value = value;
   }
 
@@ -96,10 +84,10 @@ class CountRepository with MyApi, MyStorage {
 
 class MyApi implements IApi {
   @override
-  get(String path) => throw UnimplementedError();
+  get<T>(String path) => throw UnimplementedError();
 
   @override
-  post(String path, [data]) => throw UnimplementedError();
+  post<T>(String path, [data]) => throw UnimplementedError();
 
   @override
   String baseUrl = '';

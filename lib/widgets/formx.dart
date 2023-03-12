@@ -457,10 +457,11 @@ class MaskTextInputFormatter implements TextInputFormatter {
     final lengthRemoved = lengthDifference < 0 ? lengthDifference.abs() : 0;
     final lengthAdded = lengthDifference > 0 ? lengthDifference : 0;
 
-    final afterChangeStart = max(0, beforeSelectionStart - lengthRemoved);
-    final afterChangeEnd = max(0, afterChangeStart + lengthAdded);
+    final afterChangeStart = math.max(0, beforeSelectionStart - lengthRemoved);
+    final afterChangeEnd = math.max(0, afterChangeStart + lengthAdded);
 
-    final beforeReplaceStart = max(0, beforeSelectionStart - lengthRemoved);
+    final beforeReplaceStart =
+        math.max(0, beforeSelectionStart - lengthRemoved);
     final beforeReplaceLength = beforeSelectionLength + lengthRemoved;
 
     final beforeResultTextLength = _resultTextArray.length;
@@ -470,7 +471,7 @@ class MaskTextInputFormatter implements TextInputFormatter {
     var currentResultSelectionLength = 0;
 
     for (var i = 0;
-        i < min(beforeReplaceStart + beforeReplaceLength, mask.length);
+        i < math.min(beforeReplaceStart + beforeReplaceLength, mask.length);
         i++) {
       if (_maskChars.contains(mask[i]) && currentResultTextLength > 0) {
         currentResultTextLength -= 1;

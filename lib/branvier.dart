@@ -3,7 +3,7 @@ library branvier;
 import 'dart:async';
 import 'dart:convert';
 import 'dart:developer' as dev;
-import 'dart:math';
+import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/cupertino.dart';
@@ -39,4 +39,3 @@ void postFrame(VoidCallback? callback) =>
 
 ///The current [WidgetsBinding].
 WidgetsBinding get engine => WidgetsFlutterBinding.ensureInitialized();
-

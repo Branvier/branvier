@@ -19,9 +19,9 @@ part of '/branvier.dart';
 //Mapper functions.
 typedef Getter<R> = R Function();
 typedef Then<T, R> = FutureOr<R> Function(T value);
-typedef Echo<T> = T Function(T value);
-typedef EchoOn<T> = T? Function(T value);
-typedef EchoGet<T> = T Function(T? value);
+typedef Echo<T> = T Function(T e);
+typedef EchoOn<T> = T? Function(T e);
+typedef EchoGet<T> = T Function(T? e);
 
 //Async functions.
 //Future.
@@ -36,17 +36,11 @@ typedef StreamGetOn<T, R> = Stream<R> Function(T data);
 
 //Callback functions.
 typedef On<T> = void Function(T data);
-typedef GetOn<T, R> = R Function(T data);
-typedef On2<P1, P2> = void Function(P1 other, P2 data);
-typedef On3<P1, P2, P3> = void Function(P1 another, P2 other, P3 data);
-typedef GetOn2<P1, P2, R> = R Function(P1 other, P2 data);
-typedef GetOn3<P1, P2, P3, R> = R Function(P1 another, P2 other, P3 data);
+typedef GetOn<T, R> = R Function(T e);
 
 //Widget
 typedef WidgetWrapper = Widget Function(Widget child);
 typedef WidgetOn<T> = Widget Function(T data);
-typedef WidgetOn2<P1, P2> = Widget Function(P1 other, P2 data);
-typedef WidgetOn3<P1, P2, P3> = Widget Function(P1 another, P2 other, P3 data);
 
 //prefix
 typedef OnWidget = void Function(Widget child);

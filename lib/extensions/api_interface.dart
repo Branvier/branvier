@@ -1,8 +1,13 @@
 part of '/branvier.dart';
 
+/// Implement as singleton.
+/// Ex:
+///   factory MyApi() => _instance;
+///   MyApi._();
+///   static final _instance = MyApi._();
 mixin IApi {
   ///Headers to attach to the request.
-  final headers = <String, dynamic>{};
+  final Json headers = <String, dynamic>{};
 
   ///Changes the baseUrl.
   set baseUrl(String url);
@@ -15,6 +20,10 @@ mixin IApi {
 }
 
 extension IApiExt on IApi {
+  ///The current [token].
+  String? get token => headers['authorization'];
+
+  ///Authorizes, if null, removes any authorization for security.
   void authorize(String? token) => token == null
       ? headers.remove('authorization')
       : headers['authorization'] = token;

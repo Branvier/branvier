@@ -32,6 +32,7 @@ part 'hooks/use_async.dart';
 part 'hooks/use_lifecycle.dart';
 part 'hooks/use_size.dart';
 part 'utils/typedefs.dart';
+part 'utils/transparent_image.dart';
 
 ///Schedule a callback for the end of this frame.
 void postFrame(VoidCallback? callback) =>

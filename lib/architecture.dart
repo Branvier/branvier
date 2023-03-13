@@ -93,9 +93,6 @@ class MyApi implements IApi {
   String baseUrl = '';
 
   @override
-  String contentType = '';
-
-  @override
   Map<String, String> headers = {};
 }
 

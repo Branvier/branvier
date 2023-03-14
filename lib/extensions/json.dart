@@ -95,6 +95,14 @@ extension JsonString on String {
   DateTime toDate() => int.parse(this).toDate();
 }
 
+extension DateExt on DateTime {
+  ///Universal Timestamp Unix. Ex "1647323301".
+  String toUnix() => secondsSinceEpoch.toJson();
+
+  ///Human Readable Time. Ex: "2023-03-14T10:30:00.000".
+  String toJson() => const JsonEncoder.withIndent('  ').convert(this);
+}
+
 extension JsonInt on num {
   ///The number of digits after zero.
   int get length => round().toString().length;
@@ -111,6 +119,7 @@ extension JsonInt on num {
     return DateTime.fromMicrosecondsSinceEpoch(this ~/ 1000);
   }
 }
+
 extension JsonBool on bool {
   String toJson() => const JsonEncoder.withIndent('  ').convert(this);
 }
@@ -126,4 +135,3 @@ extension JsonNumList on List<num> {
 extension JsonBoolList on List<bool> {
   String toJson() => const JsonEncoder.withIndent('  ').convert(this);
 }
-

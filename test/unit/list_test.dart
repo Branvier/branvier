@@ -14,5 +14,12 @@ void main() {
 
       expect(list.noNulls, []);
     });
+
+    test('rsort', () {
+      final list = ['a', 'b', 'c'];
+      list.rsort();
+
+      expect(list, ['c', 'b', 'a']);
+    });
   });
 }

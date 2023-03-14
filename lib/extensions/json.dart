@@ -76,10 +76,28 @@ extension JsonString on String {
       return null;
     }
   }
+
+  ///Parses from dec [10], hex [16] or other radix to [int]. Max: 36.
+  int toInt([int? radix]) => int.parse(this, radix: radix);
+  int? tryInt([int? radix]) => int.tryParse(this, radix: radix);
+
+  ///Converts to [DateTime].
+  DateTime toDate() => int.parse(this).toDate();
 }
 
 extension JsonInt on num {
+  ///The number of digits after zero.
+  int get length => round().toString().length;
+
   String toJson() => const JsonEncoder.withIndent('  ').convert(this);
+
+  ///Converts to [DateTime].
+  DateTime toDate() {
+    if (length <= 10) return DateTime.fromMillisecondsSinceEpoch(this ~/ 0.001);
+    if (length <= 13) return DateTime.fromMillisecondsSinceEpoch(round());
+    if (length <= 16) return DateTime.fromMicrosecondsSinceEpoch(round());
+    return DateTime.fromMicrosecondsSinceEpoch(this ~/ 1000);
+  }
 }
 
 extension JsonBool on bool {

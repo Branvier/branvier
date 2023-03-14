@@ -23,6 +23,7 @@ part 'extensions/translation.dart';
 part 'extensions/validators.dart';
 part 'extensions/api_interface.dart';
 part 'extensions/storage_interface.dart';
+part 'extensions/map.dart';
 part 'widgets/formx.dart';
 part 'widgets/async_builder.dart';
 part 'widgets/nest_builder.dart';

@@ -3,6 +3,12 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   group('operations', () {
+    test('toIndexMap', () {
+      final list = ['pear', 'kiwi'];
+      final map = list.toIndexMap();
+
+      expect(map, {'0': 'pear', '1': 'kiwi'});
+    });
     test('remove nulls', () {
       final list = [null, null, 1, ''];
       list.removeNulls();

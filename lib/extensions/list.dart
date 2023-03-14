@@ -10,14 +10,26 @@ extension MapExp<K, V> on Map<K, V> {
 
 extension IterExt<V> on Iterable<V> {
   List<R> list<R>(GetOn<V, R> toElement) => map<R>(toElement).toList();
-}
-
-extension ListExt<V> on List<V> {
-  V get antepenult => reversed.elementAt(2);
-  V get penult => reversed.elementAt(1);
+  V get antepenult => toList().reversed.elementAt(2);
+  V get penult => toList().reversed.elementAt(1);
   V get second => elementAt(1);
   V get third => elementAt(2);
 
+  /// Converts to [Map], where keys are string indexes.
+  ///
+  /// Ex: ['pear', 'kiwi'] -> {'0': 'pear', '1': 'kiwi'};
+  ///
+  /// Tested in list_test.
+  Map<String, V> toIndexMap() {
+    final map = <String, V>{};
+    length.forEach((i) {
+      map[i.toString()] = toList()[i];
+    });
+    return map;
+  }
+}
+
+extension ListExt<V> on List<V> {
   void assign(V value) {
     clear();
     add(value);

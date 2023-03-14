@@ -1,13 +1,13 @@
 part of '/branvier.dart';
 
 abstract class IBox {
-  ///Reads the data, gets the [def] value if null.
+  ///Reads the json data.
   Future<String?> read(String key);
 
-  ///Writes the data.
-  Future<void> write(String key, String value);
+  ///Writes the json data.
+  Future<void> write(String key, String json);
 
-  ///Removes the data.
+  ///Removes the json data.
   Future<void> delete(String key);
 
   ///Clear all data.

@@ -81,6 +81,16 @@ extension JsonString on String {
   int toInt([int? radix]) => int.parse(this, radix: radix);
   int? tryInt([int? radix]) => int.tryParse(this, radix: radix);
 
+  ///Parses from dec [10], hex [16] or other radix to [int]. Max: 36.
+  BigInt toBigInt([int? radix]) => BigInt.parse(this, radix: radix);
+  BigInt? tryBigInt([int? radix]) => BigInt.tryParse(this, radix: radix);
+
+  String toR36([int? radix]) => toBigInt(radix).toRadixString(36);
+  String toHex([int? radix]) => toBigInt(radix).toRadixString(16);
+  String toDec([int? radix]) => toBigInt(radix).toRadixString(10);
+  String toOct([int? radix]) => toBigInt(radix).toRadixString(8);
+  String toBin([int? radix]) => toBigInt(radix).toRadixString(2);
+
   ///Converts to [DateTime].
   DateTime toDate() => int.parse(this).toDate();
 }
@@ -88,6 +98,8 @@ extension JsonString on String {
 extension JsonInt on num {
   ///The number of digits after zero.
   int get length => round().toString().length;
+
+  BigInt toBig() => BigInt.from(this);
 
   String toJson() => const JsonEncoder.withIndent('  ').convert(this);
 
@@ -99,7 +111,6 @@ extension JsonInt on num {
     return DateTime.fromMicrosecondsSinceEpoch(this ~/ 1000);
   }
 }
-
 extension JsonBool on bool {
   String toJson() => const JsonEncoder.withIndent('  ').convert(this);
 }
@@ -116,4 +127,3 @@ extension JsonBoolList on List<bool> {
   String toJson() => const JsonEncoder.withIndent('  ').convert(this);
 }
 
-f() {}

@@ -50,6 +50,10 @@ extension StorageExt on IBox {
     return json.parse<T>();
   }
 
+  ///Read in a [subkey] inside this [key].
+  Future<String?> readSub(String key, String subkey) =>
+      readSubAs<String>(key, subkey);
+
   ///Writes in a [subkey] inside this [key].
   Future<void> writeSub(String key, String subkey, String json) async {
     return modifyAs<Json>(key, (map) {

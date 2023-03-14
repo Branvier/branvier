@@ -16,7 +16,7 @@ void main() {
   });
 
   test('should not throw', () async {
-    Future<String?> get() async => throw '';
+    Future<String?> get() async => throw Exception('get');
 
     final then = await get().thenTry((value) => get());
     expect(then, null);

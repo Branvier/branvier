@@ -62,7 +62,7 @@ extension DynamicCast on dynamic {
 }
 
 extension JsonString on String {
-  ///Parses [this] String as [T].
+  ///Parses this String as [T].
   ///Aditionally parses the first subtype.
   ///
   ///Test: 'readAs: parse' in storage_test.dart.
@@ -70,13 +70,14 @@ extension JsonString on String {
     final parsed = const JsonDecoder().convert(this);
 
     //For complex objects or [T] absent, dynamic cast.
-    return parsed.cast<T>();
+    return (parsed as Object).cast<T>();
   }
 
-  ///Tries to parse [this] String as [T].
+  ///Tries to parse this String as [T].
   T? tryParse<T>() {
     try {
       return parse<T>();
+      // ignore: avoid_catches_without_on_clauses
     } catch (e) {
       return null;
     }

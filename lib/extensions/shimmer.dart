@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_setters_without_getters
+
 part of '/branvier.dart';
 
 ///
@@ -47,13 +49,23 @@ enum ShimmerDirection { ltr, rtl, ttb, btt }
 ///
 @immutable
 class Shimmer extends StatefulWidget {
+  const Shimmer({
+    super.key,
+    required this.child,
+    required this.gradient,
+    this.direction = ShimmerDirection.ltr,
+    this.period = const Duration(milliseconds: 1500),
+    this.loop = 0,
+    this.enabled = true,
+  });
+
   ///
   /// A convenient constructor provides an easy and convenient way to create a
   /// [Shimmer] which [gradient] is [LinearGradient] made up of `baseColor` and
   /// `highlightColor`.
   ///
   Shimmer.fromColors({
-    Key? key,
+    super.key,
     required this.child,
     required Color baseColor,
     required Color highlightColor,
@@ -61,29 +73,18 @@ class Shimmer extends StatefulWidget {
     this.direction = ShimmerDirection.ltr,
     this.loop = 0,
     this.enabled = true,
-  })  : gradient = LinearGradient(begin: Alignment.topLeft, colors: <Color>[
-          baseColor,
-          baseColor,
-          highlightColor,
-          baseColor,
-          baseColor
-        ], stops: const <double>[
-          0.0,
-          0.35,
-          0.5,
-          0.65,
-          1.0
-        ]),
-        super(key: key);
-  const Shimmer({
-    Key? key,
-    required this.child,
-    required this.gradient,
-    this.direction = ShimmerDirection.ltr,
-    this.period = const Duration(milliseconds: 1500),
-    this.loop = 0,
-    this.enabled = true,
-  }) : super(key: key);
+  }) : gradient = LinearGradient(
+          begin: Alignment.topLeft,
+          colors: <Color>[
+            baseColor,
+            baseColor,
+            highlightColor,
+            baseColor,
+            baseColor
+          ],
+          stops: const <double>[0.0, 0.35, 0.5, 0.65, 1.0],
+        );
+
   final Widget child;
   final Duration period;
   final ShimmerDirection direction;
@@ -168,11 +169,11 @@ class ShimmerState extends State<Shimmer> with SingleTickerProviderStateMixin {
 @immutable
 class _Shimmer extends SingleChildRenderObjectWidget {
   const _Shimmer({
-    Widget? child,
+    super.child,
     required this.percent,
     required this.direction,
     required this.gradient,
-  }) : super(child: child);
+  });
   final double percent;
   final ShimmerDirection direction;
   final Gradient gradient;
@@ -229,12 +230,13 @@ class _ShimmerFilter extends RenderProxyBox {
   @override
   void paint(PaintingContext context, Offset offset) {
     if (child != null) {
-      assert(needsCompositing);
+      assert(needsCompositing, 'needsCompositing');
 
       final width = child!.size.width;
       final height = child!.size.height;
       Rect rect;
       double dx, dy;
+      
       if (_direction == ShimmerDirection.rtl) {
         dx = _offset(width, -width, _percent);
         dy = 0.0;

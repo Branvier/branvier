@@ -68,7 +68,7 @@ class PageBuilder<T> extends PageRouteBuilder<T> {
     this.opaque = false,
     this.isIos = false,
     this.matchingBuilder = const CupertinoPageTransitionsBuilder(),
-    RouteSettings? settings,
+    super.settings,
   })  : assert(
           // ignore: avoid_bool_literals_in_conditional_expressions
           inheritTheme ? ctx != null : true,
@@ -84,7 +84,6 @@ class PageBuilder<T> extends PageRouteBuilder<T> {
                 ? InheritedTheme.captureAll(ctx!, child)
                 : child;
           },
-          settings: settings,
           maintainState: true,
           opaque: opaque,
           fullscreenDialog: fullscreenDialog,

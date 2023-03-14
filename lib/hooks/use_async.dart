@@ -1,3 +1,5 @@
+// ignore_for_file: discarded_futures
+
 part of '/branvier.dart';
 
 // typedef AsyncCallback<T> = Future<T> Function();

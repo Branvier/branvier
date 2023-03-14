@@ -7,13 +7,13 @@ extension DateTimeExt on DateTime {
 }
 
 extension DurationExt on Duration {
-  ///Transforms [this] Duration into a delayed function.
+  ///Transforms this Duration into a delayed function.
   Future<void> call() => Future.delayed(this);
 
-  ///Returns [value] after [this] Duration.
+  ///Returns [value] after this Duration.
   Future<T> set<T>(T value) => Future.delayed(this, () => value);
 
-  ///Calls [function] after [this] Duration.
+  ///Calls [function] after this Duration.
   Future<T> then<T>(Getter<T>? function) => Future.delayed(this, function);
 }
 
@@ -28,7 +28,7 @@ extension FutureNullable<T> on Future<T?> {
     return then((r) => r != null ? (action(r)) : or!, onError: (e) => or!);
   }
 
-  ///Returns [action] if [T] is non-null, else [null].
+  ///Returns [action] if [T] is non-null, else null.
   Future<R?> thenTry<R>(Then<T, R> action) async {
     return then((r) => r != null ? action(r) : null, onError: (e) => null);
   }
@@ -38,6 +38,6 @@ extension TypeNullable<T> on T? {
   ///Marks [T] as non-nullable. On null/error fallbacks [value].
   T or([T? value]) => this ?? value!;
 
-  ///Returns [onNon] if [T] is non-null, else [null].
+  ///Returns [onNon] if [T] is non-null, else null.
   R? ifNon<R>(GetOn<T, R> onNon) => this != null ? onNon(this!) : null;
 }

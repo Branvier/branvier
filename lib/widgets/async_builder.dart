@@ -38,9 +38,9 @@ class AsyncController<T> {
   }
 
   ///Closes the stream. All listeners will be removed (no need to cancel them).
-  void _close() {
+  Future<void> _close() async {
     if (!isAttached) throw AsyncException.called('close');
-    _streamController.close();
+    await _streamController.close();
   }
 }
 
@@ -65,9 +65,8 @@ class AsyncBuilder<T> extends HookWidget {
     this.loader = const Center(child: CircularProgressIndicator()),
     this.empty = const Center(child: Text('-')),
     this.error,
-    Key? key,
-  })  : assert(future != null || stream != null, 'No async function found.'),
-        super(key: key);
+    super.key,
+  }) : assert(future != null || stream != null, 'No async function found.');
 
   ///The main async function. Useful for fetching data.
   final FutureGet<T>? future;
@@ -135,7 +134,7 @@ class AsyncBuilder<T> extends HookWidget {
 }
 
 class Updater extends StatelessWidget {
-  const Updater(this.child, {Key? key}) : super(key: key);
+  const Updater(this.child, {super.key});
   final Widget child;
 
   @override

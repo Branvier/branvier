@@ -9,15 +9,7 @@ import 'package:branvier/branvier.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-class App extends StatelessWidget {
-  const App({Key? key, required this.child}) : super(key: key);
-  final Widget child;
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(home: Scaffold(body: child));
-  }
-}
+import 'app_scaffold_widget.dart';
 
 void main2() {
   testWidgets(
@@ -28,12 +20,12 @@ void main2() {
 
       // Build our app and trigger a frame.
       await tester.pumpWidget(
-        App(
+        AppScaffold(
           child: AsyncBuilder<String>(
             controller: controller,
             initial: () => 0.5.seconds.set('initial is here'),
             future: () async {
-              if (response == 'error') throw 'error';
+              if (response == 'error') throw Exception('error');
               return 1.seconds.set(response);
             },
             builder: (data) {

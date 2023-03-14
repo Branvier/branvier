@@ -1,3 +1,5 @@
+// ignore_for_file: only_throw_errors, avoid_dynamic_calls
+
 import 'package:flutter/material.dart';
 import 'branvier.dart';
 
@@ -18,7 +20,7 @@ class PageBinder<T> {
     return widget;
   }
 
-  get page => _page;
+  PageWidget<T> Function() get page => _page;
 }
 
 class HomePage extends PageWidget<HomeController> {
@@ -33,13 +35,13 @@ class HomePage extends PageWidget<HomeController> {
 class HomeController {
   late final CountService count; // get<CountService>();
 
-  void onPlusTap() => count.increase();
+  Future<void> onPlusTap() async => count.increase();
 
-  void onMinusTap() => count.decrease();
+  Future<void> onMinusTap() async => count.decrease();
 }
 
 class RxState {
-  get value => throw 'implement';
+  dynamic get value => throw 'implement';
   set value(value) => throw 'implement';
 }
 
@@ -55,39 +57,40 @@ class CountService {
     // final data = await repository.loadOne('1');
   }
 
-  void increase() {
+  Future<void> increase() async {
     final value = state.value + 1;
-    repository.saveOne('1', value);
+    await repository.saveOne('1', value as int);
 
     state.value = value;
   }
 
-  void decrease() {
+  Future<void> decrease() async {
     final value = state.value + 1;
-    repository.saveOne('1', value);
+    await repository.saveOne('1', value as int);
     state.value = value;
   }
 }
 
+// ignore: prefer_mixin
 class CountRepository with MyApi, MyStorage {
   final key = 'count';
 
   Future<int?> loadOne(String id) async {
     final map = await readAs(key);
-    return map?[id] != null ? int.tryParse(map[id]) : null;
+    return map?[id] != null ? int.tryParse(map[id] as String) : null;
   }
 
   Future<void> saveOne(String id, int data) async {
-    writeSub(key, id, data.toString());
+    await writeSub(key, id, data.toString());
   }
 }
 
 class MyApi implements IApi {
   @override
-  get<T>(String path) => throw UnimplementedError();
+  Never get<T>(String path) => throw UnimplementedError();
 
   @override
-  post<T>(String path, [data]) => throw UnimplementedError();
+  Never post<T>(String path, [data]) => throw UnimplementedError();
 
   @override
   String baseUrl = '';

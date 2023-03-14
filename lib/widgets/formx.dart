@@ -6,7 +6,7 @@ typedef FormMap = Map<String, String>;
 
 class FormX extends StatelessWidget {
   const FormX({
-    Key? key,
+    super.key,
     required this.child,
     this.formWrapper,
     this.fieldWrapper,
@@ -14,7 +14,7 @@ class FormX extends StatelessWidget {
     this.onSubmit,
     this.onErrorText,
     this.decoration,
-  }) : super(key: key);
+  });
   final Widget child;
 
   ///Wrapper for the form.
@@ -55,8 +55,8 @@ class FormX extends StatelessWidget {
 
 class FormScope extends InheritedWidget {
   const FormScope({
-    Key? key,
-    required Widget child,
+    super.key,
+    required super.child,
     required this.form,
     required this.fields,
     required this.decoration,
@@ -64,7 +64,7 @@ class FormScope extends InheritedWidget {
     required this.onSubmit,
     required this.onErrorText,
     required this.fieldWrapper,
-  }) : super(key: key, child: child);
+  });
 
   final FormMap form;
   final FieldMap fields;
@@ -90,8 +90,8 @@ class Field extends StatefulWidget {
     this.validator,
     this.keyboardType,
     this.mask,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   ///Where to store the value in the map. Will always lowercase.
   final String tag;

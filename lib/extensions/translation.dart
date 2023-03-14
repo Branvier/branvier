@@ -2,11 +2,11 @@ part of '/branvier.dart';
 
 class Translation extends StatefulWidget {
   const Translation({
-    Key? key,
+    super.key,
     this.initialLocale = 'en',
     required this.translations,
     required this.child,
-  }) : super(key: key);
+  });
 
   final Map<String, Map<String, String>> translations;
   final String initialLocale;
@@ -14,8 +14,8 @@ class Translation extends StatefulWidget {
 
   static final _key = GlobalKey();
 
-  static void changeLocale(String locale) {
-    _key.currentContext?.changeLocale(locale);
+  static Future<void> changeLocale(String locale) async {
+    await _key.currentContext?.changeLocale(locale);
   }
 
   @override
@@ -40,11 +40,11 @@ class _TranslationState extends State<Translation> {
 
 class TranslationNotifier extends InheritedNotifier {
   const TranslationNotifier({
-    Key? key,
+    super.key,
     required this.translations,
-    required Widget child,
-    required ValueNotifier<String> notifier,
-  }) : super(key: key, child: child, notifier: notifier);
+    required super.child,
+    required ValueNotifier<String> super.notifier,
+  });
 
   final Map<String, Map<String, String>> translations;
 }
@@ -71,9 +71,9 @@ extension TranlationExt on String {
 }
 
 extension TrCtxExt on BuildContext {
-  void changeLocale(String locale) {
+  Future<void> changeLocale(String locale) async {
     final scope = dependOnInheritedWidgetOfExactType<TranslationNotifier>();
     scope?.locale.value = locale;
-    engine.performReassemble();
+    await engine.performReassemble();
   }
 }

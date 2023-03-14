@@ -38,7 +38,7 @@ class MockBox implements IBox {
 
 ///Storage extension.
 ///
-///Test: 'storage' in [storage_test]. All tested.
+///Test: 'storage' in storage_test. All tested.
 extension StorageExt on IBox {
   ///Read and decodes as [T].
   Future<T?> readAs<T>(String key) async => (await read(key))?.parse<T>();

@@ -63,7 +63,7 @@ void main() {
       expect(jsonMap?['market']?['fruits'], list);
     });
     test('readSubAs & writeSub', () async {
-      await box.writeSub('market', 'fruits', "[]");
+      await box.writeSub('market', 'fruits', '[]');
       final subEmpty = await box.readSubAs<Strings>('market', 'fruits');
       expect(subEmpty, []);
 
@@ -87,15 +87,15 @@ void main() {
     });
     test('modify', () async {
       await box.write('market', market); //map
-      await box.modify('market', (data) => data ?? "{}");
+      await box.modify('market', (data) => data ?? '{}');
       final data = await box.read('market'); //map
 
       expect(data, market);
 
-      await box.modify('market', (data) => "{}");
+      await box.modify('market', (data) => '{}');
       final dataEmpty = await box.read('market'); //map
 
-      expect(dataEmpty, "{}");
+      expect(dataEmpty, '{}');
     });
     test('modifyAs', () async {
       await box.write('market', market); //map

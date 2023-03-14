@@ -6,7 +6,7 @@ part of '/branvier.dart';
 ///   MyApi._();
 ///   static final _instance = MyApi._();
 mixin IApi {
-  ///Headers to attach to the request.
+  ///Headers to attach to the request. Usually String or List<String>.
   final Json headers = <String, dynamic>{};
 
   ///Changes the baseUrl.
@@ -21,7 +21,7 @@ mixin IApi {
 
 extension IApiExt on IApi {
   ///The current [token].
-  String? get token => headers['authorization'];
+  String? get token => headers['authorization'] as String?;
 
   ///Authorizes, if null, removes any authorization for security.
   void authorize(String? token) => token == null

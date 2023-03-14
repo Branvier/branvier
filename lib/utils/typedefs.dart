@@ -1,7 +1,7 @@
 part of '/branvier.dart';
 
 ///Typedef pattern
-///[ReturnType] + [Action]<Type,Return>
+///ReturnType + [Action]<Type,Return>
 ///
 ///Dart style recommends <T> in general and <R> for returns, so:
 ///[Action] Get: Adds <...,R> type inference. Always last.
@@ -13,7 +13,7 @@ part of '/branvier.dart';
 ///
 /// By following this, you know:
 /// A Function that starts with [On] is *always* be void.
-/// [On] will always be close to the infered parameter. [Return]On<T,...>
+/// [On] will always be close to the infered parameter. Return+On<T,...>
 /// ex: GetOn<T,R>.
 
 //Mapper functions.

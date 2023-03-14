@@ -1,17 +1,19 @@
 part of '/branvier.dart';
 
-/// Implement as singleton.
-/// Ex:
-///   factory MyApi() => _instance;
-///   MyApi._();
-///   static final _instance = MyApi._();
-abstract class IApi {
+mixin ApiBase {
   ///Headers to attach to the request. Usually String or List<String>.
   Map<String, dynamic> get headers;
 
   ///Changes the baseUrl.
   set baseUrl(String url);
+}
 
+/// Implement as singleton.
+/// Ex:
+///   factory MyApi() => _instance;
+///   MyApi._();
+///   static final _instance = MyApi._();
+abstract class IApi with ApiBase {
   ///A [get] function that returns [T].
   Future<T> get<T>(String path);
 
@@ -20,13 +22,7 @@ abstract class IApi {
 }
 
 /// Used only for internal projects.
-abstract class IApiResponse {
-  ///Headers to attach to the request. Usually String or List<String>.
-  Map<String, dynamic> get headers;
-
-  ///Changes the baseUrl.
-  set baseUrl(String url);
-
+abstract class IApiResponse with ApiBase {
   ///A [get] function that returns [T].
   Future<ApiResponse<T>> get<T>(String path);
 
@@ -34,7 +30,7 @@ abstract class IApiResponse {
   Future<ApiResponse<T>> post<T>(String path, [data]);
 }
 
-extension IApiExt on IApi {
+extension IApiExt on ApiBase {
   ///The current [token].
   String? get token => headers['authorization'] as String?;
 

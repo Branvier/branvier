@@ -32,7 +32,7 @@ linter:
     avoid_double_and_int_checks: true
     avoid_dynamic_calls: true
     avoid_empty_else: true
-    avoid_equals_and_hash_code_on_mutable_classes: true
+    # avoid_equals_and_hash_code_on_mutable_classes: true
     avoid_escaping_inner_quotes: true
     avoid_field_initializers_in_const_classes: true
     avoid_final_parameters: true
@@ -96,7 +96,7 @@ linter:
     leading_newlines_in_multiline_strings: true
     library_names: true
     library_prefixes: true
-    library_private_types_in_public_api: true
+    # library_private_types_in_public_api: true
     # lines_longer_than_80_chars: false
     list_remove_unrelated_type: true
     literal_only_boolean_expressions: true

@@ -84,14 +84,44 @@ class Field extends StatefulWidget {
   ///Creates a TextField where the value is stored in [tag].
   const Field(
     this.tag, {
-    this.decoration,
     this.obscure = false,
     this.options,
+    this.decoration,
     this.validator,
     this.keyboardType,
     this.mask,
     super.key,
   });
+
+  ///Aditionally validates if the value is empty.
+  ///Returns 'form.empty.$tag' if requiredText is null.
+  ///
+  ///You can use [validator] for aditional validations.
+  factory Field.required(
+    String tag, {
+    String? requiredText,
+    bool obscure = false,
+    List<String>? options,
+    InputDecoration? decoration,
+    FormFieldValidator<String>? validator,
+    TextInputType? keyboardType,
+    String? mask,
+    Key? key,
+  }) =>
+      Field(
+        tag,
+        obscure: obscure,
+        options: options,
+        decoration: decoration,
+        validator: (value) {
+          if (value == null) return null;
+          if (value.isEmpty) return requiredText ?? 'form.empty.$tag';
+          return validator?.call(value);
+        },
+        keyboardType: keyboardType,
+        mask: mask,
+        key: key,
+      );
 
   ///Where to store the value in the map. Will always lowercase.
   final String tag;

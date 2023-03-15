@@ -1,36 +1,36 @@
 part of '/branvier.dart';
 
-mixin ApiBase {
+/// Implement CRUD rules for REST API.
+/// Must be a singleton.
+///
+/// Ex:
+///
+/// factory MyApi() => _instance;
+///
+/// MyApi._();
+///
+/// static final _instance = MyApi._();
+abstract class IApi {
   ///Headers to attach to the request. Usually String or List<String>.
   Map<String, dynamic> get headers;
 
   ///Changes the baseUrl.
   set baseUrl(String url);
-}
 
-/// Implement as singleton.
-/// Ex:
-///   factory MyApi() => _instance;
-///   MyApi._();
-///   static final _instance = MyApi._();
-abstract class IApi with ApiBase {
-  ///A [get] function that returns [T].
+  ///CREATE.
+  Future<T> post<T>(String path, [data]);
+
+  ///READ.
   Future<T> get<T>(String path);
 
-  ///A [post] function that returns [T].
-  Future<T> post<T>(String path, [data]);
+  ///UPDATE.
+  Future<T> put<T>(String path, [data]);
+
+  ///DELETE.
+  Future<T> delete<T>(String path);
 }
 
-/// Used only for internal projects.
-abstract class IApiResponse with ApiBase {
-  ///A [get] function that returns [T].
-  Future<ApiResponse<T>> get<T>(String path);
-
-  ///A [post] function that returns [T].
-  Future<ApiResponse<T>> post<T>(String path, [data]);
-}
-
-extension IApiExt on ApiBase {
+extension IApiExt on IApi {
   ///The current [token].
   String? get token => headers['authorization'] as String?;
 
@@ -38,9 +38,39 @@ extension IApiExt on ApiBase {
   void authorize(String? token) => token == null
       ? headers.remove('authorization')
       : headers['authorization'] = token;
+
+  // ///A [get] function that returns [ApiResponse].
+  // Future<ApiResponse> getr(String path) async {
+  //   return _apiResponse(await get(path));
+  // }
+
+  // ///A [post] function that returns [ApiResponse].
+  // Future<ApiResponse> postr(String path, [data]) async {
+  //   return _apiResponse(await post(path, data));
+  // }
+
+  // ApiResponse _apiResponse(Object? r) {
+  //   if (r is ApiResponse) return r;
+  //   return ApiResponse(
+  //     result: r != null,
+  //     message: r != null ? jsonEncode(r) : 'null',
+  //     content: r is List
+  //         ? r
+  //         : r == null
+  //             ? []
+  //             : [r],
+  //     token: token,
+  //   );
+  // }
 }
 
 class MockApi implements IApi {
+  @override
+  set baseUrl(String url) {}
+
+  @override
+  Map<String, dynamic> get headers => throw UnimplementedError();
+
   @override
   Future<T> get<T>(String url) async => 'data' as T;
 
@@ -48,11 +78,10 @@ class MockApi implements IApi {
   Future<T> post<T>(String url, [data]) async => 'response' as T;
 
   @override
-  set baseUrl(String url) {}
+  Future<T> delete<T>(path) => throw UnimplementedError();
 
   @override
-  // TODO: implement headers
-  Map<String, dynamic> get headers => throw UnimplementedError();
+  Future<T> put<T>(path, [data]) => throw UnimplementedError();
 }
 
 extension MockApiX on MockApi {

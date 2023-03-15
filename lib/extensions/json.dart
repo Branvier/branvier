@@ -36,41 +36,34 @@ extension CastMap on NumMap {
   IntMap toInt() => map((k, v) => MapEntry(k, v.round()));
 }
 
-extension DynamicCast on dynamic {
-  /// Cast any type and specially subtypes.
-  /// Subtypes of subtypes are not supported.
-  /// Ex List<List<String>> instead, use: List<List>.
-  T cast<T>() {
-    if (T == Strings) return Strings.from(this) as T;
-    if (T == Nums) return Nums.from(this) as T;
-    if (T == Ints) return Nums.from(this).toInt() as T;
-    if (T == Doubles) return Nums.from(this).toDouble() as T;
-    if (T == Bools) return Bools.from(this) as T;
-    if (T == Lists) return Lists.from(this) as T;
-    if (T == Maps) return Maps.from(this) as T;
-
-    if (T == StringMap) return StringMap.from(this) as T;
-    if (T == NumMap) return NumMap.from(this) as T;
-    if (T == IntMap) return NumMap.from(this).toInt() as T;
-    if (T == DoubleMap) return NumMap.from(this).toDouble() as T;
-    if (T == BoolMap) return BoolMap.from(this) as T;
-    if (T == JsonMap) return JsonMap.from(this) as T;
-    if (T == ListMap) return ListMap.from(this) as T;
-
-    return this as T;
-  }
-}
-
 extension JsonString on String {
   ///Parses this String as [T].
-  ///Aditionally parses the first subtype.
+  ///Aimed for subtypes.
+  ///
+  ///For bool, int, double. Use toBool, toInt and toDouble.
   ///
   ///Test: 'readAs: parse' in storage_test.dart.
   T parse<T>() {
     final parsed = const JsonDecoder().convert(this);
 
+    if (T == Strings) return Strings.from(parsed) as T;
+    if (T == Nums) return Nums.from(parsed) as T;
+    if (T == Ints) return Nums.from(parsed).toInt() as T;
+    if (T == Doubles) return Nums.from(parsed).toDouble() as T;
+    if (T == Bools) return Bools.from(parsed) as T;
+    if (T == Lists) return Lists.from(parsed) as T;
+    if (T == Maps) return Maps.from(parsed) as T;
+
+    if (T == StringMap) return StringMap.from(parsed) as T;
+    if (T == NumMap) return NumMap.from(parsed) as T;
+    if (T == IntMap) return NumMap.from(parsed).toInt() as T;
+    if (T == DoubleMap) return NumMap.from(parsed).toDouble() as T;
+    if (T == BoolMap) return BoolMap.from(parsed) as T;
+    if (T == JsonMap) return JsonMap.from(parsed) as T;
+    if (T == ListMap) return ListMap.from(parsed) as T;
+
     //For complex objects or [T] absent, dynamic cast.
-    return (parsed as Object).cast<T>();
+    return parsed as T;
   }
 
   ///Tries to parse this String as [T].
@@ -83,9 +76,16 @@ extension JsonString on String {
     }
   }
 
+  ///Returns false on fail.
+  bool toBool() => this == 'true';
+
   ///Parses from dec [10], hex [16] or other radix to [int]. Max: 36.
   int toInt([int? radix]) => int.parse(this, radix: radix);
   int? tryInt([int? radix]) => int.tryParse(this, radix: radix);
+
+  ///Parses to Double. Ex: '1.2' -> 1.2.
+  double toDouble() => double.parse(this);
+  double? tryDouble() => double.tryParse(this);
 
   ///Parses from dec [10], hex [16] or other radix to [int]. Max: 36.
   BigInt toBigInt([int? radix]) => BigInt.parse(this, radix: radix);

@@ -25,6 +25,7 @@ part 'extensions/time.dart';
 part 'extensions/translation.dart';
 part 'extensions/validators.dart';
 part 'extensions/widget.dart';
+part 'extensions/bool.dart';
 part 'hooks/use_animate.dart';
 part 'hooks/use_async.dart';
 part 'hooks/use_lifecycle.dart';

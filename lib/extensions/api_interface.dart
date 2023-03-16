@@ -81,14 +81,14 @@ extension ApiResponseExt<T> on ApiResponse<T> {
   ///Gets the content as [Json].
   Json get map {
     if (content is Map) return Json.from(content);
-    if (content is List && (content as List).isEmpty) return {};
+    if (content is List && content.isEmpty) throw ApiException.empty();
     return Json.from((content as List).first);
   }
 
   ///Gets the result as [String].
   String get string {
     if (content is String) return content;
-    if (content is List && (content as List).isEmpty) return '';
+    if (content is List && content.isEmpty) throw ApiException.empty();
     return (content as List).first;
   }
 
@@ -127,11 +127,14 @@ class ApiResponse<T> {
 @immutable
 class ApiException implements Exception {
   const ApiException(this.response, [this.data]);
+
+  factory ApiException.empty() => ApiException.message('api.response.empty'); 
+
   ApiException.message(String message, [this.data])
       : response = ApiResponse(
           result: false,
           message: message,
-          content: [null],
+          content: [],
           token: null,
         );
 

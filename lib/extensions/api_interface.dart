@@ -34,8 +34,8 @@ extension IApiExt on IApi {
   ///The current [token].
   String? get token => headers['authorization'] as String?;
 
-  ///Authorizes, if null, removes any authorization for security.
-  void authorize(String? token) => token == null
+  ///Sets the current [token]. If null, removes.
+  set token(String? token) => token == null
       ? headers.remove('authorization')
       : headers['authorization'] = token;
 }

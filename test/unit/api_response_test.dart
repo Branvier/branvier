@@ -1,5 +1,3 @@
-import 'dart:collection';
-
 import 'package:branvier/branvier.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -15,12 +13,8 @@ set add(value) => types.add(value);
 
 ///$message - daa
 void main() {
-  test('a', () {});
-  test('map', () {
+  test('baseType', () {
     types.clear();
-    final a = 0.runtimeType;
-    final b = a.baseString;
-
     final set = <dynamic>{};
     final iter = set.map((e) => null);
 
@@ -34,9 +28,8 @@ void main() {
     add = 1.0.runtimeType.isDouble;
     add = 2.runtimeType.isNum;
 
+    //True if contains no false.
     expect(types.contains(false), false);
-    // expect({'a': 1}.runtimeType is Map, true);
-    // expect(b is List, true);
   });
   group('extensions', () {
     test('string', () {

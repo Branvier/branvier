@@ -156,8 +156,13 @@ class _FieldState extends State<Field> {
     final decoration = dec.update(widget.decoration);
 
     void onChanged(String value) {
+      var text = value;
+
+      final chars = widget.mask?.removeChars('A#') ?? '';
+      if (!widget.keepMask) text = value.removeChars(chars);
+
       //Assures the map keys to have only lowercases characters.
-      scope?.form[widget.tag.toLowerCase()] = value;
+      scope?.form[widget.tag.toLowerCase()] = text;
 
       //Cleans map, if empty value.
       if (value.isEmpty) scope?.form.remove(widget.tag);
@@ -216,9 +221,10 @@ class _FieldState extends State<Field> {
       obscuringCharacter: '*',
       onChanged: widget.options == null ? onChanged : null,
       validator: (value) {
-        final text = value;
-        final mask = widget.mask;
-        if (!widget.keepMask) text?.removeChars(mask?.removeChars('A#') ?? '');
+        var text = value;
+
+        final chars = widget.mask?.removeChars('A#') ?? '';
+        if (!widget.keepMask) text = text?.removeChars(chars);
 
         //Callbacks to onChanged(value)
         final errorText = widget.validator?.call(text);

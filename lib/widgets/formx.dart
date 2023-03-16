@@ -8,6 +8,7 @@ class FormX extends StatelessWidget {
   const FormX({
     super.key,
     required this.child,
+    this.tag,
     this.formWrapper,
     this.fieldWrapper,
     this.onChange,
@@ -17,6 +18,9 @@ class FormX extends StatelessWidget {
   });
   final Widget child;
 
+  ///If this has a parent [FormX], sets form to the parent form[tag].
+  final String? tag;
+
   ///Wrapper for the form.
   final Widget Function(Widget child)? formWrapper;
 
@@ -24,12 +28,12 @@ class FormX extends StatelessWidget {
   final Widget Function(String tag, Widget child)? fieldWrapper;
 
   ///Listens to all descendants changes.
-  final ValueChanged<FormMap>? onChange;
+  final ValueChanged<Json>? onChange;
 
   ///Submits if all descendants are valid.
-  final ValueSetter<FormMap>? onSubmit;
+  final ValueSetter<Json>? onSubmit;
 
-  ///Retunrs the field validator response;
+  ///Returns the field validator response;
   final String Function(String tag, String error)? onErrorText;
 
   ///Decorates each [Field] below. You can use tag to differentiate.
@@ -40,14 +44,20 @@ class FormX extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    //Tries to inherits from other FormX.
+    final scope = context.dependOnInheritedWidgetOfExactType<FormScope>();
+
     return FormScope(
       form: FormMap.from({}),
       fields: FieldMap.from({}),
-      onChange: onChange,
-      onSubmit: onSubmit,
-      onErrorText: onErrorText,
-      decoration: decoration,
-      fieldWrapper: fieldWrapper,
+      onChange: (form) {
+        if (tag == null) return onChange?.call(form);
+        scope?.onChange?.call(scope.form[tag!] = form);
+      },
+      onSubmit: onSubmit ?? scope?.onSubmit,
+      onErrorText: onErrorText ?? scope?.onErrorText,
+      decoration: decoration ?? scope?.decoration,
+      fieldWrapper: fieldWrapper ?? scope?.fieldWrapper,
       child: Form(child: formWrapper?.call(child) ?? child),
     );
   }
@@ -66,11 +76,11 @@ class FormScope extends InheritedWidget {
     required this.fieldWrapper,
   });
 
-  final FormMap form;
+  final Json form;
   final FieldMap fields;
   final InputDecoration Function(String tag)? decoration;
-  final ValueChanged<FormMap>? onChange;
-  final ValueSetter<FormMap>? onSubmit;
+  final ValueChanged<Json>? onChange;
+  final ValueSetter<Json>? onSubmit;
   final String Function(String tag, String error)? onErrorText;
   final Widget Function(String tag, Widget child)? fieldWrapper;
 
@@ -137,6 +147,8 @@ class Field extends StatefulWidget {
   ///Use # to mask numbers and A to mask letters.
   ///Ex: cpf: ###.###.###-##.
   final String? mask;
+
+  ///If false, shows the mask only on the UI. Keeps value untouched.
   final bool keepMask;
 
   @override
@@ -247,12 +259,12 @@ class _FieldState extends State<Field> {
 extension FormExt on FormState {
   FormScope get _scope {
     final scope = context.dependOnInheritedWidgetOfExactType<FormScope>();
-    assert(scope != null, 'No [FormX] was found in the widget tree.');
+    assert(scope != null, 'No [FormX] was found above this context.');
     return scope!;
   }
 
   ///Gets a [FormMap] containing all values from all descendents [Field].
-  FormMap get form => _scope.form;
+  Json get form => _scope.form;
 
   ///Validates all the field with the enclosing [tags].
   bool validateTags(List<String> tags) {
@@ -266,7 +278,7 @@ extension FormExt on FormState {
   }
 
   ///Validates one, two or all fields. Returns [FormMap] on success.
-  FormMap? submit([List<String>? tags]) {
+  Json? submit([List<String>? tags]) {
     final isValid = tags == null ? validate() : validateTags(tags);
     return isValid ? form : null;
   }

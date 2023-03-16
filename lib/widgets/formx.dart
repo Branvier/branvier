@@ -90,6 +90,7 @@ class Field extends StatefulWidget {
     this.validator,
     this.keyboardType,
     this.mask,
+    this.keepMask = false,
     super.key,
   });
 
@@ -106,6 +107,7 @@ class Field extends StatefulWidget {
     FormFieldValidator<String>? validator,
     TextInputType? keyboardType,
     String? mask,
+    bool keepMask = false,
     Key? key,
   }) =>
       Field(
@@ -120,6 +122,7 @@ class Field extends StatefulWidget {
         },
         keyboardType: keyboardType,
         mask: mask,
+        keepMask: keepMask,
         key: key,
       );
 
@@ -134,6 +137,7 @@ class Field extends StatefulWidget {
   ///Use # to mask numbers and A to mask letters.
   ///Ex: cpf: ###.###.###-##.
   final String? mask;
+  final bool keepMask;
 
   @override
   State<Field> createState() => _FieldState();

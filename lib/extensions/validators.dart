@@ -20,6 +20,15 @@ extension StrinExt on String {
     }
     return this;
   }
+
+  ///Remove all the chars in [charsToRemove].
+  String removeChars(String charsToRemove) {
+    var result = this;
+    charsToRemove.split('').forEach((char) {
+      result = result.replaceAll(char, '');
+    });
+    return result;
+  }
 }
 
 extension Validators on String {

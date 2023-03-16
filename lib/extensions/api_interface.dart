@@ -38,30 +38,6 @@ extension IApiExt on IApi {
   void authorize(String? token) => token == null
       ? headers.remove('authorization')
       : headers['authorization'] = token;
-
-  // ///A [get] function that returns [ApiResponse].
-  // Future<ApiResponse> getr(String path) async {
-  //   return _apiResponse(await get(path));
-  // }
-
-  // ///A [post] function that returns [ApiResponse].
-  // Future<ApiResponse> postr(String path, [data]) async {
-  //   return _apiResponse(await post(path, data));
-  // }
-
-  // ApiResponse _apiResponse(Object? r) {
-  //   if (r is ApiResponse) return r;
-  //   return ApiResponse(
-  //     result: r != null,
-  //     message: r != null ? jsonEncode(r) : 'null',
-  //     content: r is List
-  //         ? r
-  //         : r == null
-  //             ? []
-  //             : [r],
-  //     token: token,
-  //   );
-  // }
 }
 
 class MockApi implements IApi {
@@ -72,10 +48,10 @@ class MockApi implements IApi {
   Map<String, dynamic> get headers => throw UnimplementedError();
 
   @override
-  Future<T> get<T>(String url) async => 'data' as T;
+  Future<T> get<T>(String url) => throw UnimplementedError();
 
   @override
-  Future<T> post<T>(String url, [data]) async => 'response' as T;
+  Future<T> post<T>(String url, [data]) => throw UnimplementedError();
 
   @override
   Future<T> delete<T>(path) => throw UnimplementedError();
@@ -90,6 +66,35 @@ extension MockApiX on MockApi {
   Future<String> getJMap() async => '{"name": "Antony"}';
 }
 
+extension ApiResponseExt<T> on ApiResponse<T> {
+  ///Gets the expected [T] base data.
+  T get data {
+    if (T.isList) return jsonEncode(list).parse<T>();
+    if (T.isMap) return jsonEncode(map).parse<T>();
+    if (T.isString) return jsonEncode(string).parse<T>();
+    return jsonEncode(content).parse<T>();
+  }
+
+  ///Gets the content as [List].
+  List get list => List.from(content);
+
+  ///Gets the content as [Json].
+  Json get map {
+    if (content is Map) return Json.from(content);
+    if (content is List && isEmpty) return {};
+    return Json.from((content as List).first);
+  }
+
+  ///Gets the result as [String].
+  String get string {
+    if (content is String) return content;
+    if (content is List && isEmpty) return '';
+    return (content as List).first;
+  }
+
+  bool get isEmpty => [{}, [], ''].contains(content);
+}
+
 ///Modelo padrão para todas as requisições recebidas via API.
 class ApiResponse<T> {
   const ApiResponse({
@@ -101,14 +106,8 @@ class ApiResponse<T> {
 
   final bool result;
   final String message;
-  final List<T> content;
+  final dynamic content;
   final String? token;
-
-  ///Gets the single element data.
-  T? get data => isSingle ? content.first : null;
-
-  ///Checks if one single data.
-  bool get isSingle => content.length == 1;
 
   // ignore: sort_constructors_first
   ApiResponse.fromJson(Json json)

@@ -81,18 +81,17 @@ extension ApiResponseExt<T> on ApiResponse<T> {
   ///Gets the content as [Json].
   Json get map {
     if (content is Map) return Json.from(content);
-    if (content is List && isEmpty) return {};
+    if (content is List && (content as List).isEmpty) return {};
     return Json.from((content as List).first);
   }
 
   ///Gets the result as [String].
   String get string {
     if (content is String) return content;
-    if (content is List && isEmpty) return '';
+    if (content is List && (content as List).isEmpty) return '';
     return (content as List).first;
   }
 
-  bool get isEmpty => [{}, [], ''].contains(content);
 }
 
 ///Modelo padrão para todas as requisições recebidas via API.

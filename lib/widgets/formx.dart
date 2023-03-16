@@ -216,11 +216,12 @@ class _FieldState extends State<Field> {
       obscuringCharacter: '*',
       onChanged: widget.options == null ? onChanged : null,
       validator: (value) {
+        final mask = widget.mask;
+        if (!widget.keepMask) value?.removeChars(mask?.removeChars('A#') ?? '');
+
+        //Callbacks to onChanged(value)
         final errorText = widget.validator?.call(value);
         if (errorText == null) return null;
-
-        final mask = widget.mask;
-        if (!widget.keepMask) mask?.removeChars(mask.removeChars('A#'));
 
         //Called only when there is an errorText.
         return scope?.onErrorText?.call(widget.tag, errorText);

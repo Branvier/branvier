@@ -48,11 +48,13 @@ class FormX extends StatelessWidget {
     final scope = context.dependOnInheritedWidgetOfExactType<FormScope>();
 
     return FormScope(
-      form: FormMap.from({}),
+      form: Json.from({}),
       fields: FieldMap.from({}),
       onChange: (form) {
-        if (tag == null) return onChange?.call(form);
-        scope?.onChange?.call(scope.form[tag!] = form);
+        if (tag != null) scope?.form[tag!] = form;
+
+        onChange?.call(form);
+        scope?.onChange?.call(scope.form);
       },
       onSubmit: onSubmit ?? scope?.onSubmit,
       onErrorText: onErrorText ?? scope?.onErrorText,

@@ -47,6 +47,7 @@ typedef OnWidget = void Function(Widget child);
 typedef OnList<T> = void Function(List<T> list);
 typedef OnMap<K, V> = void Function(Map<K, V> map);
 typedef OnJson<V> = void Function(Json<V> map);
+typedef OnForm<V> = void Function(Json<V> form);
 
 //bases
 typedef OnChange = void Function(String value);

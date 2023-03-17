@@ -245,7 +245,7 @@ class _FieldState extends State<Field> {
         if (errorText == null) return null;
 
         //Called only when there is an errorText.
-        return scope?.onErrorText?.call(widget.tag, errorText);
+        return scope?.onErrorText?.call(widget.tag, errorText) ?? errorText;
       },
       onFieldSubmitted: (_) {
         if (Form.of(context).validate()) scope?.onSubmit?.call(scope.form);
@@ -256,6 +256,11 @@ class _FieldState extends State<Field> {
     //Field wrapper.
     return scope?.fieldWrapper?.call(widget.tag, field) ?? field;
   }
+}
+
+extension FormKeyExt on GlobalKey<FormState> {
+  ///Gets a [FormMap] containing all values from all descendents [Field].
+  Json? get form => currentState?.form;
 }
 
 extension FormExt on FormState {

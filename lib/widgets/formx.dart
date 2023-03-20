@@ -4,10 +4,58 @@ part of '/branvier.dart';
 typedef FieldMap = Map<String, GlobalKey<FormFieldState>>;
 typedef FormMap = Map<String, String>;
 
+///Controls the [FormX]. Useful for managing field states in another controller.
+class FormController {
+  //All form states. Null is main form, tags are nested.
+  final states = <String?, FormState>{};
+
+  ///The form with nested forms included inside each tag.
+  Json? get form => states.first.value?._scope.form;
+
+  ///Resets all fields and nested [FormX].
+  void reset() {
+    states.forEach((map, state) {
+      state.reset();
+    });
+  }
+
+  ///Validates all fields and nested [FormX], if any.
+  bool validate() {
+    var isValid = true;
+    states.forEach((map, state) => isValid = state.validate());
+    return isValid;
+  }
+
+  ///Validates all selects fields with the enclosing [tags].
+  bool validateSelected(List<String> tags) {
+    final areValid = tags.map(validateOnly);
+    return !areValid.contains(false);
+  }
+
+  ///Validates only the field with the enclosing [tag].
+  ///If the tag is a sub form. Validates all tags below it.
+  bool validateOnly(String tag) {
+    final any = states.list(
+      (state) {
+        if (states.containsKey(tag)) return states[tag]?.validate() ?? false;
+        return state._scope.fields[tag]?.currentState?.validate() ?? false;
+      },
+    );
+    return any.contains(true);
+  }
+
+  ///Validates one, two or all fields. Returns [FormMap] on success.
+  Json? submit([List<String>? tags]) {
+    final isValid = tags == null ? validate() : validateSelected(tags);
+    return isValid ? form : null;
+  }
+}
+
 class FormX extends StatelessWidget {
   const FormX({
     super.key,
     required this.child,
+    this.controller,
     this.tag,
     this.formWrapper,
     this.fieldWrapper,
@@ -17,6 +65,7 @@ class FormX extends StatelessWidget {
     this.decoration,
   });
   final Widget child;
+  final FormController? controller;
 
   ///If this has a parent [FormX], sets form to the parent form[tag].
   final String? tag;
@@ -39,28 +88,45 @@ class FormX extends StatelessWidget {
   ///Decorates each [Field] below. You can use tag to differentiate.
   final InputDecoration Function(String tag)? decoration;
 
-  ///Access to [Form].
-  static FormState of(BuildContext context) => Form.of(context);
+  ///Access to [FormController].
+  static FormController of(BuildContext context) => Form.of(context).controller;
 
   @override
   Widget build(BuildContext context) {
     //Tries to inherits from other FormX.
-    final scope = context.dependOnInheritedWidgetOfExactType<FormScope>();
+    final parent = context.dependOnInheritedWidgetOfExactType<FormScope>();
 
     return FormScope(
       form: Json.from({}),
       fields: FieldMap.from({}),
+      controller: controller ?? parent?.controller ?? FormController(),
       onChange: (form) {
-        if (tag != null) scope?.form[tag!] = form;
+        if (tag != null) parent?.form[tag!] = form;
 
         onChange?.call(form);
-        scope?.onChange?.call(scope.form);
+        parent?.onChange?.call(parent.form);
       },
-      onSubmit: onSubmit ?? scope?.onSubmit,
-      onErrorText: onErrorText ?? scope?.onErrorText,
-      decoration: decoration ?? scope?.decoration,
-      fieldWrapper: fieldWrapper ?? scope?.fieldWrapper,
-      child: Form(child: formWrapper?.call(child) ?? child),
+      onSubmit: onSubmit ?? parent?.onSubmit,
+      onErrorText: onErrorText ?? parent?.onErrorText,
+      decoration: decoration ?? parent?.decoration,
+      fieldWrapper: fieldWrapper ?? parent?.fieldWrapper,
+      child: Builder(
+        builder: (context) {
+          ///Adds each scope in the scopes map.
+          final scope = context.dependOnInheritedWidgetOfExactType<FormScope>();
+
+          return Form(
+            child: Builder(
+              builder: (context) {
+                final state = Form.of(context);
+                scope?.controller.states[tag] = state;
+
+                return formWrapper?.call(child) ?? child;
+              },
+            ),
+          );
+        },
+      ),
     );
   }
 }
@@ -70,6 +136,7 @@ class FormScope extends InheritedWidget {
     super.key,
     required super.child,
     required this.form,
+    required this.controller,
     required this.fields,
     required this.decoration,
     required this.onChange,
@@ -79,6 +146,7 @@ class FormScope extends InheritedWidget {
   });
 
   final Json form;
+  final FormController controller;
   final FieldMap fields;
   final InputDecoration Function(String tag)? decoration;
   final ValueChanged<Json>? onChange;
@@ -248,7 +316,7 @@ class _FieldState extends State<Field> {
         return scope?.onErrorText?.call(widget.tag, errorText) ?? errorText;
       },
       onFieldSubmitted: (_) {
-        if (Form.of(context).validate()) scope?.onSubmit?.call(scope.form);
+        if (scope!.controller.validate()) scope.onSubmit?.call(scope.form);
       },
       decoration: decoration.copyWith(suffixIcon: icon()),
     );
@@ -260,7 +328,7 @@ class _FieldState extends State<Field> {
 
 extension FormKeyExt on GlobalKey<FormState> {
   ///Gets a [FormMap] containing all values from all descendents [Field].
-  Json? get form => currentState?.form;
+  // Json? get form => currentState?.form;
 }
 
 extension FormExt on FormState {
@@ -271,24 +339,7 @@ extension FormExt on FormState {
   }
 
   ///Gets a [FormMap] containing all values from all descendents [Field].
-  Json get form => _scope.form;
-
-  ///Validates all the field with the enclosing [tags].
-  bool validateTags(List<String> tags) {
-    final areValid = tags.map(validateTag);
-    return !areValid.contains(false);
-  }
-
-  ///Validates only the field with the enclosing [tag].
-  bool validateTag(String tag) {
-    return _scope.fields[tag]?.currentState?.validate() ?? false;
-  }
-
-  ///Validates one, two or all fields. Returns [FormMap] on success.
-  Json? submit([List<String>? tags]) {
-    final isValid = tags == null ? validate() : validateTags(tags);
-    return isValid ? form : null;
-  }
+  FormController get controller => _scope.controller;
 }
 
 extension InputExt on InputDecoration {

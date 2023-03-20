@@ -15,47 +15,92 @@ class PaymentForm extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final ctrl = FormController();
+
     return Center(
       child: FormX(
+        controller: ctrl,
+        key: key,
         decoration: (tag) => InputDecoration(
           constraints: const BoxConstraints(maxHeight: 50),
           labelText: 'form.label.$tag'.tr,
         ),
-        fieldWrapper: (key, child) => child.pad(all: 4),
+        fieldWrapper: (tag, child) => child.pad(all: 8),
         onChange: print,
-        onSubmit: onPaymentSubmit,
+        onSubmit: print,
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(8),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Field('name'),
-              const Field('document_number', mask: '###.###.###-##'),
-              const Field('email'),
+              Text('home.form.costumer.title'.tr),
+              Field.required('name'),
+              Field.required('document_number', mask: '###.###.###-##'),
+              Field.required('email'),
               FormX(
-                tag: 'costumer',
+                tag: 'address',
                 child: Column(
                   children: [
+                    Field.required('street'),
                     Row(
                       children: [
-                        const Field('expire', mask: '##/##'),
-                        const Field('cvv', mask: '###'),
+                        Field.required('street_number', mask: '####'),
+                        Field.required('neighborhood'),
                       ].list((e) => e.expand()),
+                    ),
+                    Row(
+                      children: [
+                        Field.required('zipcode', mask: '#####-###'),
+                        Field.required('city'),
+                        Field.required('state'),
+                      ].list((e) => e.expand()),
+                    ),
+                    FormX(
+                      tag: 'phone',
+                      child: Row(
+                        children: [
+                          Field.required('ddd', mask: '##'),
+                          Field.required('numer', mask: '# ####-####'),
+                        ].list((e) => e.expand()),
+                      ),
                     ),
                   ],
                 ),
               ),
-              if (installments)
-                Row(
-                  children: [
-                    const SizedBox(),
-                    Field('installments', options: 12.numbered),
-                  ].list((e) => e.expand()),
-                ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  Text('home.terms.policy'.tr),
+                  BorderButton(
+                    text: 'home.payment.proceed'.tr,
+                    onTap: ctrl.reset,
+                  ),
+                ],
+              ),
             ],
           ),
         ),
       ),
+    );
+  }
+}
+
+class BorderButton extends StatelessWidget {
+  const BorderButton({super.key, required this.text, required this.onTap});
+  final String text;
+  final VoidCallback onTap;
+  @override
+  Widget build(BuildContext context) {
+    return OutlinedButton(
+      onPressed: onTap,
+      style: OutlinedButton.styleFrom(
+        foregroundColor: Colors.white,
+        shape: RoundedRectangleBorder(
+          side: const BorderSide(color: Colors.white, width: 2),
+          borderRadius: BorderRadius.circular(32),
+        ),
+      ),
+      child: Text(text).w700(),
     );
   }
 }

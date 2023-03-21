@@ -164,6 +164,7 @@ class Field extends StatefulWidget {
   ///Creates a TextField where the value is stored in [tag].
   const Field(
     this.tag, {
+    this.controller,
     this.obscure = false,
     this.options,
     this.decoration,
@@ -171,6 +172,7 @@ class Field extends StatefulWidget {
     this.keyboardType,
     this.mask,
     this.keepMask = false,
+    this.onSubmit,
     super.key,
   });
 
@@ -181,6 +183,7 @@ class Field extends StatefulWidget {
   factory Field.required(
     String tag, {
     String? requiredText,
+    FieldController? controller,
     bool obscure = false,
     List<String>? options,
     InputDecoration? decoration,
@@ -188,11 +191,13 @@ class Field extends StatefulWidget {
     TextInputType? keyboardType,
     String? mask,
     bool keepMask = false,
+    ValueSetter<String>? onSubmit,
     Key? key,
   }) =>
       Field(
         tag,
         obscure: obscure,
+        controller: controller,
         options: options,
         decoration: decoration,
         validator: (value) {
@@ -203,12 +208,15 @@ class Field extends StatefulWidget {
         keyboardType: keyboardType,
         mask: mask,
         keepMask: keepMask,
+        onSubmit: onSubmit,
         key: key,
       );
 
   ///Where to store the value in the map. Will always lowercase.
   final String tag;
   final bool obscure;
+  final ValueSetter<String>? onSubmit;
+  final FieldController? controller;
   final List<String>? options;
   final InputDecoration? decoration;
   final FormFieldValidator<String>? validator;
@@ -225,11 +233,31 @@ class Field extends StatefulWidget {
   State<Field> createState() => _FieldState();
 }
 
-class _FieldState extends State<Field> {
+///Controls a specific [Field]. Must be unique.
+class FieldController {
   final key = GlobalKey<FormFieldState>();
-  final ctrl = TextEditingController();
   final focus = FocusNode();
+  final edit = TextEditingController();
+
+  ///The current field text.
+  String get text => edit.text;
+
+  ///Modifies the current field text.
+  set text(String text) => edit.text = text;
+
+  ///Request focus to the attached field.
+  void requestFocus() => focus.requestFocus();
+
+  ///Resets the attached field.
+  void reset() => key.currentState?.reset();
+
+  ///Validates this field.
+  bool validate() => key.currentState?.validate() ?? false;
+}
+
+class _FieldState extends State<Field> {
   late var obscure = widget.obscure;
+  late final controller = widget.controller ?? FieldController();
 
   @override
   Widget build(BuildContext context) {
@@ -267,12 +295,12 @@ class _FieldState extends State<Field> {
 
       return DropdownButtonHideUnderline(
         child: DropdownButton<String>(
-          value: ctrl.text.isEmpty ? null : ctrl.text,
+          value: controller.text.isEmpty ? null : controller.text,
           onChanged: (i) {
-            setState(() => onChanged(ctrl.text = i!));
-            focus.requestFocus();
+            setState(() => onChanged(controller.text = i!));
+            controller.requestFocus();
           },
-          onTap: () => Future.delayed(Duration.zero, focus.requestFocus),
+          onTap: () => Future.delayed(Duration.zero, controller.requestFocus),
           items: widget.options!.map(item).toList(),
           selectedItemBuilder: (_) =>
               widget.options!.map((_) => const SizedBox.shrink()).toList(),
@@ -293,12 +321,12 @@ class _FieldState extends State<Field> {
     }
 
     final field = TextFormField(
-      focusNode: focus,
+      focusNode: controller.focus,
       readOnly: widget.options != null,
-      controller: ctrl,
+      controller: controller.edit,
       inputFormatters: [MaskTextInputFormatter(mask: widget.mask)],
       keyboardType: widget.keyboardType,
-      key: scope?.fields[widget.tag] = key,
+      key: scope?.fields[widget.tag] = controller.key,
       obscureText: obscure,
       obscuringCharacter: '*',
       onChanged: widget.options == null ? onChanged : null,
@@ -315,7 +343,10 @@ class _FieldState extends State<Field> {
         //Called only when there is an errorText.
         return scope?.onErrorText?.call(widget.tag, errorText) ?? errorText;
       },
-      onFieldSubmitted: (_) {
+      onFieldSubmitted: (value) {
+        if (widget.onSubmit != null && controller.validate()) {
+          return widget.onSubmit?.call(value);
+        }
         if (scope!.controller.validate()) scope.onSubmit?.call(scope.form);
       },
       decoration: decoration.copyWith(suffixIcon: icon()),
@@ -324,11 +355,6 @@ class _FieldState extends State<Field> {
     //Field wrapper.
     return scope?.fieldWrapper?.call(widget.tag, field) ?? field;
   }
-}
-
-extension FormKeyExt on GlobalKey<FormState> {
-  ///Gets a [FormMap] containing all values from all descendents [Field].
-  // Json? get form => currentState?.form;
 }
 
 extension FormExt on FormState {

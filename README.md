@@ -44,7 +44,7 @@ Folder
           - /repositories
           - /sources
 
-        - /services
+        - /services (global)
           - /app (front-services: theme, translation)
           - /data (back-services: manages entities, ex: user)
 
@@ -121,7 +121,7 @@ This Layer connects the events from presenter to the data from repositories, pro
 
 ## Service
 
-The Service manages and encapsulates all state and business logic related to a model.
+The Service implements the actual business logic and data manipulation.
 
 Reponsabilities:
 

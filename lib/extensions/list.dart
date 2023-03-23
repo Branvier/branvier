@@ -30,12 +30,12 @@ extension IterExt<V> on Iterable<V> {
 }
 
 extension ListExt<V> on List<V> {
-  void assign(V value) {
+  void clearAdd(V value) {
     clear();
     add(value);
   }
 
-  void assignAll(Iterable<V> items) {
+  void clearAddAll(Iterable<V> items) {
     clear();
     addAll(items);
   }
@@ -76,7 +76,7 @@ extension ListExtN<V> on List<V?> {
     return whereType<V>().toList();
   }
 
-  void removeNulls() => assignAll(noNulls);
+  void removeNulls() => clearAddAll(noNulls);
 }
 
 class Sort {

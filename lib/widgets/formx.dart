@@ -80,7 +80,7 @@ class FormX extends StatelessWidget {
   final ValueChanged<Json>? onChange;
 
   ///Submits if all descendants are valid.
-  final ValueSetter<Json>? onSubmit;
+  final FutureOr Function(Json form)? onSubmit;
 
   ///Returns the field validator response;
   final String Function(String tag, String error)? onErrorText;
@@ -104,9 +104,11 @@ class FormX extends StatelessWidget {
         if (tag != null) parent?.form[tag!] = form;
 
         onChange?.call(form);
+
         parent?.onChange?.call(parent.form);
       },
       onSubmit: onSubmit ?? parent?.onSubmit,
+      isLoading: ValueNotifier(false),
       onErrorText: onErrorText ?? parent?.onErrorText,
       decoration: decoration ?? parent?.decoration,
       fieldWrapper: fieldWrapper ?? parent?.fieldWrapper,
@@ -143,14 +145,16 @@ class FormScope extends InheritedWidget {
     required this.onSubmit,
     required this.onErrorText,
     required this.fieldWrapper,
+    required this.isLoading,
   });
 
+  final ValueNotifier<bool> isLoading;
   final Json form;
   final FormController controller;
   final FieldMap fields;
   final InputDecoration Function(String tag)? decoration;
   final ValueChanged<Json>? onChange;
-  final ValueSetter<Json>? onSubmit;
+  final FutureOr Function(Json form)? onSubmit;
   final String Function(String tag, String error)? onErrorText;
   final Widget Function(String tag, Widget child)? fieldWrapper;
 
@@ -215,7 +219,7 @@ class Field extends StatefulWidget {
   ///Where to store the value in the map. Will always lowercase.
   final String tag;
   final bool obscure;
-  final ValueSetter<String>? onSubmit;
+  final FutureOr Function(String)? onSubmit;
   final FieldController? controller;
   final List<String>? options;
   final InputDecoration? decoration;
@@ -343,11 +347,17 @@ class _FieldState extends State<Field> {
         //Called only when there is an errorText.
         return scope?.onErrorText?.call(widget.tag, errorText) ?? errorText;
       },
-      onFieldSubmitted: (value) {
+      onFieldSubmitted: (value) async {
+        scope?.isLoading.value = true;
         if (widget.onSubmit != null && controller.validate()) {
-          return widget.onSubmit?.call(value);
+          await widget.onSubmit?.call(value);
+          scope?.isLoading.value = false;
+          return;
         }
-        if (scope!.controller.validate()) scope.onSubmit?.call(scope.form);
+        if (scope!.controller.validate()) {
+          await scope.onSubmit?.call(scope.form);
+        }
+        scope.isLoading.value = false;
       },
       decoration: decoration.copyWith(suffixIcon: icon()),
     );
@@ -790,20 +800,6 @@ class _TextMatcher {
     }
   }
 }
-
-void main() => runApp(
-      MaterialApp(
-        home: Scaffold(
-          body: Center(
-            child: AppDropdownInput(
-              options: const ['test', 'sss', 'aaa'],
-              value: 'test',
-              onChanged: (test) {},
-            ),
-          ),
-        ),
-      ),
-    );
 
 class AppDropdownInput<T> extends StatelessWidget {
   final String hintText;

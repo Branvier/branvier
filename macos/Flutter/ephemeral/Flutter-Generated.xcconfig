@@ -2,7 +2,7 @@
 FLUTTER_ROOT=/Users/art/flutter
 FLUTTER_APPLICATION_PATH=/Users/art/Documents/GitHub/branvier
 COCOAPODS_PARALLEL_CODE_SIGN=true
-FLUTTER_TARGET=/Users/art/Documents/GitHub/branvier/test/widget/formx_nested.dart
+FLUTTER_TARGET=/Users/art/Documents/GitHub/branvier/lib/branvier.dart
 FLUTTER_BUILD_DIR=build
 FLUTTER_BUILD_NAME=0.2.5
 FLUTTER_BUILD_NUMBER=0.2.5

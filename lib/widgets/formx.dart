@@ -299,7 +299,6 @@ class _FieldState extends State<Field> {
     final decoration = dec.update(widget.decoration);
 
     void onChanged(String value) {
-      controller.reset();
       var text = value;
 
       final chars = widget.mask?.removeChars('A#') ?? '';

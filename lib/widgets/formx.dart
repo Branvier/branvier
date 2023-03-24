@@ -235,7 +235,7 @@ class Field extends StatefulWidget {
         decoration: decoration,
         validator: (value) {
           if (value == null) return null;
-          if (value.isEmpty) return requiredText ?? 'form.empty.$tag';
+          if (value.isEmpty) return requiredText ?? 'form.required.$tag';
           return validator?.call(value);
         },
         keyboardType: keyboardType,

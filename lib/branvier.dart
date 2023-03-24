@@ -38,6 +38,7 @@ part 'widgets/formx.dart';
 part 'widgets/nest_builder.dart';
 part 'widgets/page_builder.dart';
 part 'widgets/nil.dart';
+part 'widgets/async_button.dart';
 
 ///Schedule a callback for the end of this frame.
 void postFrame(VoidCallback? callback) =>

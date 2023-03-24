@@ -299,6 +299,7 @@ class _FieldState extends State<Field> {
     final decoration = dec.update(widget.decoration);
 
     void onChanged(String value) {
+      controller.reset();
       var text = value;
 
       final chars = widget.mask?.removeChars('A#') ?? '';
@@ -364,7 +365,6 @@ class _FieldState extends State<Field> {
       obscuringCharacter: '*',
       onChanged: widget.options == null ? onChanged : null,
       validator: (value) {
-
         var text = value;
 
         final chars = widget.mask?.removeChars('A#') ?? '';
@@ -378,7 +378,6 @@ class _FieldState extends State<Field> {
         return scope?.onErrorText?.call(widget.tag, errorText) ?? errorText;
       },
       onFieldSubmitted: (value) async {
-
         scope?.isLoading.value = true;
         if (widget.onSubmit != null && controller.validate()) {
           await widget.onSubmit?.call(value);

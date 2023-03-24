@@ -4,6 +4,13 @@ part of '/branvier.dart';
 typedef FieldMap = Map<String, GlobalKey<FormFieldState>>;
 typedef FormMap = Map<String, String>;
 
+class FormException implements Exception {
+  FormException(this.message);
+  factory FormException.invalid([String? tag]) =>
+      FormException('FORM.INVALID.${tag?.toUpperCase() ?? 'FIELD'}');
+  final String message;
+}
+
 ///Controls the [FormX]. Useful for managing field states in another controller.
 class FormController {
   //All form states. Null is main form, tags are nested.
@@ -28,13 +35,13 @@ class FormController {
 
   ///Validates all selects fields with the enclosing [tags].
   bool validateSelected(List<String> tags) {
-    final areValid = tags.map(validateOnly);
+    final areValid = tags.map(validateTag);
     return !areValid.contains(false);
   }
 
   ///Validates only the field with the enclosing [tag].
   ///If the tag is a sub form. Validates all tags below it.
-  bool validateOnly(String tag) {
+  bool validateTag(String tag) {
     final any = states.list(
       (state) {
         if (states.containsKey(tag)) return states[tag]?.validate() ?? false;
@@ -45,9 +52,31 @@ class FormController {
   }
 
   ///Validates one, two or all fields. Returns [FormMap] on success.
-  Json? submit([List<String>? tags]) {
+  Json submit([List<String>? tags]) {
+    final isValid = tags == null ? validate() : validateSelected(tags);
+    if (!isValid) throw FormException.invalid();
+    if (form == null) dev.log('No FormX found in the widget tree');
+    return form ?? {};
+  }
+
+  ///Validates one, two or all fields. Returns [FormMap] on success.
+  Json? trySubmit([List<String>? tags]) {
     final isValid = tags == null ? validate() : validateSelected(tags);
     return isValid ? form : null;
+  }
+
+  ///Validates one. Returns [String] on success.
+  String submitTag(String tag) {
+    final isValid = validateTag(tag);
+    if (!isValid) throw FormException.invalid(tag);
+    if (form == null) dev.log('No FormX found in the widget tree');
+    return isValid ? form![tag] : null;
+  }
+
+  ///Validates one. Returns [String] on success.
+  String? trySubmitTag(String tag) {
+    final isValid = validateTag(tag);
+    return isValid ? form![tag] : null;
   }
 }
 

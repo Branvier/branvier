@@ -10,6 +10,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:get/get_utils/src/extensions/internacionalization.dart';
 // import 'package:get/get.dart' as getx;
 
 part 'extensions/api_interface.dart';

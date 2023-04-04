@@ -9,9 +9,6 @@ analyzer:
     # treat missing returns as an error (not a hint)
     missing_return: error
 
-    # allow having TODOs in code
-    todo: ignore
-
     # Reassignment should be treated as warning (not a hint)
     parameter_assignments: warning
 

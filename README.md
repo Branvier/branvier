@@ -64,11 +64,27 @@ Folder
     - routes.dart
 ```
 
-## Starting
+### Template
 
 ---
 
-1. Clone Branvier's [Template]()
+> Clone Branvier's [Project Template](https://github.com/branvier-dev/branvier_template.git)
+
+### Snippets
+
+---
+> Installing
+
+1. Command: _Snippets: Configure User Snippets_
+2. Choose: _New Global Snipper File_
+3. Copy 'branvier.code-snippets' in the root of this project
+
+| Snippets    | Description                  |
+| ----------- | ---------------------------- |
+| gservice    | Generates a Service class    |
+| gcontroller | Generates a Controller class |
+| grepository | Generates a Repository class |
+| gfromlist   | Generates a Model.fromList   |
 
 ## Model
 

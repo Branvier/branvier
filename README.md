@@ -1,6 +1,6 @@
 # Architecture
 
-## MVC with Three-Layer Architecure
+## MVC with Clean Architecture
 
 The MVC stands for Model-View-Controller. With this idea:
 
@@ -8,7 +8,7 @@ The MVC stands for Model-View-Controller. With this idea:
 - View - Handles calls/events and presents the ui.
 - Controller - Manages business logic.
 
-With 3-Layer:
+With Clean:
 
 - The View and Controller are the presentation layer.
 - All the global and data business-related operations goes to the Service.
@@ -17,9 +17,15 @@ With 3-Layer:
 
 Overview:
 
-- Data Layer (Model, Repository, Source).
-- Business Logic Layer (Service).
-- Presentation Layer (Controller, View)  
+- Data Layer (Source, Repository, Model).
+- Business Logic Layer (Service, Controller).
+- Presentation Layer (View, Components)  
+
+Flow:
+
+- Data: **Source** > _Raw Data_ > **Repository** > _Models_
+- Logic: _Models_ > **Service** > _Operations_ > **Controllers** > _Events_
+- Presenter: _Events_ > **Page** > _Properties_ > **Components**
 
 TLDR:
 We can relate all to a Kitchen!
@@ -36,51 +42,65 @@ Each one has its own reponsabilities. The **Pantry** doesnt know how to cook, ju
 
 Folder
 
-    - /lib
-      - main.dart
-      - /app
-        - /data
-          - /models
-          - /repositories
-          - /sources
+```md
+- /lib
+  - main.dart
+  - /app
+    - /data
+      - /models
+      - /repositories
+      - /source
+    - /services (global)
+      - /app (front-services: theme, translation)
+      - /data (back-services: manages entities, ex: user)
+    - /modules
+      - /{...}
+        - /widgets (local)
+        - /controllers (local)
+        - {name}_page.dart
+    - /utils
+    - /widgets (shared)
+    - theme.dart
+    - routes.dart
+```
 
-        - /services (global)
-          - /app (front-services: theme, translation)
-          - /data (back-services: manages entities, ex: user)
+## Starting
 
-        - /modules
-          - /{...}
-            - /widgets (local)
-            - /controllers (local)
-            - {name}_page.dart
+---
 
-        - /utils
-        - /widgets (shared)
-        - theme.dart
-        - routes.dart
-
-# Data Layer
-
-The data layer is split in: Source, Repository and Model. This layer is the lowest level of application and interacts with databases, network requests and other async data sources.
-
-- Flow: **Source** > _Raw Data_ > **Repository** > _Data Model_
+1. Clone Branvier's [Template]()
 
 ## Model
+
+---
 
 A object that represents a entity.
 
 ```dart
 class User {
-  int id;
-  String name;
-  String email;
+  final int? id; //prefer nullable
+  final String? name;
+  final String? email;
 
   User.fromMap(...); //serilializing utils.
 }
 ```
 
+### Generate Models: [Dart Data Class Generator](https://marketplace.visualstudio.com/items?itemName=ricardo-emerson.dart-data-class-tools)
+
+With **Json**
+
+1. Create .dart file and open it.
+2. Paste raw json.
+3. With the file open: _> Dart Data Class Generator: Generate from JSON_
+
+With **Dart**
+
+![Dart Class .gif](https://github.com/ricardoemerson/dart-data-class-generator/raw/HEAD/assets/gif_from_class.gif)
+
 ## Source
 
+---
 The source usually expose simple APIs to perform **CRUD** operations (Create, Read, Update, Delete).
   
 ```dart
@@ -92,6 +112,8 @@ class Api extends IApi {
 ```
 
 ## Repository
+
+---
 
 The Repository handles raw data from multiple Sources to Models.
 
@@ -113,14 +135,9 @@ class UserRepository {
 }
 ```
 
-# Business Logic Layer
-
-This Layer connects the events from presenter to the data from repositories, processing the data.
-
-- Flow: _Data Model_ > **Service** > _Controllers/View_
-
 ## Service
 
+---
 The Service implements the actual business logic and data manipulation.
 
 Reponsabilities:
@@ -131,7 +148,7 @@ Reponsabilities:
 
 ```dart
 //Anything operation related to [User] must only be done here.
-class UserService extends GetxService {
+class UserService {
   UserService(this._repository);
 
   //The state of the user is private.
@@ -140,10 +157,9 @@ class UserService extends GetxService {
   //It value can be acessed globally.
   User? get value => _state.value;
 
-  @override
-  void onInit() async { //Loads from cache, if any.
+  ///Initializer for async dependencies.
+  Future<void> init() async { //Loads from cache, if any.
     _state.value = await repository.load();
-    super.onReady();
   }
 
   ///Logs the user. Sets the state.
@@ -154,14 +170,9 @@ class UserService extends GetxService {
 }
 ```
 
-# Presentation
-
-This layers handles all the events and inputs to update the view and its components accordingly.
-
-- Flow: _Data_ > **Controller** > _Events_ > **Page** > _Properties_ > **Widgets**
-
 ## Controller
 
+---
 The Controller manages and encapsulates all state and business logic of a component.
 
 ### Reponsabilities
@@ -173,10 +184,10 @@ The Controller manages and encapsulates all state and business logic of a compon
 
 ```dart
 //Anything operation related to login the [User] must only be done here.
-class LoginController extends GetxController {
+class LoginController {
 
   ///The state from UserService. Read only.
-  UserService _user = Get.find();
+  UserService _user = Modular.get();
 
   ///Controls a component. Attached.
   final formx = FormController();
@@ -227,9 +238,9 @@ This makes much easier integration tests, which each single controller should ha
 
 ```dart
 //this controller shares the same view as LoginController
-class ForgotPasswordController extends GetxController {
+class ForgotPasswordController {
   ///Dont worry about calling again, its always the same instance. Read only.
-  UserService _user = Get.find();
+  UserService _user = Modular.get();
 
   ///On forgot password. Resets password with email.
   Future<void> onForgotPassword(String email) async {
@@ -263,7 +274,10 @@ The Component will encapsulate layout, styling and handle events to uplift them 
   - Handles ui on async states and exceptions (indicators).
 
 ```dart
-class LoginPage extends GetView<LoginController> {
+class LoginPage extends StatelessWidget {
+
+  LoginController get controller => Moduler.get();
+
     @override
   Widget build(BuildContext context) {
     return ...
@@ -288,11 +302,13 @@ class LoginPage extends GetView<LoginController> {
 
 ### Widgets - Reusable components
 
-    - /widgets:
-      /brand (_app components: logo, copyright, icons_)
-      /modal (_temporary overlays: snackbar, sheets, dialogs, loaders_)
-      /input (_user interactions: fields, checkbox, buttons_)
-      /boxes (_component holders: cards, menus, images_)
+```md
+- /widgets:
+  /brand (_app components: logo, copyright, icons_)
+  /modal (_temporary overlays: snackbar, sheets, dialogs, loaders_)
+  /input (_user interactions: fields, checkbox, buttons_)
+  /boxes (_component holders: cards, menus, images_)
+```
 
 ## Injections
 
@@ -301,11 +317,11 @@ For injecting depencies we use Get.find service locator. They'll be used for onl
 - Service (GetXService)
 - Controller (GetXController)
 
-```
+```dart
 // todo: how and where to instantiate
 ```
 
-# Naming Conventions
+## Naming Conventions ---
 
 ## Data Functions
 
@@ -342,7 +358,7 @@ The _noun-verb_ convention with 'on' preposition will be used.
 The 'on' suggests that the action will happen after an event.
 The noun describes the entity and the verb describes the action.
 
-###### Widget callbacks
+## Widget callbacks
 
 - onTap() for VoidCallback aka void Function()
 

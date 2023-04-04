@@ -60,3 +60,4 @@ macos/Flutter/ephemeral/Flutter-Generated.xcconfig
 .vscode/launch.json
 macos/Flutter/ephemeral/Flutter-Generated.xcconfig
 macos/Flutter/ephemeral/flutter_export_environment.sh
+test/temp/

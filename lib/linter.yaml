@@ -122,8 +122,8 @@ linter:
     prefer_asserts_with_message: true
     prefer_collection_literals: true
     prefer_conditional_assignment: true
-    prefer_const_constructors: true
-    prefer_const_constructors_in_immutables: true
+    prefer_const_constructors: false
+    prefer_const_constructors_in_immutables: false
     prefer_const_declarations: true
     prefer_const_literals_to_create_immutables: true
     prefer_constructors_over_static_methods: true

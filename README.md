@@ -79,12 +79,12 @@ Folder
 2. Choose: _New Global Snipper File_
 3. Copy 'branvier.code-snippets' in the root of this project
 
-| Snippets    | Description                  |
-| ----------- | ---------------------------- |
-| gservice    | Generates a Service class    |
-| gcontroller | Generates a Controller class |
-| grepository | Generates a Repository class |
-| gfromlist   | Generates a Model.fromList   |
+| Snippets    | Description                     |
+|-------------|---------------------------------|
+| gservice    | Generates a Service class       |
+| gcontroller | Generates a Controller class    |
+| grepository | Generates a Repository class    |
+| gfromlist   | Generates Model.fromList method |
 
 ## Model
 
@@ -102,7 +102,9 @@ class User {
 }
 ```
 
-### Generate Models: [Dart Data Class Generator](https://marketplace.visualstudio.com/items?itemName=ricardo-emerson.dart-data-class-tools)
+### Extension: [Dart Data Class Generator](https://marketplace.visualstudio.com/items?itemName=ricardo-emerson.dart-data-class-tools)
+
+---
 
 With **Json**
 
@@ -151,6 +153,41 @@ class UserRepository {
 }
 ```
 
+## State Management
+
+---
+The package includes GetX reactivity.
+We added `.obn`, which is the same as `.obs` with `null` as initial value.
+
+Logic
+
+```dart
+// it's private, must only be modified here.
+final _count = 0.obs;
+final _user = User().obn;
+
+// always use getters.
+int get count => _count.value; 
+User? get user => _user.value; // nullable
+
+// setting state.
+void increment() => _count.value++; 
+```
+
+View
+
+```dart
+Obx(()=> Text(controller.count)); // reacts to _count.value changes
+```
+
+### Extension: [GetX Light Bulb](https://marketplace.visualstudio.com/items?itemName=HyLun.getx-light-bulb)
+
+---
+Adds these to the context menu (cmd + .):
+
+- Wrap with Obx
+- Remove this Obx
+
 ## Service
 
 ---
@@ -163,12 +200,12 @@ Reponsabilities:
 - Save and manage the state of the data globally.
 
 ```dart
-//Anything operation related to [User] must only be done here.
+//Any operation related to [User] must only be done here.
 class UserService {
   UserService(this._repository);
 
   //The state of the user is private.
-  final _state = Rxn<User>();
+  final _state = User().obn; // inits with null.
 
   //It value can be acessed globally.
   User? get value => _state.value;
@@ -228,13 +265,13 @@ class LoginController {
       await _user.login(map, remember: isCheck); //handle erros in a try catch block
 
       //on success
-      await Get.offNamed(Routes.HOME);
+      await Modular.to.navigate('/home'); //pop login
 
     } on ApiException catch (e) {
       if (e.message != 'API.LOGIN.USER_NOT_FOUND') return;
 
       //on not found, register
-      await Get.toNamed(Routes.SIGNIN); 
+      await Modular.to.pushNamed('/signup'); //keep login
 
     } catch (e) {
       callDialog('Non identified error. Please call support.'); //on failure
@@ -254,20 +291,14 @@ This makes much easier integration tests, which each single controller should ha
 
 ```dart
 //this controller shares the same view as LoginController
-class ForgotPasswordController {
+class OtherController {
   ///Dont worry about calling again, its always the same instance. Read only.
-  UserService _user = Modular.get();
+  OtherService _otherService = Modular.get();
 
-  ///On forgot password. Resets password with email.
-  Future<void> onForgotPassword(String email) async {
+  ///Do another thing different than login feature.
+  Future<void> onOtherEvent() async {
     //handle errors...
-    await _user.resetPassword(email);
-
-    //output to the user
-    Get.snackbar(
-      'app.forgotPasswordSuccess'.tr,
-      'app.forgotPasswordSuccessMessage'.tr,
-    );
+    await _otherService.doSomething();
   }
 }
 ```
@@ -290,28 +321,13 @@ The Component will encapsulate layout, styling and handle events to uplift them 
   - Handles ui on async states and exceptions (indicators).
 
 ```dart
-class LoginPage extends StatelessWidget {
+class OtherComponent extends StatelessWidget {
 
-  LoginController get controller => Moduler.get();
+  OtherController get controller => Moduler.get();
 
     @override
   Widget build(BuildContext context) {
-    return ...
-    ... FormX(
-      onSubmit: controller.onLoginSubmit, //the event forwards to the controller.
-      child: Column(
-        children: [
-          Field('name'),
-          Field('email'),
-          Field('password'),
-        ],
-      //internally calls Get.find()  
-      GetBuilder<ForgotPasswordController>(
-        builder: (controller) {
-        return ForgotPasswordButton(onSubmit: controller.onForgotPasswordSubmit),
-        },
-      ),
-    ),
+    return ... // call controller if needed.
   }
 }
 ```
@@ -326,18 +342,27 @@ class LoginPage extends StatelessWidget {
   /boxes (_component holders: cards, menus, images_)
 ```
 
-## Injections
+## Module
 
-For injecting depencies we use Get.find service locator. They'll be used for only two types of class:
-
-- Service (GetXService)
-- Controller (GetXController)
+---
 
 ```dart
-// todo: how and where to instantiate
+class MyModule extends Module {
+  @override
+  final List<Bind> binds = [
+    Bind.lazySingleton((i) => MyController()),
+  ];
+
+  @override
+  final List<ModularRoute> routes = [
+    ChildRoute('/', child: (_, args) => const MyPage()),
+  ];
+}
 ```
 
-## Naming Conventions ---
+## Naming Conventions
+
+---
 
 ## Data Functions
 
@@ -383,48 +408,3 @@ Controller callbacks:
 - onStoryTap() for void Function(Story story)
 - onFormSubmit() for void Function(Map form)
 - onNameChange() for void Function(String name)
-
-## The Pattern
-
-Closer look:
-
-   +---------------------------------+
-   |            Data Layer           |
-   |   (Source/Repository/Model)     |
-   +---------------------------------+
-                |       ^
-   calls/returns|       |fetches/stores data
-                v       |
-   +---------------------------------+
-   |      Business Logic Layer       |
-   |            (Services)           |
-   +---------------------------------+
-                |       ^
-   calls/updates|       |handles events
-                v       |
-   +---------------------------------+
-   |       Presentation Layer        |
-   |        (Controller/View)        |
-   +---------------------------------+
-
-Other Architectures. Why not?
-
-- First, boilerplate code. This is time consuming means less productivity.
-- Over-engineering. Overkill rules for simples cases.
-- Performance. Can be easily be implemented poorly, leading to memory leaks.
-- Complexity. Depends on package rules and even code generator which slows down the learning curve.
-- Some logic is tightly coupled to the widget, events can be difficult to track in the code.
-- As the app grows, you may have lots and lots of blocs/providers, which can slow down the app.
-
-The purpose here is:
-
-- Go simple, we need the least learning curve possible.
-- No boilerplate.
-- Avoid framework packages and code generators.
-- Use Flutter best pratices and naming conventions.
-- Respect the SRP - Single Responsibility Principle.
-
-Reference:
-<https://openclassrooms.com/en/courses/5684146-create-web-applications-efficiently-with-the-spring-boot-mvc-framework/6156961-organize-your-application-code-in-three-tier-architecture>
-
-Reference: "Clean Architecture: A Craftsman's Guide to Software Structure and Design" by Robert C. Martin.

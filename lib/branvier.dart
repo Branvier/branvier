@@ -10,8 +10,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:get/get_utils/src/extensions/internacionalization.dart';
-// import 'package:get/get.dart' as getx;
 
 part 'extensions/api_interface.dart';
 part 'extensions/context.dart';
@@ -27,6 +25,7 @@ part 'extensions/time.dart';
 part 'extensions/translation.dart';
 part 'extensions/validators.dart';
 part 'extensions/widget.dart';
+part 'extensions/string.dart';
 part 'extensions/bool.dart';
 part 'hooks/use_animate.dart';
 part 'hooks/use_async.dart';

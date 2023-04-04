@@ -1,112 +1,228 @@
 part of '/branvier.dart';
 
-// class Translation extends StatefulWidget {
-//   const Translation({
-//     super.key,
-//     this.initialLocale = 'en',
-//     required this.translations,
-//     required this.child,
-//   });
+typedef Translations = Map<String, Map<String, String>>;
 
-//   final Map<String, Map<String, String>> translations;
-//   final String initialLocale;
-//   final Widget child;
+///Mini [Translation] package for translation.
+///
+///Reads translations maps in the format {'locale': {'key': 'translation'}, ... }.
+///
+///- Changing Language:
+///Translation.changeLanguage('pt').
+///
+///- Translating:
+///For {'pt': {'login.button.title': 'Login'}}, just 'login.button.title'.tr -> 'Login'.
+///
+///- Dot Patterns:
+///For {'pt': {'form.invalid': 'Invalid field'}}: 'form.invalid.email'.tr -> 'Invalid field'.
+///
+/// [.tr] Pattern: 'a.b.c' -> 'a.b' -> 'a' -> 'a.b.c'.
+///
+/// [.trn] Pattern: 'a.b.c' -> 'a.b' -> 'a' -> null.
 
-//   static final _key = GlobalKey();
+class Translation {
+  const Translation._(this.initialLocale, this.translations);
+  static Translation? _instance;
+  static String? _locale;
 
-//   static Future<void> changeLocale(String locale) async {
-//     await _key.currentContext?.changeLocale(locale);
-//   }
-
-//   @override
-//   State<Translation> createState() => _TranslationState();
-// }
-
-// class _TranslationState extends State<Translation> {
-//   late final locale = ValueNotifier(widget.initialLocale);
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return TranslationNotifier(
-//       notifier: locale,
-//       translations: widget.translations,
-//       child: Builder(
-//         key: Translation._key,
-//         builder: (_) => widget.child,
-//       ),
-//     );
-//   }
-// }
-
-// class TranslationNotifier extends InheritedNotifier {
-//   const TranslationNotifier({
-//     super.key,
-//     required this.translations,
-//     required super.child,
-//     required ValueNotifier<String> super.notifier,
-//   });
-
-//   final Map<String, Map<String, String>> translations;
-// }
-
-// extension TransExt on TranslationNotifier {
-//   ValueNotifier<String> get locale => notifier! as ValueNotifier<String>;
-//   String translate(String key) => translations[locale.value]?[key] ?? key;
-// }
-
-extension TranlationExt on String {
-  ///Translates. Returns this string on failure.
-  // String get trs {
-  //   final scope = Translation._key.currentContext
-  //       ?.dependOnInheritedWidgetOfExactType<TranslationNotifier>();
-
-  //   return scope?.translate(this) ?? this;
-  // }
-
-  ///Translates. Returns null on failure.
-  ///
-  ///Ex: 'form.invalid'.trn ?? 'This field is invalid'.
-  String? get trn {
-    if (tr == this) return null;
-    return tr;
+  ///Inits [translations] right away with a [Map].
+  static void init({
+    required String initialLocale,
+    required Translations translations,
+  }) {
+    _locale ??= initialLocale;
+    _instance ??= Translation._(initialLocale, translations);
   }
 
-  ///Translates all sub translations. Returns untouched string on failure.
-  ///
-  ///Ex: 'form.invalid.password'.
-  ///If not found:
-  ///'form.invalid'. And so on.
-  String get trs {
-    final words = subWords('.');
-
-    for (final word in words) {
-      final translation = word.trn;
-      if (translation != null) return translation;
-    }
-    return this;
+  ///Loads all [translations] files from asset [path] then init().
+  static Future<void> initAsset(
+    String initialLocale,
+    String path,
+  ) async {
+    final translations = await _loadFolder(path);
+    init(initialLocale: initialLocale, translations: translations);
   }
 
-  ///All sub words between [pattern].
-  ///Ex: '1.2.3' -> ['1.2.3','1.2','1'].
-  ///
-  ///Tested in string_test subWords.
-  List<String> subWords(Pattern pattern) {
-    final words = split(pattern);
-    final nestedStrings = <String>[];
+  ///Translation loader utility. Loads from asset [path].
+  static Future<Translations> _loadFolder(String path) async {
+    final translations = <String, StringMap>{};
 
-    for (var i = 0; i < words.length; i++) {
-      final currentNestedString = words.sublist(0, i + 1).join('.');
-      nestedStrings.add(currentNestedString);
+    final manifestContent = await rootBundle.loadString('AssetManifest.json');
+    final Map<String, dynamic> manifestMap = json.decode(manifestContent);
+
+    final translationFiles = manifestMap.keys
+        .where((key) => key.contains(path))
+        .where((key) => key.endsWith('.json'));
+
+    for (final file in translationFiles) {
+      final json = await rootBundle.loadString(file);
+      final languageCode = file.split('/').last.split('.').first; //fileName
+      translations[languageCode] = json.parse<StringMap>();
     }
 
-    return nestedStrings.reversed.toList();
+    return translations;
+  }
+
+  ///All translations. {'locale': {'key': 'translation'}, ... }.
+  final Translations translations;
+
+  ///The language the app starts with.
+  final String initialLocale;
+
+  ///Translates [key]. Fallbacks to subkeys.
+  String? translate(String key) {
+    final keys = key.subWords('.');
+
+    //looking for sub keys.
+    for (final key in keys) {
+      final translation = translations[locale]?[key];
+      if (translation != null) return translation; //found.
+    }
+
+    return null; //not found.
+  }
+
+  ///Current [locale].
+  static String get locale => _locale!;
+
+  ///Change app language with locale.
+  static Future<void> changeLanguage(String locale) async {
+    _locale = locale;
+    await engine.performReassemble();
   }
 }
 
-// extension TrCtxExt on BuildContext {
-//   Future<void> changeLocale(String locale) async {
-//     final scope = dependOnInheritedWidgetOfExactType<TranslationNotifier>();
-//     scope?.locale.value = locale;
-//     await engine.performReassemble();
-//   }
-// }
+class TranslationOld extends StatelessWidget {
+  const TranslationOld({
+    required this.translations,
+    required this.builder,
+    this.initialLocale = 'en',
+    super.key,
+  });
+
+  ///All translations. {'locale': {'key': 'translation'}, ... }.
+  final Translations translations;
+
+  ///The language the app starts with.
+  final String initialLocale;
+
+  ///Rebuild on [TranslationOld].changeLocale. [MaterialApp] must be below.
+  final WidgetBuilder builder;
+
+  ///Current language code.
+  static String get locale => _scope.locale;
+
+  ///Change app language to [locale].
+  static Future<void> changeLocale(String locale) async {
+    await _scope.change(locale);
+  }
+
+  ///Translation loader utility. Loads from asset.
+  static Future<Translations> fromAssetFolder(String path) async {
+    final translations = <String, StringMap>{};
+
+    final manifestContent = await rootBundle.loadString('AssetManifest.json');
+    final Map<String, dynamic> manifestMap = json.decode(manifestContent);
+
+    final translationFiles = manifestMap.keys
+        .where((key) => key.contains(path))
+        .where((key) => key.endsWith('.json'));
+
+    for (final file in translationFiles) {
+      final json = await rootBundle.loadString(file);
+      final languageCode = file.split('/').last.split('.').first; //fileName
+      translations[languageCode] = json.parse<StringMap>();
+    }
+
+    return translations;
+  }
+
+  ///Reference to find our [TranslationOld].
+  static final _key = GlobalKey();
+
+  ///The notifier scope of this [TranslationOld].
+  static TranslationNotifier get _scope {
+    assert(
+      TranslationOld._key.currentContext != null,
+      'Translation() not found. You need to put Translation widget above MaterialApp.',
+    );
+    return TranslationOld._key.currentContext!
+        .dependOnInheritedWidgetOfExactType<TranslationNotifier>()!;
+  }
+
+  static String? _locale;
+
+  @override
+  Widget build(BuildContext context) {
+    return TranslationNotifier(
+      locale: _locale ??= initialLocale,
+      translations: translations,
+      child: Builder(
+        key: TranslationOld._key,
+        builder: builder,
+      ),
+    );
+  }
+}
+
+class TranslationNotifier extends InheritedWidget {
+  const TranslationNotifier({
+    required this.locale,
+    required this.translations,
+    required super.child,
+    super.key,
+  });
+
+  ///All translations.
+  final Translations translations;
+
+  ///Language code.
+  final String locale;
+
+  ///Reactive locale.
+  // ValueNotifier<String> get locale => notifier! as ValueNotifier<String>;
+
+  ///Translates [key]. Fallbacks to subkeys.
+  ///
+  ///Ex: form.invalid.email.
+  ///If none, translates 'form.invalid'.
+  ///If none, translates 'form'.
+  ///If none, returns [key].
+  String? translate(String key) {
+    final keys = key.subWords('.');
+
+    //looking for sub keys.
+    for (final key in keys) {
+      final translation = translations[locale]?[key];
+      if (translation != null) return translation; //found.
+    }
+
+    return null; //not found.
+  }
+
+  ///Change app language code.
+  Future<void> change(String locale) async {
+    TranslationOld._locale = locale;
+    await engine.performReassemble();
+  }
+
+  @override
+  bool updateShouldNotify(oldWidget) => false;
+}
+
+extension TranlationExtension on String {
+  ///Translates this key. If no pattern found, returns this.
+  ///
+  ///Pattern: 'a.b.c' -> 'a.b' -> 'a' -> 'a.b.c'.
+  String get tr => trn ?? this;
+
+  ///Translates this key. If no pattern found, returns null.
+  ///
+  ///Pattern: 'a.b.c' -> 'a.b' -> 'a' -> null.
+  String? get trn {
+    assert(
+      Translation._instance != null,
+      'Translation not inited. You need to call Translation.init()',
+    );
+    return Translation._instance?.translate(this);
+  }
+}

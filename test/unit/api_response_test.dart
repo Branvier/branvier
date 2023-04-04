@@ -8,29 +8,9 @@ ApiResponse<T> _response<T>(data) => ApiResponse<T>(
       token: 'token',
     );
 
-final types = [];
-set add(value) => types.add(value);
-
 ///$message - daa
 void main() {
-  test('baseType', () {
-    types.clear();
-    final set = <dynamic>{};
-    final iter = set.map((e) => null);
 
-    add = ''.runtimeType.isString;
-    add = {}.runtimeType.isMap;
-    add = [].runtimeType.isList;
-    add = iter.runtimeType.isIterable;
-    add = set.runtimeType.isSet;
-    add = true.runtimeType.isBool;
-    add = 1.runtimeType.isInt;
-    add = 1.0.runtimeType.isDouble;
-    add = 2.runtimeType.isNum;
-
-    //True if contains no false.
-    expect(types.contains(false), false);
-  });
   group('extensions', () {
     test('string', () {
       final r = _response('a');

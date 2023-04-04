@@ -1,20 +1,25 @@
 part of '../branvier.dart';
 
-void main() => runApp(const MaterialApp(home: Scaffold(body: Buttons())));
+void main() => runApp(MaterialApp(home: Scaffold(body: Buttons())));
+
+Future<void> fun() async {
+  await 2.seconds();
+  throw '';
+}
 
 class Buttons extends StatelessWidget {
-  const Buttons({super.key});
+  Buttons({super.key});
+  final ctrl = ButtonController();
 
   @override
   Widget build(BuildContext context) {
-    final ctrl = ButtonController();
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          ElevatedButtonX(
-            onTap: 3.seconds.call,
-            child: const Text('Arthur Miranda'),
+          const ElevatedButtonX(
+            onTap: fun,
+            child: Text('Arthur Miranda'),
           ),
           OutlinedButtonX(
             onTap: 3.seconds.call,

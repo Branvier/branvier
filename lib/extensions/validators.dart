@@ -1,36 +1,5 @@
 part of '/branvier.dart';
 
-extension StrinExt on String {
-  /// Capitalizes all words. ex: your name => Your Name.
-  String get capitalized => split(' ').map((e) => e.capitalizeFirst).join(' ');
-
-  /// Uppercase first letter inside string and let the others lowercase.
-  /// Example: your name => Your name.
-  String get capitalizeFirst {
-    if (isEmpty) return '';
-    return this[0].toUpperCase() + substring(1).toLowerCase();
-  }
-
-  String get lastPascalCaseWord {
-    final pattern = RegExp(r'[A-Z][a-z0-9]*(?=\b)');
-    final matches = pattern.allMatches(this);
-    if (matches.isNotEmpty) {
-      final match = matches.last;
-      return substring(match.start, match.end);
-    }
-    return this;
-  }
-
-  ///Remove all the chars in [charsToRemove].
-  String removeChars(String charsToRemove) {
-    var result = this;
-    charsToRemove.split('').forEach((char) {
-      result = result.replaceAll(char, '');
-    });
-    return result;
-  }
-}
-
 extension Validators on String {
   bool get hasUppercase => RegExp('[A-Z]').hasMatch(this);
   bool get hasLowercase => RegExp('[a-z]').hasMatch(this);
@@ -198,45 +167,4 @@ mixin Utils {
     }
     return true;
   }
-}
-
-extension TypeExt on Type {
-  ///Extracts the base type as [String].
-  String get baseString {
-    final s = toString();
-    final i = s.indexOf('<');
-
-    if (i == -1) return s.lastPascalCaseWord;
-    final matches = RegExp('[A-Z][a-z]*').allMatches(s.substring(0, i));
-
-    if (matches.isEmpty) return '';
-    final match = matches.last;
-
-    return s.substring(match.start, match.end);
-  }
-
-  ///Returns the base of the [Type].
-  ///Ex: LinkedHashMap -> Map.
-  Type get baseType {
-    if (isString) return String;
-    if (isMap) return Map;
-    if (isList) return List;
-    if (isIterable) return Iterable;
-    if (isSet) return Set;
-    if (isBool) return bool;
-    if (isInt) return int;
-    if (isDouble) return double;
-    if (isNum) return num;
-    return Type;
-  }
-
-  bool get isString => baseString == 'String';
-  bool get isMap => baseString == 'Map';
-  bool get isList => baseString == 'List';
-  bool get isIterable => baseString == 'Iterable';
-  bool get isSet => baseString == 'Set';
-  bool get isBool => baseString == 'bool';
-  bool get isInt => baseString == 'int';
-  bool get isDouble => baseString == 'double';
-  bool get isNum => isInt || isDouble;
 }

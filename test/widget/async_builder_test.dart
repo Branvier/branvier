@@ -23,7 +23,6 @@ void main2() {
         AppScaffold(
           child: AsyncBuilder<String>(
             controller: controller,
-            initial: () => 0.5.seconds.set('initial is here'),
             future: () async {
               if (response == 'error') throw Exception('error');
               return 1.seconds.set(response);
@@ -47,7 +46,7 @@ void main2() {
 
       ///Emptying the data.
       response = '';
-      controller.fetch();
+      controller.reload();
 
       ///Updating data.
       await tester.pump();
@@ -60,7 +59,7 @@ void main2() {
 
       ///Added error.
       response = 'error';
-      controller.fetch();
+      controller.reload();
 
       //With throw, changes to updating for 1 frame.
       await tester.pump();

@@ -69,9 +69,6 @@ extension MockApiX on MockApi {
 extension ApiResponseExt<T> on ApiResponse<T> {
   ///Gets the expected [T] base data.
   T get data {
-    if (T.isList) return jsonEncode(list).parse<T>();
-    if (T.isMap) return jsonEncode(map).parse<T>();
-    if (T.isString) return jsonEncode(string).parse<T>();
     return jsonEncode(content).parse<T>();
   }
 

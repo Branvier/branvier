@@ -22,7 +22,7 @@ class AsyncController<T> {
   }
 
   ///Calls the async callback again. Rebuilds AsyncBuilder.
-  void fetch() => _retry();
+  void reload() => _retry();
 
   ///Syncs the [AsyncState] to the [AsyncController].
   void _sync(AsyncState<T> state) {
@@ -58,10 +58,9 @@ class AsyncBuilder<T> extends HookWidget {
     required this.builder,
     this.future,
     this.stream,
-    this.initial,
     this.controller,
     this.interval,
-    this.updater,
+    this.reloader,
     this.loader = const Center(child: CircularProgressIndicator()),
     this.empty = const Center(child: Text('-')),
     this.error,
@@ -72,25 +71,22 @@ class AsyncBuilder<T> extends HookWidget {
   final FutureGet<T>? future;
   final StreamGet<T>? stream;
 
-  ///Fallback async function. Useful for initial data.
-  final FutureGet<T>? initial;
-
   ///The builder with [AsyncSnapshot] data.
   final WidgetOn<T> builder;
 
   ///Controls the state of the [AsyncBuilder].
   final AsyncController? controller;
 
-  ///If not null, calls the [future] each [interval]'s [Duration].
+  ///If not null, calls the async each [interval]'s [Duration].
   final Duration? interval;
 
-  ///[Widget] that shows while [future] is not done.
+  ///[Widget] that shows while async is not done.
   final Widget loader;
 
-  ///Wraps [builder] while [future] is updating.
-  final WidgetWrapper? updater;
+  ///Wraps [builder] while async is updating.
+  final WidgetWrapper? reloader;
 
-  ///[Widget] that shows while [future] is done, but empty.
+  ///[Widget] that shows while async is done, but empty.
   final Widget empty;
 
   ///The builder with [AsyncSnapshot] error message.
@@ -98,18 +94,16 @@ class AsyncBuilder<T> extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
-    final initial = this.initial != null ? useAsyncFuture(this.initial!) : null;
     late final AsyncState<T> async;
 
+    //If both are null, return [empty].
     if (stream == null && future == null) return empty;
 
     if (this.stream != null) async = useAsyncStream(this.stream!);
     if (this.future != null) async = useAsyncFuture(this.future!);
 
+    //Retry every [interval], if not null.
     useInterval(async.retry, interval);
-
-    final hasInitialData = initial?.data != null;
-    final state = (hasInitialData && !async.hasData) ? initial! : async;
 
     //Called once. Attaches on build. Closes on widget dispose.
     useInit(
@@ -118,23 +112,23 @@ class AsyncBuilder<T> extends HookWidget {
     );
 
     //Called on every build. Keeps controller synced to the widget.
-    controller?._sync(state);
+    controller?._sync(async);
 
     //On error.
     Widget error(String e) => this.error?.call(e) ?? Center(child: Text(e));
 
     //On data.
-    Widget child() => state.isEmpty ? empty : builder(state.data as T);
+    Widget child() => async.isEmpty ? empty : builder(async.data as T);
 
-    if (state.isUpdating) return updater?.call(child()) ?? Updater(child());
-    if (state.isLoading) return loader;
-    if (state.hasError) return error(state.e.toString());
+    if (async.isUpdating) return reloader?.call(child()) ?? Reloader(child());
+    if (async.isLoading) return loader;
+    if (async.hasError) return error(async.e.toString());
     return child();
   }
 }
 
-class Updater extends StatelessWidget {
-  const Updater(this.child, {super.key});
+class Reloader extends StatelessWidget {
+  const Reloader(this.child, {super.key});
   final Widget child;
 
   @override

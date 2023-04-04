@@ -1,6 +1,5 @@
 import 'package:branvier/branvier.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get_utils/src/extensions/internacionalization.dart';
 
 void main() => runApp(const MaterialApp(home: Scaffold(body: PaymentForm())));
 

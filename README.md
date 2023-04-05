@@ -10,10 +10,10 @@ The MVC stands for Model-View-Controller. With this idea:
 
 With Clean:
 
-- The View and Controller are the presentation layer.
+- The "Model" is broken into Source/Repository/Models.
 - All the global and data business-related operations goes to the Service.
 - All the local and view business-related operations goes to the Controller.
-- The "Model" is broken into Source/Repository/Models.
+- The View stays on the presentation layer.
 
 Overview:
 
@@ -21,26 +21,7 @@ Overview:
 - Business Logic Layer (Service, Controller).
 - Presentation Layer (View, Components)  
 
-Flow:
-
-- Data: **Source** > _Raw Data_ > **Repository** > _Models_
-- Logic: _Models_ > **Service** > _Operations_ > **Controllers** > _Events_
-- Presenter: _Events_ > **Page** > _Properties_ > **Components**
-
-TLDR:
-We can relate all to a Kitchen!
-
-In the Kitchen, we have the **Pantry**, the **Chef**, the **Waiter**, the **Table** and the **Food**.
-
-The same applies to **Repository**, **Service**, **Controller**, **View** and **Model**.
-
-Each one has its own reponsabilities. The **Pantry** doesnt know how to cook, just provides ingredients. The **Chef** takes those to cook the **Food** and send it to the **Waiter**. The **Waiter** sends the **Food** to the **Table**, taking orders and notifying the **Chef** if anything else is needed.
-
-- The data here, are the ingredients who are stored in the **Patry**.
-- The business logic layer is handled by the **Chef** only him should be able to do everything related to the **Food**.
-- The presenter has the **Table** and the **Waiter** who is responsible to clean, set it up and serve the **Food**.
-
-Folder
+Folder:
 
 ```md
 - /lib
@@ -50,14 +31,15 @@ Folder
       - /models
       - /repositories
       - /source
-    - /services (global)
+    - /services
       - /app (front-services: theme, translation)
       - /data (back-services: manages entities, ex: user)
     - /modules
-      - /{...}
+      - /module
         - /widgets (local)
-        - /controllers (local)
-        - {name}_page.dart
+        - controller.dart
+        - module.dart
+        - page.dart
     - /utils
     - /widgets (shared)
     - theme.dart
@@ -79,12 +61,17 @@ Folder
 2. Choose: _New Global Snipper File_
 3. Copy 'branvier.code-snippets' in the root of this project
 
-| Snippets    | Description                     |
-|-------------|---------------------------------|
-| gservice    | Generates a Service class       |
-| gcontroller | Generates a Controller class    |
-| grepository | Generates a Repository class    |
-| gfromlist   | Generates Model.fromList method |
+| Snippets        | Description                         |
+|-----------------|-------------------------------------|
+| gextension      | Generates a Extension on class      |
+| grepository     | Generates a Repository class        |
+| gserviceapp     | Generates a App Service class       |
+| gservicedata    | Generates a Data Service class      |
+| gcontroller     | Generates a Controller class        |
+| gpage           | Generates a Page class              |
+| gmodule         | Generates a Module class            |
+| ggetservice     | {1}Service get {2} => Modular.get() |
+| ggetcontroller  | {1}Controller {..} => Modular.get() |
 
 ## Model
 
@@ -162,7 +149,7 @@ We added `.obn`, which is the same as `.obs` with `null` as initial value.
 Logic
 
 ```dart
-// it's private, must only be modified here.
+// private, must only be modified here.
 final _count = 0.obs;
 final _user = User().obn;
 
@@ -347,10 +334,15 @@ class OtherComponent extends StatelessWidget {
 ---
 
 ```dart
+///Binds [MyController] to [MyPage].
 class MyModule extends Module {
   @override
   final List<Bind> binds = [
-    Bind.lazySingleton((i) => MyController()),
+    Bind.lazySingleton<MyController>(
+      (i) => MyController(),
+      //create onDispose() method on controller.
+      onDispose: (controller) => controller.onDispose(),
+    ),
   ];
 
   @override
@@ -358,6 +350,65 @@ class MyModule extends Module {
     ChildRoute('/', child: (_, args) => const MyPage()),
   ];
 }
+```
+
+## Translation
+
+---
+
+### Setup
+
+```dart
+main() async {
+
+  // Init [Translation] before the app starts.
+  Translation.init(
+    initialLocale: 'pt',
+    translations: { // Map<String, Map<String,String>>
+      'pt': {
+        'home.button.increment': 'Somar 1',
+        'home.button': 'Aperte',
+      },
+      'en': {
+        'home.button.increment': 'Add 1',
+        'home.button': 'Press',
+      },
+    }
+  );
+
+  // you can also load them from asset folder.
+  await Translation.initAsset('pt','assets/translations');
+
+  {...} => MaterialApp();
+}
+```
+
+### Translate with `.tr` or `.trn`
+
+- `.tr` Pattern: 'a.b.c' -> 'a.b' -> 'a' -> returns 'a.b.c' if no pattern found.
+- `.trn` Pattern: 'a.b.c' -> 'a.b' -> 'a' -> returns null if no pattern found.
+
+```dart
+  ElevatedButtonX(
+    onTap: controller.onIncrement,
+    child: Text('home.button.increment'.tr), // 'Somar 1'
+  ),
+  ElevatedButton(
+    onTap: controller.onIncrement,
+    // Since there is no .decrement. It fallbacks to 'home.button'.tr
+    child: Text('home.button.decrement'.tr), // 'Aperte'
+  ),
+
+```
+
+### Change Language with `Translate.changeLanguage()`
+
+```dart
+  ElevatedButtonX(
+    onTap: () async => Translate.changeLanguage('en'),
+    child: Text('home.button'.tr), // 'Aperte' -> 'Press'
+  ),
+
 ```
 
 ## Naming Conventions

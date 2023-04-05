@@ -5,6 +5,7 @@ import 'branvier.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
+
   Translation.init(
     initialLocale: 'en',
     translations: const {

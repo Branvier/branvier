@@ -17,23 +17,39 @@ abstract class IBox {
   Future<Json> readAll();
 }
 
+///Simple key/value storage Mocker.
+///
+///It does save data, but temporarily (app session).
 class MockBox implements IBox {
-  static final StringMap _storage = {};
+  ///Functional MockBox. You can start with [initial] content.
+  MockBox([this.initial = const {}]) {
+    storage.addAll(initial);
+  }
+
+  ///Fake storage.
+  final StringMap storage = {};
+  final StringMap initial;
+
+  ///Set up back to [initial].
+  void reset() {
+    storage.clear();
+    storage.addAll(initial);
+  }
 
   @override
-  Future<void> delete(String key) async => _storage.remove(key);
+  Future<void> delete(String key) async => storage.remove(key);
 
   @override
-  Future<void> deleteAll() async => _storage.clear();
+  Future<void> deleteAll() async => storage.clear();
 
   @override
-  Future<String?> read(String key) async => _storage[key];
+  Future<String?> read(String key) async => storage[key];
 
   @override
-  Future<Json> readAll() async => _storage;
+  Future<Json> readAll() async => storage;
 
   @override
-  Future<void> write(String key, String value) async => _storage[key] = value;
+  Future<void> write(String key, String value) async => storage[key] = value;
 }
 
 ///Storage extension.

@@ -8,6 +8,26 @@
 //You can manually do it, also:
 //User>$>Library>Application Support>Code>User>snippets.
 {
+	"Flutter Modular AppWidget": {
+		"prefix": "gappwidget",
+		"body": [
+			"import 'package:flutter/material.dart';",
+			"import 'package:flutter_modular/flutter_modular.dart';",
+			"",
+			"class AppWidget extends StatelessWidget {",
+			"\tconst AppWidget({super.key});",
+			"",
+			"\t@override",
+			"\tWidget build(BuildContext context) {",
+			"\t\treturn MaterialApp.router(",
+			"\t\t\trouteInformationParser: Modular.routeInformationParser,",
+			"\t\t\trouterDelegate: Modular.routerDelegate,",
+			"\t\t);",
+			"\t}",
+			"}",
+		],
+		"description": "Creates a new Flutter Modular AppWidget"
+	},
 	"Generates a extension on model": {
 		"prefix": "gextension",
 		"body": [
@@ -233,8 +253,8 @@
 			"class ${2}Module extends Module {",
 			"  @override",
 			"  final List<Bind> binds = [",
-			"    Bind.lazySingleton<HomeController>(",
-			"      (i) => HomeController(),",
+			"    Bind.lazySingleton<${2}Controller>(",
+			"      (i) => ${2}Controller(),",
 			"      onDispose: (controller) => controller.onDispose(),",
 			"    ),",
 			"  ];",

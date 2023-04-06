@@ -1,27 +1,15 @@
 # Architecture
 
-## MVC with Clean Architecture
+## MVC with Clean Architecture 🫧
 
-The MVC stands for Model-View-Controller. With this idea:
+>Flutter Modular + Getx* approach:
 
-- Model - Handles data operations.
-- View - Handles calls/events and presents the ui.
-- Controller - Manages business logic.
-
-With Clean:
+*Getx Reactive State Management only (included in this package).
 
 - The "Model" is broken into Source/Repository/Models.
 - All the global and data business-related operations goes to the Service.
 - All the local and view business-related operations goes to the Controller.
 - The View stays on the presentation layer.
-
-Overview:
-
-- Data Layer (Source, Repository, Model).
-- Business Logic Layer (Service, Controller).
-- Presentation Layer (View, Components)  
-
-Folder:
 
 ```md
 - /lib
@@ -46,19 +34,20 @@ Folder:
     - routes.dart
 ```
 
-### Template
+- To know more about Flutter Modular: [Getting Started](https://github.com/branvier-dev/branvier_template.git)
+
+## Gettins Started 🔥
 
 ---
 
-> Clone Branvier's [Project Template](https://github.com/branvier-dev/branvier_template.git)
+### Download Branvier's [Project Template](https://github.com/branvier-dev/branvier_template.git)
 
-### Snippets
+The Branvier's **Project Template** already comes with everything you need, core packages, linter and some examples. Now you just have to install the architecture's core snippets.
 
----
-> Installing
+Installing Snippets
 
-1. Command: _Snippets: Configure User Snippets_
-2. Choose: _New Global Snipper File_
+1. Command: *Snippets: Configure User Snippets*
+2. Choose: *New Global Snipper File*
 3. Copy 'branvier.code-snippets' in the root of this project
 
 | Snippets        | Description                         |
@@ -72,6 +61,8 @@ Folder:
 | gmodule         | Generates a Module class            |
 | ggetservice     | {1}Service get {2} => Modular.get() |
 | ggetcontroller  | {1}Controller {..} => Modular.get() |
+
+> ### That's it, you are ready to go! ✨
 
 ## Model
 
@@ -97,7 +88,7 @@ With **Json**
 
 1. Create .dart file and open it.
 2. Paste raw json.
-3. With the file open: _> Dart Data Class Generator: Generate from JSON_
+3. With the file open: *> Dart Data Class Generator: Generate from JSON*
 
 With **Dart**
 
@@ -109,12 +100,44 @@ With **Dart**
 The source usually expose simple APIs to perform **CRUD** operations (Create, Read, Update, Delete).
   
 ```dart
-class Api extends IApi {
-  Future<Json> get(String path) async {
-    //read from database or network request.
+class DioApi extends IApi {// http clint
+  final _storage = Dio(); //source
+
+  @override
+  Future<T> get<T>(String path) async {
+    //get from client.
+  }
+}
+
+class SharedBox extends IBox {// key/value storage
+  final _storage = SharedPreferences(); //source
+
+  @override
+  Future<String> read(String key) async {
+    //read from storage.
   }
 }
 ```
+
+> The project already has an interface for http and key/value sources: `IApi` & `IBox`. They are included in this package.
+
+## Source Mock
+
+```dart
+// you can easily mock any request
+MockApi({
+  '/login': User(id: 0, name: 'test').toMap(),
+  '/user/books': 3.list((i) => Book(id: i).toMap());,
+}); 
+
+// you can add a initial fake storage for testing
+MockBox({
+  'language': 'pt',
+  'theme': 'dark',
+});
+```
+
+> Both Mocks implements `IApi` & `IBox`. They are included in this package.
 
 ## Repository
 
@@ -126,19 +149,64 @@ The Repository handles raw data from multiple Sources to Models.
 class UserRepository {
   UserRepository(this._api, this._box, this._safe);
 
+  final IApi _api;
+  final IBox _box;
+  final IBox _safe;
+
+  static const key = 'user'; //storage's key
+
   ///Logins user. Gets from api, stores in cache.
   Future<User> login(Json user) async {
     final map = _api.get('/login?user=${user.toJson()}'); //api
-    await _box.write('user', jsonEncode(map)); //cache
+    await _box.write(key, jsonEncode(map)); //cache
     return User.fromMap(map); //model
   }
 
   ///Remembers password. Stores encrypted.
   Future<User> savePassword(String password) async {
-    await _safe.write('user_password', password); //encrypted
+    await _safe.write(key, password); //encrypted
   }
 }
 ```
+
+## Repository Test
+
+```dart
+void main() {
+
+  group('UserRepository', () {
+    final shared = MockBox();
+    final safe = MockBox();
+    final api = MockApi({
+      '/login': User(id: '0').toMap(),
+    });
+    final repository = UserRepository(api, shared, safe);
+
+    setUp(() { //called before any test inside this group.
+      shared.reset();
+      safe.reset();
+    });
+
+    test('login', () async { 
+      final user = await repository.login({'email': '@', 'password': '1'});
+
+      //verify the MockApi output.
+      expect(user.id, '0');
+    });
+
+    test('savePassword', () async {
+      await repository.savePassword('123');
+
+      //verify if the MockBox is correctly writing.
+      expect(safe.storage.containsKey(UserRepository.key), true);
+      expect(safe.storage[UserRepository.key], '123');
+    });
+  });
+}
+
+```
+
+> This approach uses no external packages nor code generators. 🫧
 
 ## State Management
 
@@ -151,7 +219,7 @@ Logic
 ```dart
 // private, must only be modified here.
 final _count = 0.obs;
-final _user = User().obn;
+final _user = User().obn; // init with null
 
 // always use getters.
 int get count => _count.value; 
@@ -178,7 +246,7 @@ Adds these to the context menu (cmd + .):
 ## Service
 
 ---
-The Service implements the actual business logic and data manipulation.
+The Service manages the global business logic of a source.
 
 Reponsabilities:
 
@@ -213,7 +281,7 @@ class UserService {
 ## Controller
 
 ---
-The Controller manages and encapsulates all state and business logic of a component.
+The Controller manages the local business logic of a view.
 
 ### Reponsabilities
 
@@ -226,25 +294,21 @@ The Controller manages and encapsulates all state and business logic of a compon
 //Anything operation related to login the [User] must only be done here.
 class LoginController {
 
-  ///The state from UserService. Read only.
+  //Dependencies.
   UserService _user = Modular.get();
 
-  ///Controls a component. Attached.
-  final formx = FormController();
+  //States
+  final formx = FormController(); // component controller.
+  final _isRememberChecked = false.obs; // component state.
 
-  ///State of the remember password checkbox.
-  final _isRememberChecked = false.obs;
+  //Inputs
+  bool get isCheck => _isRememberChecked.value; // component getter.
 
-  ///Sends the state to the view. Read only.
-  bool get isCheck => _isRememberChecked.value;
-
-  ///On login tap. Logs the user.
-  Future<void> onLoginTap() async {
-    if(formx.validate()) return await _login(formx.form);
+  //Events
+  Future<void> onLoginTap() async { // tapped button
+    if(formx.validate()) return await _login(formx.form); 
   }
-
-  ///On login submit (keyboard enter). Logs the user.
-  Future<void> onLoginSubmit(Json map) async => _login(map);
+  Future<void> onLoginSubmit(Json map) async => _login(map); // pressed enter
 
   ///On login event. Logs the user.
   Future<void> _login(Json map) async {
@@ -269,69 +333,10 @@ class LoginController {
 }
 ```
 
-### It's higly recommended to have single reponsability components
-
-- Which means that same view can have many controllers.
-- One controller should never communicate with another.
-
-This makes much easier integration tests, which each single controller should have.
-
-```dart
-//this controller shares the same view as LoginController
-class OtherController {
-  ///Dont worry about calling again, its always the same instance. Read only.
-  OtherService _otherService = Modular.get();
-
-  ///Do another thing different than login feature.
-  Future<void> onOtherEvent() async {
-    //handle errors...
-    await _otherService.doSomething();
-  }
-}
-```
-
-## View
-
-The idea here is to manage only UI and EVENTS, all business logic in handled by the responsible Controller/Service.
-The Page will send events or receive inputs/endpoints (business logic parameters).
-The Component will encapsulate layout, styling and handle events to uplift them as callbacks.
-
-### Responsabilities
-
-- Injects the page controller.
-- Expose business logic parameters (events and inputs).
-- Omit non-business logic parameters (styling and layout).
-
-- Component pattern:
-  - Encapsulate all styling and layout into specific widgets (stateless).
-  - Handles animation logic and callback events (stateful).
-  - Handles ui on async states and exceptions (indicators).
-
-```dart
-class OtherComponent extends StatelessWidget {
-
-  OtherController get controller => Moduler.get();
-
-    @override
-  Widget build(BuildContext context) {
-    return ... // call controller if needed.
-  }
-}
-```
-
-### Widgets - Reusable components
-
-```md
-- /widgets:
-  /brand (_app components: logo, copyright, icons_)
-  /modal (_temporary overlays: snackbar, sheets, dialogs, loaders_)
-  /input (_user interactions: fields, checkbox, buttons_)
-  /boxes (_component holders: cards, menus, images_)
-```
-
 ## Module
 
 ---
+The module binds the business **logic** (Service/Controller) to the **global** view (Page).
 
 ```dart
 ///Binds [MyController] to [MyPage].
@@ -351,6 +356,135 @@ class MyModule extends Module {
   ];
 }
 ```
+
+> To know more about Flutter Modular: [Getting Started](https://github.com/branvier-dev/branvier_template.git)
+
+## Page
+
+---
+The page manages the global view **ui** and **events**.
+
+- Binded to a route.
+- Must have a Scaffold.
+- Expose business logic parameters (events and inputs).
+- Omit non-business logic parameters (styling and layout).
+
+```dart
+class LoginPage extends StatelessWidget {
+  const LoginPage({super.key});
+
+  /// Get instance of [LoginController].
+  LoginController get controller => Modular.get();
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text('login.appbar.title'.tr)),
+      body: LoginContainer( // wrap component
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const ThemeButtonWidget(), // widget view (not a component)
+            const AppLogo(), // leaf component
+            FormX(
+              controller: controller.formx, // export state to controller
+              onSubmit: controller.onLoginSubmit, // event
+              child: Column(
+                children: [
+                  Field.required('email'),
+                  Field.required('password'),
+                ],
+              ),
+            ),
+            ElevatedButtonX(
+              onTap: controller.onLoginTap, // event
+              child: Text('login.form.button'.tr),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+```
+
+## WidgetModule
+
+---
+The widget module binds the business **logic** (Service/Controller) to the **local** view (Widget).
+
+```dart
+class ThemeButtonModule extends WidgetModule {
+  ThemeButtonModule({super.key}); // add super constructor
+
+  @override
+  final List<Bind> binds = [
+    Bind.lazySingleton<ThemeButtonController>(
+      (i) => ThemeButtonController(),
+      //create onDispose() method on controller.
+      onDispose: (controller) => controller.onDispose(),
+    ),
+  ];
+
+  @override
+  Widget get view => ThemeButtonWidget(); // use 'Widget' as suffix.
+}
+```
+
+> To know more about Flutter Modular: [Getting Started](https://github.com/branvier-dev/branvier_template.git)
+>
+## Widget
+
+---
+The widget manages the local view **ui** and **events**.
+
+- Not binded to any route.
+- No Scaffold: can be used by any page.
+- Expose business logic parameters (events and inputs).
+- Omit non-business logic parameters (styling and layout).
+
+```dart
+class ThemeButtonWidget extends ThemeButtonModule {
+  ThemeButtonWidget({super.key});
+
+  ThemeButtonController get controller => Modular.get();
+
+  @override
+  Widget build(BuildContext context) {
+    return ElevatedButtonX(
+      style: ElevatedButton.styleFrom(
+        minimumSize: Size(54, 180),
+        backgroundColor: Colors.purple,
+      ),
+      onTap: controller.onThemeTap,
+      child: Text('theme.button.change'.tr),
+    );
+  }
+}
+```
+
+> This is really useful when your page gets **too many** features.
+> TODO: Add Snippet.
+
+## Components
+
+---
+
+UI Elements that have **zero** business logic (Service/Controller).
+
+- Encapsulate all styling and layout into specific widgets (stateless).
+- Handles animation logic and callback events (stateful).
+- Handles ui on async states and exceptions (indicators).
+
+```md
+- /widgets:
+  - /input (input events: fields, checkbox, buttons)
+  - /output (output events: snackbar, sheets, dialogs)
+  - /leafs (childless widgets: logo, images, icons, loaders)
+  - /wraps (parent widgets: cards, menus)
+```
+
+> TODO: Add articles about composites.
 
 ## Translation
 
@@ -376,7 +510,7 @@ main() async {
     }
   );
 
-  // you can also load them from asset folder.
+  // Recommended: You can also load all .json files from asset folder. Ex en.json, etc.
   await Translation.initAsset('pt','assets/translations');
 
   {...} => MaterialApp();
@@ -417,7 +551,7 @@ main() async {
 
 ## Data Functions
 
-The _verb-noun_ convention will be used.
+The *verb-noun* convention will be used.
 Starting a function name with a verb helps to indicate the function action, while the noun indicates the type of data returned.
 This convention can make function names more intuitive and easier to understand.
 Ex:
@@ -446,7 +580,7 @@ Using getAll is specific enough and helps differentiate repository from services
 
 ## Callback Functions
 
-The _noun-verb_ convention with 'on' preposition will be used.
+The *noun-verb* convention with 'on' preposition will be used.
 The 'on' suggests that the action will happen after an event.
 The noun describes the entity and the verb describes the action.
 

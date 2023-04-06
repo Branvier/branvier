@@ -1,3 +1,5 @@
+// import 'dart:convert';
+
 part of '/branvier.dart';
 
 /// Implement CRUD rules for REST API.
@@ -40,30 +42,45 @@ extension IApiExt on IApi {
       : headers['authorization'] = token;
 }
 
+///Simple http client Mocker.
 class MockApi implements IApi {
+  ///Mocks each response by using the request path: {'/path': result}.
+  ///Query parameters are ignored.
+  ///
+  ///Ex: ApiMock({
+  ///
+  /// '/getUser': {'name': 'iran', 'age': 24},
+  ///
+  ///})
+  MockApi(this._paths);
+  final Map<String, dynamic> _paths;
+
   @override
+  @Deprecated('Disabled in mocks')
   set baseUrl(String url) {}
 
   @override
-  Map<String, dynamic> get headers => throw UnimplementedError();
+  @Deprecated('Disabled in mocks')
+  final headers = <String, dynamic>{};
 
   @override
-  Future<T> get<T>(String url) => throw UnimplementedError();
+  Future<T> delete<T>(String path) async => _response(path);
 
   @override
-  Future<T> post<T>(String url, [data]) => throw UnimplementedError();
+  Future<T> get<T>(String path) async => _response(path);
 
   @override
-  Future<T> delete<T>(path) => throw UnimplementedError();
+  Future<T> post<T>(String path, [data]) async => _response(path);
 
   @override
-  Future<T> put<T>(path, [data]) => throw UnimplementedError();
-}
+  Future<T> put<T>(String path, [data]) async => _response(path);
 
-extension MockApiX on MockApi {
-  Future<String> getJString() async => '"Hello, World!"';
-  Future<String> getJList() async => '["apple", "banana", "orange"]';
-  Future<String> getJMap() async => '{"name": "Antony"}';
+  ///Looks for the mocked result. Query parameters are ignored.
+  Future<T> _response<T>(String path) async {
+    final uri = Uri.parse(path);
+    dev.log(uri.path.isEmpty ? 'empty path' : '${uri.path} <- called');
+    return _paths[uri.path];
+  }
 }
 
 extension ApiResponseExt<T> on ApiResponse<T> {
@@ -88,7 +105,6 @@ extension ApiResponseExt<T> on ApiResponse<T> {
     if (content is List && content.isEmpty) throw ApiException.empty();
     return (content as List).first;
   }
-
 }
 
 ///Modelo padrão para todas as requisições recebidas via API.
@@ -125,7 +141,7 @@ class ApiResponse<T> {
 class ApiException implements Exception {
   const ApiException(this.response, [this.data]);
 
-  factory ApiException.empty() => ApiException.message('api.response.empty'); 
+  factory ApiException.empty() => ApiException.message('api.response.empty');
 
   ApiException.message(String message, [this.data])
       : response = ApiResponse(

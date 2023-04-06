@@ -275,6 +275,9 @@ class UserService {
     _state.value = await repository.login(map);
     if (remember) await repository.savePassword(map['password']);
   }
+
+  //Useful for clearing state.
+  //void onMyPageDispose() {}
 }
 ```
 
@@ -329,6 +332,11 @@ class LoginController {
 
       formx.reset(); //resets ui to clean and maybe try again.
     }
+  }
+  
+  // ! Must attach to the Module.bind
+  void onDispose() {
+    // _myService.onLoginDispose();
   }
 }
 ```

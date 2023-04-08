@@ -14,12 +14,16 @@ part of '/branvier.dart';
 AsyncState<T> useAsyncFuture<T>(
   Future<T> Function() async, {
   Duration? interval,
+  T? initialData,
   Object? key,
 }) {
   final attempts = useState(0);
 
   //Updates the shared [SnapCallback] if the keys are changed.
-  final snapshot = useFuture<T>(useMemoized(async, [attempts.value, key]));
+  final snapshot = useFuture<T>(
+    useMemoized(async, [attempts.value, key]),
+    initialData: initialData,
+  );
 
   //Fetches new data every [interval].
   useInterval(() => attempts.value++, interval);
@@ -30,12 +34,16 @@ AsyncState<T> useAsyncFuture<T>(
 
 AsyncState<T> useAsyncStream<T>(
   Stream<T> Function() stream, {
+  T? initialData,
   Object? key,
 }) {
   final attempts = useState(0);
 
   //Updates the shared [SnapCallback] if the keys are changed.
-  final snapshot = useStream<T>(useMemoized(stream, [attempts.value, key]));
+  final snapshot = useStream<T>(
+    useMemoized(stream, [attempts.value, key]),
+    initialData: initialData,
+  );
 
   //Creates [AsyncState] and returns it.
   return AsyncState<T>(snapshot, () => attempts.value++, attempts.value);

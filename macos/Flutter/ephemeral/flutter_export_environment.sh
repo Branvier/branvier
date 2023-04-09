@@ -3,7 +3,7 @@
 export "FLUTTER_ROOT=/Users/art/flutter"
 export "FLUTTER_APPLICATION_PATH=/Users/art/Documents/GitHub/branvier"
 export "COCOAPODS_PARALLEL_CODE_SIGN=true"
-export "FLUTTER_TARGET=/Users/art/Documents/GitHub/branvier/lib/main.dart"
+export "FLUTTER_TARGET=/Users/art/Documents/GitHub/branvier/test/temp/login_page.dart"
 export "FLUTTER_BUILD_DIR=build"
 export "FLUTTER_BUILD_NAME=0.2.6"
 export "FLUTTER_BUILD_NUMBER=0.2.6"

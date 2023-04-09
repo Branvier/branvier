@@ -5,6 +5,8 @@ import 'dart:convert';
 import 'dart:developer' as dev;
 import 'dart:math' as math;
 
+import 'package:animated_list_plus/animated_list_plus.dart';
+import 'package:auto_animated_list/auto_animated_list.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -37,6 +39,7 @@ part 'widgets/async_builder.dart';
 part 'widgets/formx.dart';
 part 'widgets/nest_builder.dart';
 part 'widgets/page_builder.dart';
+part 'widgets/list_builder.dart';
 part 'widgets/nil.dart';
 part 'widgets/async_button.dart';
 

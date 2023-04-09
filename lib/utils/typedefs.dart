@@ -39,7 +39,7 @@ typedef On<T> = void Function(T data);
 typedef GetOn<T, R> = R Function(T e);
 
 //Widget
-typedef WidgetWrapper = Widget Function(Widget child);
+typedef WidgetWrap = Widget Function(Widget child);
 typedef WidgetOn<T> = Widget Function(T data);
 
 //prefix

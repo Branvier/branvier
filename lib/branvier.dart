@@ -12,6 +12,7 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:mocktail/mocktail.dart';
 
 import 'widgets/list_builder/list_builder.dart';
+export 'widgets/animations/index.dart';
 
 part 'extensions/api_interface.dart';
 part 'extensions/context.dart';

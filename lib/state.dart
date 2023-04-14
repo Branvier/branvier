@@ -37,7 +37,7 @@ class ObxListBuilder<T extends Object> extends ObxWidget {
   final ListConfig<T> config;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build() {
     return AsyncListBuilder(
       list: obx(),
       builder: builder,
@@ -107,7 +107,7 @@ class ObxBuilder<T> extends ObxWidget {
   final AsyncStates states;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build() {
     return AsyncBuilder(
       controller: controller,
       initialData: obx(),

@@ -1,8 +1,11 @@
-// ignore_for_file: discarded_futures
+// ignore_for_file: discarded_futures, cast_nullable_to_non_nullable
 
 part of '/branvier.dart';
 
 // typedef AsyncCallback<T> = Future<T> Function();
+
+///Shares immutable intance of [value] across rebuilds.
+T useFinal<T>(T value) => useRef(value).value;
 
 /// Fetch async data only when [key] is changed or when has interval
 /// If [key] is not present, the data will only be fetched once and never again.
@@ -12,18 +15,29 @@ part of '/branvier.dart';
 ///
 /// This is a Sintax sugar of useMemoized with useFuture.
 AsyncSnap<T> useAsyncFuture<T>(
-  Future<T> Function() async, {
+  Future<T> Function() future, {
   Duration? interval,
-  T? init,
+  T? initialData,
   Object? key,
 }) {
+  final changes = useRef(0);
   final attempts = useState(0);
+  final changed = useChanged(initialData, onChange: (_) => changes.value++);
+
+  Future<T> fetch() async {
+    if (changed && initialData != null) return initialData;
+    return future();
+  }
 
   //Updates the shared [SnapCallback] if the keys are changed.
-  final snapshot = useFuture<T>(
-    useMemoized(async, [attempts.value, key]),
-    initialData: init,
+  var snapshot = useFuture<T>(
+    useMemoized(fetch, [attempts.value, changes.value, key]),
+    initialData: initialData,
   );
+
+  if (changed && snapshot.hasData && !snapshot.isEmpty) {
+    snapshot = snapshot.inState(ConnectionState.done);
+  }
 
   //Fetches new data every [interval].
   useInterval(() => attempts.value++, interval);
@@ -34,16 +48,34 @@ AsyncSnap<T> useAsyncFuture<T>(
 
 AsyncSnap<T> useAsyncStream<T>(
   Stream<T> Function() stream, {
-  T? init,
+  Duration? interval,
+  T? initialData,
   Object? key,
 }) {
+  final changes = useRef(0);
   final attempts = useState(0);
+  final changed = useChanged(initialData, onChange: (_) => changes.value++);
+
+  Stream<T> fetch() async* {
+    if (changed && initialData != null) {
+      yield initialData;
+    } else {
+      yield* stream();
+    }
+  }
 
   //Updates the shared [SnapCallback] if the keys are changed.
-  final snapshot = useStream<T>(
-    useMemoized(stream, [attempts.value, key]),
-    initialData: init,
+  var snapshot = useStream<T>(
+    useMemoized(fetch, [attempts.value, changes.value, key]),
+    initialData: initialData,
   );
+
+  if (changed && snapshot.hasData && !snapshot.isEmpty) {
+    snapshot = snapshot.inState(ConnectionState.done);
+  }
+
+  //Fetches new data every [interval].
+  useInterval(() => attempts.value++, interval);
 
   //Creates [AsyncState] and returns it.
   return AsyncSnap<T>(snapshot, () => attempts.value++, attempts.value);
@@ -97,14 +129,14 @@ class AsyncSnap<T> {
   //Check if the computation is loading but already had data.
   bool get isUpdating => isLoading && hasData;
 
-  ///Returns if the data is empty.
-  bool get isEmpty => ['', <T>[], <String, T>{}].contains(snapshot.data);
+  ///Returns if the data is empty iterable.
+  bool get isEmpty => snapshot.isEmpty;
 
   ///The [AsyncSnapshot] data.
   T? get data => snapshot.data;
 
   ///Check if the [AsyncSnapshot] has error.
-  bool get hasData => snapshot.hasData;
+  bool get hasData => snapshot.hasData && !isEmpty;
 
   ///Check if the [AsyncSnapshot] has error.
   bool get hasError => snapshot.hasError;
@@ -114,4 +146,8 @@ class AsyncSnap<T> {
 
   ///Returns the [AsyncSnapshot]'s [StackTrace].
   StackTrace? get s => snapshot.stackTrace;
+}
+
+extension AsyncSnapshotExtension<T> on AsyncSnapshot<T> {
+  bool get isEmpty => data is Iterable && (data as Iterable).isEmpty;
 }

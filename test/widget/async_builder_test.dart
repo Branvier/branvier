@@ -22,13 +22,10 @@ void main2() {
       await tester.pumpWidget(
         AppScaffold(
           child: AsyncBuilder<String>(
-            async: Async.future(
-              () async {
+            future: () async {
                 if (response == 'error') throw Exception('error');
                 return 1.seconds.set(response);
-              },
-              controller: controller,
-            ),
+            },
             builder: (data) {
               return Text(data);
             },

@@ -36,7 +36,7 @@
 
 - To know more about Flutter Modular: [Getting Started](https://github.com/branvier-dev/branvier_template.git)
 
-## Gettins Started 🔥
+## Getting Started 🔥
 
 ---
 
@@ -121,24 +121,82 @@ class SharedBox extends IBox {// key/value storage
 
 > The project already has an interface for http and key/value sources: `IApi` & `IBox`. They are included in this package.
 
-## Source Mock
+## Source Testing
+
+> This package includes `MockApi` and `FakeBox`.
+
+### MockApi
+
+---
+
+> `Mock` simulates a real class, but doesn't implements all it's functions.
 
 ```dart
-// you can easily mock any request
-MockApi({
-  '/login': User(id: 0, name: 'test').toMap(),
-  '/user/books': 3.list((i) => Book(id: i).toMap());,
-}); 
+class MockApi extends Mock implements IApi { // `Mock` from mocktail
+  @override
+  var baseUrl = '';
 
-// you can add a initial fake storage for testing
-MockBox({
+  @override
+  final headers = <String, dynamic>{};
+  // get, post, put, delete will throw unimplemented error.
+}
+```
+
+> Use `mocktail` for implementing `get`, `post`, `put` or `delete`.
+
+```dart
+//if Api is Mock, implements `post`.
+when(() => api.post(any())).thenReturn({'status': 'sucess'});
+
+//if Api !is Mock, the real implementation will be called as usual.
+final data = await api.post('/path', {...}); // -> {'status': 'sucess'}
+```
+
+### FakeBox
+
+---
+> `Fake` is a full implementation, functional, but simplified for testing.
+
+```dart
+// use initialData map when a default configuration is needed.
+final box = FakeBox({
   'language': 'pt',
   'theme': 'dark',
 });
+
+// use `storage` to check the contents.
+print(box.storage['theme']) // -> 'dark'.
+
+// reading/writing is fully functional.
+final repository = BookRepository(MockApi(),box);
 ```
 
-> Both Mocks implements `IApi` & `IBox`. They are included in this package.
+> Both Mock/Fake implements `IApi` & `IBox`. They are included in this package.
 
+### Api Integration Test
+
+---
+A integration test verifies the integration between two units. Api Integration test diagnoses our app communication with the Client (connectivity, performance, security and more).
+
+```dart
+void main() {
+  final isTestUrl = true;
+
+  final api = RealApi();
+  final api.baseUrl = isTestUrl ? 'http://test.api.com' : 'http://www.api.com';
+
+  group('Api', () {
+    test('post', () async {
+      final data = await api.post('/path', {...});
+
+      expect(data['status'], 'sucess');
+    });
+  });
+}
+```
+
+> Use this as starting point when implementing a new repository.
+>
 ## Repository
 
 ---
@@ -171,69 +229,131 @@ class UserRepository {
 
 ## Repository Test
 
+> For testing we'll be using `mocktail` package.
+
 ```dart
 void main() {
+final isIntegrationTest = false;
 
   group('UserRepository', () {
-    final shared = MockBox();
-    final safe = MockBox();
-    final api = MockApi({
-      '/login': User(id: '0').toMap(),
-    });
-    final repository = UserRepository(api, shared, safe);
+    late UserRepository repository;
+    late MockBox shared;
+    late MockBox safe;
+    late MockApi api;
 
-    setUp(() { //called before any test inside this group.
-      shared.reset();
-      safe.reset();
+    setUp(() { //create a new instance for each test.
+      api = isIntegrationTest ? RealApi() : MockApi();
+      shared = FakeBox();
+      safe = FakeBox();
+      repository = UserRepository(api, shared, safe);
     });
 
     test('login', () async { 
+      when(() => api.get(any())).thenReturn(User(id: 0).toMap()); // if api is Mock
       final user = await repository.login({'email': '@', 'password': '1'});
 
-      //verify the MockApi output.
-      expect(user.id, '0');
+      //verify the real/mock output.
+      expect(user.id, 0);
     });
 
     test('savePassword', () async {
       await repository.savePassword('123');
 
-      //verify if the MockBox is correctly writing.
+      //verify if the FakeBox is correctly writing.
       expect(safe.storage.containsKey(UserRepository.key), true);
       expect(safe.storage[UserRepository.key], '123');
     });
   });
 }
-
 ```
-
-> This approach uses no external packages nor code generators. 🫧
 
 ## State Management
 
 ---
-The package includes GetX reactivity.
-We added `.obn`, which is the same as `.obs` with `null` as initial value.
 
-Logic
+The package includes GetX reactivity. We added `.obn` and widgets: `ObxBuilder` and `ObxListBuilder`.
+
+### Getx Reactivity
+
+---
+
+> The extension `.obn` is the same as `.obs` with `null` as initial value.
+
+**Logic:** Controller/Service
 
 ```dart
 // private, must only be modified here.
 final _count = 0.obs;
-final _user = User().obn; // init with null
+final _book = Book().obn; // init with null
+final _books = <Book>[].obs;
 
 // always use getters.
 int get count => _count.value; 
-User? get user => _user.value; // nullable
+Book? get book => _user.value; // nullable
+
+// RxList is Iterable, just convert toList.
+List<Book> get books => _user.toList();
 
 // setting state.
 void increment() => _count.value++; 
+
+// always void.
+Future<void> fetchBooks() async {
+  _books.value = await {...}; // _repository.getBooks();
+}
 ```
 
-View
+**View:** Page/Widget
 
 ```dart
 Obx(()=> Text(controller.count)); // reacts to _count.value changes
 ```
+
+### ObxListBuilder
+
+---
+> Use `ObxListBuilder` for building reactive lists.
+
+```dart
+// reacts to list changes, build items and show async states.
+ObxListBuilder(
+  obx: () => controller.books,
+
+  // easily control your void async function. 
+  // refactor in your controller/service. -> controller.asyncBooks
+  async: Async.future(controller.fetchBooks, interval: 30.seconds),
+
+  // easily refactor all the possible states of your list.
+  states: const MyListStates(), // loading, reloading, error, null, empty
+
+  // all the configs you may need in one place.
+  config: ListConfig<Book>(
+    scrollDirection: Axis.horizontal,
+    shrinkWrap: true,
+  ),
+
+  // an auto animated list that animates on list changes (add, remove).
+  // your model must have equality operator '==' for this to work.
+  builder: (book, i) {
+    return ListTile(title: Text('${book.id}'));
+  },
+)
+```
+
+> You don't need to configure anything, it already comes with default states and animations. Most of the time we'll only use the parameters `obx` and `builder`. 🫧
+
+```dart
+// You can also use `ObxBuilder` for any other types.
+ObxBuilder(
+  obx: () => controller.book, // nullable
+  states: AsyncStates(onNull: const BookNull()),
+  builder: (book) { // non-nullable
+    return BookWidget(book);
+  },
+)
+```
+
+> Use `ObxBuilder` for complex reactive states. Otherwise use `Obx()`.
 
 ### Extension: [GetX Light Bulb](https://marketplace.visualstudio.com/items?itemName=HyLun.getx-light-bulb)
 
@@ -242,6 +362,8 @@ Adds these to the context menu (cmd + .):
 
 - Wrap with Obx
 - Remove this Obx
+
+> Tip: User **Wrap with Builder** when you want to use `ObxListBuilder` or `ObxBuilder`.
 
 ## Service
 

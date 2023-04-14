@@ -18,7 +18,6 @@ typedef Translations = Map<String, Map<String, String>>;
 /// [.tr] Pattern: 'a.b.c' -> 'a.b' -> 'a' -> 'a.b.c'.
 ///
 /// [.trn] Pattern: 'a.b.c' -> 'a.b' -> 'a' -> null.
-
 class Translation {
   const Translation._(this.initialLocale, this.translations);
   static Translation? _instance;
@@ -225,4 +224,16 @@ extension TranlationExtension on String {
     );
     return Translation._instance?.translate(this);
   }
+}
+
+///Simplest way to track any [Exception] in the app.
+///
+///Additionally auto translates this [key] if any translation matches.
+class ExceptionKey implements Exception {
+  ///Identifies [Exception] with unique [key]. Translates, if any.
+  ExceptionKey(this.key);
+  final String key;
+
+  @override
+  String toString() => key.tr;
 }

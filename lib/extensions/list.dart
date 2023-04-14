@@ -87,6 +87,6 @@ class Sort {
   Sort get lower => Sort(a?.toLowerCase(), b?.toLowerCase());
   Sort isLower(bool condition) => condition ? lower : this;
   int isAz(bool ascending) => ascending ? az : za;
-  int get az => a.or('').compareTo(b.or(''));
-  int get za => b.or('').compareTo(a.or(''));
+  int get az => (a ?? '').compareTo(b ?? '');
+  int get za => (b ?? '').compareTo(a ?? '');
 }

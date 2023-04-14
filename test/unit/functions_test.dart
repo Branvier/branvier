@@ -28,24 +28,4 @@ void main() {
     expect(nor, '');
   });
 
-  test('if non-null', () async {
-    Future<String?> get() async => 'null';
-
-    var validated = false;
-
-    void onValidate(String value) {
-      validated = true;
-    }
-
-    String? validator(String? value) {
-      value.ifNon(onValidate);
-      return value;
-    }
-
-    final string = await get();
-    final r = string.ifNon(validator);
-
-    expect(r, 'null');
-    expect(validated, true);
-  });
 }

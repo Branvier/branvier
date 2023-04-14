@@ -30,19 +30,6 @@ extension MapExt<K, V> on Map<K, V?> {
   }
 }
 
-extension ScopeFunctionsForObject<T extends Object> on T {
-  /// Calls the specified function [operation] with `this` value as its argument and returns its result.
-  R let<R>(R operation(T self)) {
-    return operation(this);
-  }
-
-  /// Calls the specified function [operation] with `this` value as its argument and returns `this` value.
-  T also(void Function(T self) operation) {
-    operation(this);
-    return this;
-  }
-}
-
 /// Represents a generic pair of two values.
 class Pair<L, R> {
   Pair(this.left, this.right);

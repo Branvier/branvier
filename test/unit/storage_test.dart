@@ -2,7 +2,7 @@ import 'package:branvier/branvier.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  final box = MockBox();
+  final box = FakeBox();
 
   group('storage base', () {
     test('write & readAll', () async {

@@ -10,7 +10,6 @@ ApiResponse<T> _response<T>(data) => ApiResponse<T>(
 
 ///$message - daa
 void main() {
-
   group('extensions', () {
     test('string', () {
       final r = _response('a');

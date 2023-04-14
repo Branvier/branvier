@@ -42,45 +42,13 @@ extension IApiExt on IApi {
       : headers['authorization'] = token;
 }
 
-///Simple http client Mocker.
-class MockApi implements IApi {
-  ///Mocks each response by using the request path: {'/path': result}.
-  ///Query parameters are ignored.
-  ///
-  ///Ex: ApiMock({
-  ///
-  /// '/getUser': {'name': 'iran', 'age': 24},
-  ///
-  ///})
-  MockApi(this._paths);
-  final Map<String, dynamic> _paths;
+///Simple http client Mocker using mocktail.
+class MockApi extends Mock implements IApi {
+  @override
+  var baseUrl = '';
 
   @override
-  @Deprecated('Disabled in mocks')
-  set baseUrl(String url) {}
-
-  @override
-  @Deprecated('Disabled in mocks')
   final headers = <String, dynamic>{};
-
-  @override
-  Future<T> delete<T>(String path) async => _response(path);
-
-  @override
-  Future<T> get<T>(String path) async => _response(path);
-
-  @override
-  Future<T> post<T>(String path, [data]) async => _response(path);
-
-  @override
-  Future<T> put<T>(String path, [data]) async => _response(path);
-
-  ///Looks for the mocked result. Query parameters are ignored.
-  Future<T> _response<T>(String path) async {
-    final uri = Uri.parse(path);
-    dev.log(uri.path.isEmpty ? 'empty path' : '${uri.path} <- called');
-    return _paths[uri.path];
-  }
 }
 
 extension ApiResponseExt<T> on ApiResponse<T> {
@@ -95,14 +63,14 @@ extension ApiResponseExt<T> on ApiResponse<T> {
   ///Gets the content as [Json].
   Json get map {
     if (content is Map) return Json.from(content);
-    if (content is List && content.isEmpty) throw ApiException.empty();
+    if (content is List && content.isEmpty) throw ApiException('API.EMPTY');
     return Json.from((content as List).first);
   }
 
   ///Gets the result as [String].
   String get string {
     if (content is String) return content;
-    if (content is List && content.isEmpty) throw ApiException.empty();
+    if (content is List && content.isEmpty) throw ApiException('API.EMPTY');
     return (content as List).first;
   }
 }
@@ -137,25 +105,11 @@ class ApiResponse<T> {
   }
 }
 
+extension ApiResponseException<T> on ApiResponse<T> {
+  ApiException get exception => ApiException(message);
+}
+
 @immutable
-class ApiException implements Exception {
-  const ApiException(this.response, [this.data]);
-
-  factory ApiException.empty() => ApiException.message('api.response.empty');
-
-  ApiException.message(String message, [this.data])
-      : response = ApiResponse(
-          result: false,
-          message: message,
-          content: [],
-          token: null,
-        );
-
-  final ApiResponse response;
-  final dynamic data;
-
-  bool get result => response.result;
-  String get message => response.message;
-  List get content => response.content;
-  String? get token => response.token;
+class ApiException extends ExceptionKey {
+  ApiException(String key) : super(key.toUpperCase());
 }

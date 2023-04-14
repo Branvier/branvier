@@ -33,11 +33,3 @@ extension FutureNullable<T> on Future<T?> {
     return then((r) => r != null ? action(r) : null, onError: (e) => null);
   }
 }
-
-extension TypeNullable<T> on T? {
-  ///Marks [T] as non-nullable. On null/error fallbacks [value].
-  T or([T? value]) => this ?? value!;
-
-  ///Returns [onNon] if [T] is non-null, else null.
-  R? ifNon<R>(GetOn<T, R> onNon) => this != null ? onNon(this!) : null;
-}

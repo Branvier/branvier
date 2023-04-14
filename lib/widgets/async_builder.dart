@@ -50,7 +50,7 @@ class AsyncStates {
   final Widget onLoading;
 
   ///Wraps builder while async is updating.
-  final Widget onReloading;
+  final Widget? onReloading;
 }
 
 class AsyncBuilder<T> extends HookWidget {
@@ -112,7 +112,10 @@ class AsyncBuilder<T> extends HookWidget {
 
     //On data.
     Widget child() => builder(snap.data as T).fill();
-    Widget reloading() => Stack(children: [child(), states.onReloading]);
+    Widget reloading() {
+      if (states.onReloading == null) return states.onLoading;
+      return Stack(children: [child(), states.onReloading!]);
+    }
 
     if (snap.isUpdating) return reloading();
     if (snap.isLoading) return states.onLoading;

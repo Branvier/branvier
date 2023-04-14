@@ -62,26 +62,27 @@ extension AnimationExtension on Widget {
     );
   }
 
-  AnimatedBuilderX scale({
-    required double begin,
-    required double end,
+  AnimatedBuilderX scale(
+    double begin, {
+    double? end,
     Duration duration = _defaultDuration,
     Duration delay = _defaultDelay,
     ValueSetter<AnimationController>? onComplete,
     bool isSequential = false,
   }) {
+    
     return ScaleAnimation(
       duration: duration,
       delay: _getDelay(isSequential, delay),
       begin: begin,
-      end: end,
+      end: end ?? begin,
       onComplete: onComplete,
       child: this,
     );
   }
 
   AnimatedBuilderX slide({
-    required OffsetBuilder offset,
+    required OffsetBuilder offset, 
     double begin = 0,
     double end = 1,
     Duration duration = _defaultDuration,

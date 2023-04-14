@@ -1,7 +1,7 @@
 part of '/branvier.dart';
 
 extension WidgetX on Widget {
-  Widget scale(double scale) => Transform.scale(scale: scale, child: this);
+  // Widget scale(double scale) => Transform.scale(scale: scale, child: this);
   Widget onTap(VoidCallback? onTap) => InkWell(onTap: onTap, child: this);
   Widget expand([int flex = 1]) => Expanded(flex: flex, child: this);
   Widget visible([bool value = true]) =>

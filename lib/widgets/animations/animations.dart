@@ -48,7 +48,7 @@ class OpacityAnimation extends AnimatedBuilderX<double> {
           builder: (context, value, child) {
             return Opacity(
               opacity: value,
-              child: child!,
+              child: child,
             );
           },
         );

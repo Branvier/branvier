@@ -75,7 +75,7 @@ class AnimatedBuilderXState<T> extends State<AnimatedBuilderX<T>>
       final isLast = current == null;
 
       if (widget is FadeInAnimation) {
-        _idleValue = 1.0 as dynamic;
+        _idleValue = 0.0 as dynamic;
       } else {
         if (isLast) {
           _willResetOnDispose = false;

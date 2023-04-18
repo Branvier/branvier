@@ -62,7 +62,7 @@ class HomeScreen extends StatelessWidget {
               Translation.locale == 'en' ? 'pt' : 'en',
             );
           },
-          child: Text(TranslationOld.locale),
+          child: Text(Translation.locale),
         ),
       ),
     );

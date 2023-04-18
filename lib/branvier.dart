@@ -50,3 +50,7 @@ void postFrame(VoidCallback? callback) =>
 
 ///The current [WidgetsBinding].
 WidgetsBinding get engine => WidgetsFlutterBinding.ensureInitialized();
+
+///Tells if the [Theme] is dark.
+bool get kIsDark =>
+    engine.platformDispatcher.platformBrightness == Brightness.dark;

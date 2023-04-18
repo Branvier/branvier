@@ -4,19 +4,19 @@ part of '/branvier.dart';
 
 abstract class IBox {
   ///Reads the json data.
-  Future<T?> read<T>(String key);
+  FutureOr<T?> read<T>(String key);
 
   ///Writes the json data.
-  Future<void> write(String key, data);
+  FutureOr<void> write(String key, data);
 
   ///Removes the json data.
-  Future<void> delete(String key);
+  FutureOr<void> delete(String key);
 
   ///Clear all data.
-  Future<void> deleteAll();
+  FutureOr<void> deleteAll();
 
   ///Gets all data.
-  Future<Json> readAll();
+  FutureOr<Json> readAll();
 }
 
 ///Simple fake key/value storage.

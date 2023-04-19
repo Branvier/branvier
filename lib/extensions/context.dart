@@ -18,11 +18,34 @@ extension ContextExt on BuildContext {
 
   ///Current settings from the closest route.
   RouteSettings? get route => ModalRoute.of(this)?.settings;
+
+  ThemeData get theme => Theme.of(this);
+
+  
 }
 
 extension MaterialColorGenerator on Color {
-  /// Generates and returns a MaterialColor from a single Color.
-  MaterialColor toMaterialColor() {
+  ///Add shades to this [Color].
+  ///
+  /// From Lighest to Darkest. Where [500] is the same color.
+  /// - [50],[100],[200],[300],[400],[500],[600],[700],[800],[900].
+  ///
+  /// Any other value will return the closest shade value.
+  Color operator [](int shade) {
+    final shades = [50, 100, 200, 300, 400, 500, 600, 700, 800, 900];
+
+    if (shades.contains(shade)) return swatch[shade]!;
+    if (shade < 25) return Colors.white;
+    if (shade < 75) return swatch[50]!;
+    if (shade >= 950) return Colors.black;
+    if (shade >= 850) return swatch[900]!;
+
+    ///Round to closest shade.
+    return swatch[(shade / 100).round() * 100]!;
+  }
+
+  /// Generates [MaterialColor] swatch from a single Color.
+  MaterialColor get swatch {
     return _createMaterialColor(this);
   }
 

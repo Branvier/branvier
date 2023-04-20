@@ -223,7 +223,7 @@ linter:
     unnecessary_null_aware_operator_on_extension_on_nullable: true
     collection_methods_unrelated_type: true
     combinators_ordering: true
-    discarded_futures: true
+    # discarded_futures: true
 
 
 # Adtional information about this file can be found at: true

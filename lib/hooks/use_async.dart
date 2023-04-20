@@ -150,4 +150,6 @@ class AsyncSnap<T> {
 
 extension AsyncSnapshotExtension<T> on AsyncSnapshot<T> {
   bool get isEmpty => data is Iterable && (data as Iterable).isEmpty;
+  bool get isLoading => connectionState != ConnectionState.done;
+  bool get isUpdating => isLoading && hasData && !isEmpty;
 }

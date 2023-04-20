@@ -2,14 +2,27 @@
 
 part of '/branvier.dart';
 
-abstract class IBox {
-  ///Reads the json data.
-  FutureOr<T?> read<T>(String key);
+///An [IBox] used for secure storage.
+abstract class ISafeBox implements IBox {
+  @override
+  Future<T?> read<T>(String key, {T? or});
+}
 
-  ///Writes the json data.
+///An [IBox] used for accessible storage.
+abstract class IOpenBox implements IBox {
+  @override
+  T? read<T>(String key, {T? or});
+}
+
+///A storage interface for key/value databases.
+abstract class IBox {
+  ///Reads [key], if null, sets and gets [or].
+  FutureOr<T?> read<T>(String key, {T? or});
+
+  ///Writes [data] in [key].
   FutureOr<void> write(String key, data);
 
-  ///Removes the json data.
+  ///Removes data in [key].
   FutureOr<void> delete(String key);
 
   ///Clear all data.
@@ -18,6 +31,15 @@ abstract class IBox {
   ///Gets all data.
   FutureOr<Json> readAll();
 }
+
+///Storage extension.
+extension StorageExtension on IBox {
+  ///Gets current data and sets with [update].
+  Future<void> update<T>(String key, T update(T? data)) async {
+    final newData = update(await read(key));
+    await write(key, newData);
+  }
+} // tested
 
 ///Simple fake key/value storage.
 class FakeBox extends Mock implements IBox {
@@ -31,26 +53,18 @@ class FakeBox extends Mock implements IBox {
   final Json initialData;
 
   @override
-  Future<void> delete(key) async => storage.remove(key);
+  FutureOr<T?> read<T>(key, {or}) =>
+      storage[key] ?? write(key, or).then((_) => or);
+
+  @override
+  FutureOr<Json> readAll() => storage;
+
+  @override
+  Future<void> delete(key) => storage.remove(key);
 
   @override
   Future<void> deleteAll() async => storage.clear();
 
   @override
-  Future<T?> read<T>(key) async => storage[key] as T?;
-
-  @override
-  Future<Json> readAll() async => storage;
-
-  @override
-  Future<void> write(key, data) async => storage[key] = data;
+  Future<void> write(key, data) => storage[key] = data;
 }
-
-///Storage extension.
-extension StorageExtension on IBox {
-  ///Gets current data and sets with [update].
-  Future<void> update<T>(String key, T update(T? data)) async {
-    final newData = update(await read(key));
-    await write(key, newData);
-  }
-} // tested

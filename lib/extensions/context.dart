@@ -8,20 +8,55 @@ extension ContextExt on BuildContext {
   }) =>
       Scrollable.ensureVisible(this, alignment: 0.5, duration: duration);
 
-  Future<T?> dialog<T>(WidgetBuilder builder, {bool dismissible = true}) {
-    return showDialog<T>(
-      context: this,
-      barrierDismissible: dismissible,
-      builder: builder,
-    );
+  void dialog<T>({
+    required WidgetBuilder builder,
+    bool dismissible = true,
+    void onDismiss(T? result)?,
+  }) {
+    postFrame(() async {
+      final result = showDialog<T>(
+        context: this,
+        barrierDismissible: dismissible,
+        builder: builder,
+      );
+      await result.then((re) => onDismiss?.call(re));
+    });
   }
 
   ///Current settings from the closest route.
   RouteSettings? get route => ModalRoute.of(this)?.settings;
 
+  ///Current theme of the app.
   ThemeData get theme => Theme.of(this);
 
-  
+  ///Visits all [T] widgets below this context. If [T] is absent, visits all.
+  ///
+  ///Additionally returns a list of the Widgets found.
+  List<T> visitAll<T extends Widget>({
+    bool rebuild = false,
+    void onWidget(Widget parent, T widget)?,
+    void onElement(Element parent, Element element)?,
+  }) {
+    final list = <T>[];
+    var parent = this as Element;
+
+    void visit(Element element) {
+      if (element.widget is T) {
+        onElement?.call(parent, element);
+        onWidget?.call(parent.widget, element.widget as T);
+        list.add(element.widget as T);
+
+        if (rebuild) element.markNeedsBuild();
+      }
+      parent = element;
+      element.visitChildren(visit);
+    }
+
+    parent.visitChildren(visit);
+
+    dev.log('${list.length} $T widgets found');
+    return list;
+  }
 }
 
 extension MaterialColorGenerator on Color {

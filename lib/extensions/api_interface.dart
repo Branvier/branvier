@@ -110,6 +110,6 @@ extension ApiResponseException<T> on ApiResponse<T> {
 }
 
 @immutable
-class ApiException extends ExceptionKey {
+class ApiException extends KeyException {
   ApiException(String key) : super(key.toUpperCase());
 }

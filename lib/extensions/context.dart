@@ -54,9 +54,11 @@ extension ContextExt on BuildContext {
       if (element.widget is T) {
         onElement?.call(parent, element);
         onWidget?.call(parent.widget, element.widget as T);
-        list.add(element.widget as T);
+
+        if (!rebuild) list.add(element.widget as T);
 
         if (rebuild && !ignoreType(element.widget)) {
+          list.add(element.widget as T);
           element.markNeedsBuild();
         }
       }

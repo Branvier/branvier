@@ -45,11 +45,11 @@ class Translation {
   ///All translations. {'locale': {'key': 'translation'}, ... }.
   final Translations translations = {};
   final missingTranslations = <String>{};
-  final translationFiles = <String>[];
-  final supportedLocales = <Locale>[];
+  final translationFiles = <String>{};
+  final supportedLocales = <Locale>{};
 
   ///Load all locales from asset [path].
-  Future<List<Locale>> loadLocales(String path, {String pattern = '-'}) async {
+  Future<Set<Locale>> loadLocales(String path) async {
     final manifestContent = await rootBundle.loadString('AssetManifest.json');
     final Map<String, dynamic> manifestMap = json.decode(manifestContent);
 
@@ -62,13 +62,7 @@ class Translation {
     supportedLocales.clear();
     for (final file in translationFiles) {
       final code = file.split('/').last.split('.').first; //fileName
-
-      supportedLocales.add(
-        Locale.fromSubtags(
-          languageCode: code.split(pattern).first,
-          countryCode: code.split(pattern).last,
-        ),
-      );
+      supportedLocales.add(code.toLocale());
     }
     return supportedLocales;
   }
@@ -76,15 +70,15 @@ class Translation {
   ///Translation loader. Loads one if [_lazyTranslation] = true.
   Future<void> loadByLocale(Locale locale) async {
     final translations = <String, StringMap>{};
-    late String localeCode;
+    late Locale fileLocale;
 
     final file = translationFiles.firstWhere((e) {
-      localeCode = e.split('/').last.split('.').first;
-      return localeCode.startsWith(locale.languageCode);
+      fileLocale = e.split('/').last.split('.').first.toLocale();
+      return fileLocale == locale;
     });
 
     final json = await rootBundle.loadString(file);
-    translations[localeCode] = json.parse<StringMap>();
+    translations[fileLocale.toString()] = json.parse<StringMap>();
 
     ///Merge with existings.
     Translation.to.translations.addAll(translations);
@@ -96,8 +90,8 @@ class Translation {
 
     for (final file in translationFiles) {
       final json = await rootBundle.loadString(file);
-      final languageCode = file.split('/').last.split('.').first; //fileName
-      translations[languageCode] = json.parse<StringMap>();
+      final locale = file.split('/').last.split('.').first.toLocale(); //file
+      translations[locale.toString()] = json.parse<StringMap>();
     }
 
     ///Merge with existings.
@@ -110,10 +104,10 @@ class Translation {
 
     //looking for sub keys.
     for (final key in keys) {
-      final translation = translations[locale.toLanguageTag()]?[key];
+      final translation = translations[locale.toString()]?[key];
       if (translation != null) return translation; //found.
     }
-    missingTranslations.add(locale.toLanguageTag());
+    missingTranslations.add(key);
     if (_logger) dev.log('Missing translation: $key');
     return null; //not found.
   }
@@ -123,10 +117,11 @@ class Translation {
   Locale get locale => _locale ?? _fallback;
 
   ///Change app language with locale.
-  void changeLanguage(Locale locale) async {
+  Future<void> changeLanguage(Locale locale) async {
+    if (_locale == locale) return; //ignoring.
+    if (_logger) dev.log('Translation changed: $_locale -> $locale');
     _locale = locale;
 
-    if (_logger) dev.log('Translation changed: $_locale -> $locale');
     if (_logger && _lazyTranslation) dev.log('isLazy = true. Loading...');
     if (_lazyTranslation) await loadByLocale(locale);
     if (_logger && _lazyTranslation) dev.log('isLazy = true. Loaded!');
@@ -134,8 +129,8 @@ class Translation {
     key.currentContext?.visitAll(rebuild: true);
 
     if (key.currentContext == null && _logger) {
-      dev.log('Currently running is read mode. In order to update '
-          'the UI, set Translation.key on any widget above your app or manage the '
+      dev.log('Currently running is read mode. In order to update the UI, '
+          'set Translation.key on any widget above your app or manage the '
           'the state manually. Use setLogger(false) to disable this.');
     }
 
@@ -153,13 +148,19 @@ class Translation {
     _path = path;
   }
 
-  ///Changes default fallback. Default: 'en-US'.
+  ///The [Locale] the app starts. If null, use system's or fallback.
+  void setInitial(Locale locale) {
+    if (_logger) dev.log('Translation initial locale: $locale');
+    _locale = locale;
+  }
+
+  ///Changes default fallback. Default: 'enUS'.
   void setFallback(Locale locale) {
     if (_logger) dev.log('Translation fallback: $locale');
     _fallback = locale;
   }
 
-  ///Changes default fallback. Default: 'en-US'.
+  ///Activates or desactivate log messages.
   void setLogger(bool isActive) {
     dev.log('Logger isActive: $isActive');
     _logger = isActive;
@@ -193,13 +194,9 @@ class _TranslationLocalizations extends LocalizationsDelegate {
     final hasLocale = locales.contains(locale);
     final localeToLoad = hasLocale ? locale : trans._fallback;
 
-    if (trans._lazyTranslation) {
-      await trans.loadByLocale(localeToLoad);
-    } else {
-      await trans.loadAll();
-    }
+    if (!trans._lazyTranslation) await trans.loadAll();
 
-    trans.changeLanguage(localeToLoad);
+    await trans.changeLanguage(trans._locale ?? localeToLoad);
     return Translation.to;
   }
 
@@ -221,6 +218,20 @@ extension TranlationExtension on String {
       dev.log('Translation failed. You need to call Translation.init()');
     }
     return Translation.to.translate(this);
+  }
+
+  ///Converts this String to [Locale].
+  ///Separators: _ , - , + , . , / , | , \ and space.
+  Locale toLocale() {
+    final parts = split(RegExp(r'[_\-\s\.\/|+\\]'));
+    if (parts.length == 2) {
+      return Locale(parts[0], parts[1]);
+    } else if (parts.length == 1) {
+      return Locale(parts[0]);
+    } else {
+      dev.log('invalid Locale: $this');
+      return Locale(this);
+    }
   }
 }
 

@@ -21,25 +21,11 @@ typedef Translations = Map<String, Map<String, String>>;
 class Translation {
   const Translation._(this.initialLocale, this.translations);
   static Translation? _instance;
-  static String? _locale;
+  static Locale? _locale;
+  static Locale? _fallback;
 
-  ///Inits [translations] right away with a [Map].
-  static void init({
-    required String initialLocale,
-    required Translations translations,
-  }) {
-    _locale ??= initialLocale;
-    _instance ??= Translation._(initialLocale, translations);
-  }
-
-  ///Loads all [translations] files from asset [path] then init().
-  static Future<void> initAsset(
-    String initialLocale,
-    String path,
-  ) async {
-    final translations = await _loadFolder(path);
-    init(initialLocale: initialLocale, translations: translations);
-  }
+  ///Path translations.
+  static var _path = 'assets/translations';
 
   ///Translation loader utility. Loads from asset [path].
   static Future<Translations> _loadFolder(String path) async {
@@ -61,11 +47,23 @@ class Translation {
     return translations;
   }
 
+  ///Set this on [MaterialApp].key.
+  static final key = GlobalKey();
+
+  ///Set this on [MaterialApp].localizationsDelegates.
+  static List<LocalizationsDelegate> get delegates => [
+        TranslationDelegate(),
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ];
+
   ///All translations. {'locale': {'key': 'translation'}, ... }.
   final Translations translations;
+  static final Translations missingTranslations = {};
 
   ///The language the app starts with.
-  final String initialLocale;
+  final Locale initialLocale;
 
   ///Translates [key]. Fallbacks to subkeys.
   String? translate(String key) {
@@ -73,21 +71,57 @@ class Translation {
 
     //looking for sub keys.
     for (final key in keys) {
-      final translation = translations[locale]?[key];
+      final translation = translations[locale.toLanguageTag()]?[key];
       if (translation != null) return translation; //found.
     }
-
+    dev.log('Missing translation: $key');
+    missingTranslations[locale.toLanguageTag()]?[key] = '';
     return null; //not found.
   }
 
   ///Current [locale].
-  static String get locale => _locale!;
+  static Locale get locale => _locale!;
+  static Locale get fallback => _fallback!;
 
   ///Change app language with locale.
-  static Future<void> changeLanguage(String locale) async {
+  static void changeLanguage(Locale locale) {
     _locale = locale;
-    await engine.performReassemble();
+    dev.log('Translation changed: $_locale -> $locale');
+    key.currentContext?.visitAll(rebuild: true);
+    postFrame(Translation.missingTranslations.log);
   }
+
+  ///Changes default path. Default: 'assets/translations'.
+  static void setPath(String path) {
+    dev.log('Translation path: $path');
+    Translation._path = path;
+  }
+
+  ///Changes default fallback. Default: 'en-US'.
+  static void setFallback(Locale locale) {
+    dev.log('Translation fallback: $locale');
+    Translation._fallback = locale;
+  }
+}
+
+class TranslationDelegate extends LocalizationsDelegate<Translation> {
+  @override
+  bool isSupported(Locale locale) =>
+      Translation._instance!.translations.keys.contains(locale.toLanguageTag());
+
+  @override
+  Future<Translation> load(Locale locale) async {
+    final translations = await Translation._loadFolder(Translation._path);
+    final supported = translations.keys.contains(locale.toLanguageTag());
+    final fallback = Translation._fallback ??= const Locale('en', 'US');
+    final initialLocale = supported ? locale : fallback;
+
+    //init
+    return Translation._instance ??= Translation._(initialLocale, translations);
+  }
+
+  @override
+  bool shouldReload(LocalizationsDelegate old) => false;
 }
 
 extension TranlationExtension on String {

@@ -28,10 +28,13 @@ extension ContextExt on BuildContext {
 
   ///Current theme of the app.
   ThemeData get theme => Theme.of(this);
-
+  
   ///Visits all [T] widgets below this context. If [T] is absent, visits all.
   ///
   ///Additionally returns a list of the Widgets found.
+  ///
+  ///You can rebuild the widgets found. Native and private classes are ignored,
+  ///making this very lightweight and fast.
   List<T> visitAll<T extends Widget>({
     bool rebuild = false,
     void onWidget(Widget parent, T widget)?,
@@ -40,13 +43,22 @@ extension ContextExt on BuildContext {
     final list = <T>[];
     var parent = this as Element;
 
+    bool ignoreType(Widget widget) {
+      if (isFlutterWidget(widget)) return true;
+      if (isBranvierWidget(widget)) return true;
+      if (widget.runtimeType.toString().startsWith('_')) return true;
+      return false;
+    }
+
     void visit(Element element) {
       if (element.widget is T) {
         onElement?.call(parent, element);
         onWidget?.call(parent.widget, element.widget as T);
         list.add(element.widget as T);
 
-        if (rebuild) element.markNeedsBuild();
+        if (rebuild && !ignoreType(element.widget)) {
+          element.markNeedsBuild();
+        }
       }
       parent = element;
       element.visitChildren(visit);
@@ -55,6 +67,7 @@ extension ContextExt on BuildContext {
     parent.visitChildren(visit);
 
     dev.log('${list.length} $T widgets found');
+    dev.log('Types: ${list.toSet().map((e) => e.runtimeType)}');
     return list;
   }
 }

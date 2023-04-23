@@ -19,24 +19,80 @@ typedef Translations = Map<String, Map<String, String>>;
 ///
 /// [.trn] Pattern: 'a.b.c' -> 'a.b' -> 'a' -> null.
 class Translation {
-  const Translation._(this.initialLocale, this.translations);
   static Translation? _instance;
-  static Locale? _locale;
-  static Locale? _fallback;
+  static final to = _instance ??= Translation();
 
-  ///Path translations.
-  static var _path = 'assets/translations';
+  ///Set this [key] on any widget above your translations getters.
+  ///Ex: [MaterialApp].
+  static final key = GlobalKey();
 
-  ///Translation loader utility. Loads from asset [path].
-  static Future<Translations> _loadFolder(String path) async {
-    final translations = <String, StringMap>{};
+  ///Set this on [MaterialApp].localizationsDelegates.
+  static List<LocalizationsDelegate> get delegates => [
+        _TranslationLocalizations.delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ];
 
+  ///Path translations. Defaults to 'assets/translations'
+  var _path = 'assets/translations';
+
+  Locale? _locale; //current [Locale].
+  var _fallback = const Locale('en', 'US');
+  var _lazyTranslation = false;
+  var _logger = true;
+
+  ///All translations. {'locale': {'key': 'translation'}, ... }.
+  final Translations translations = {};
+  final missingTranslations = <String>{};
+  final translationFiles = <String>[];
+  final supportedLocales = <Locale>[];
+
+  ///Load all locales from asset [path].
+  Future<List<Locale>> loadLocales(String path, {String pattern = '-'}) async {
     final manifestContent = await rootBundle.loadString('AssetManifest.json');
     final Map<String, dynamic> manifestMap = json.decode(manifestContent);
 
-    final translationFiles = manifestMap.keys
+    translationFiles.clear();
+    final files = manifestMap.keys
         .where((key) => key.contains(path))
         .where((key) => key.endsWith('.json'));
+    translationFiles.addAll(files);
+
+    supportedLocales.clear();
+    for (final file in translationFiles) {
+      final code = file.split('/').last.split('.').first; //fileName
+
+      supportedLocales.add(
+        Locale.fromSubtags(
+          languageCode: code.split(pattern).first,
+          countryCode: code.split(pattern).last,
+        ),
+      );
+    }
+    return supportedLocales;
+  }
+
+  ///Translation loader. Loads one if [_lazyTranslation] = true.
+  Future<void> loadByLocale(Locale locale) async {
+    final translations = <String, StringMap>{};
+    late String localeCode;
+
+    final file = translationFiles.firstWhere((e) {
+      localeCode = e.split('/').last.split('.').first;
+      return localeCode.startsWith(locale.languageCode);
+    });
+
+    final json = await rootBundle.loadString(file);
+    translations[localeCode] = json.parse<StringMap>();
+
+    ///Merge with existings.
+    Translation.to.translations.addAll(translations);
+  }
+
+  ///Translation loader. Loads all if [_lazyTranslation] = false.
+  Future<void> loadAll() async {
+    final translations = <String, StringMap>{};
 
     for (final file in translationFiles) {
       final json = await rootBundle.loadString(file);
@@ -44,26 +100,9 @@ class Translation {
       translations[languageCode] = json.parse<StringMap>();
     }
 
-    return translations;
+    ///Merge with existings.
+    Translation.to.translations.addAll(translations);
   }
-
-  ///Set this on [MaterialApp].key.
-  static final key = GlobalKey();
-
-  ///Set this on [MaterialApp].localizationsDelegates.
-  static List<LocalizationsDelegate> get delegates => [
-        TranslationDelegate(),
-        GlobalMaterialLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
-        GlobalCupertinoLocalizations.delegate,
-      ];
-
-  ///All translations. {'locale': {'key': 'translation'}, ... }.
-  final Translations translations;
-  static final Translations missingTranslations = {};
-
-  ///The language the app starts with.
-  final Locale initialLocale;
 
   ///Translates [key]. Fallbacks to subkeys.
   String? translate(String key) {
@@ -74,50 +113,94 @@ class Translation {
       final translation = translations[locale.toLanguageTag()]?[key];
       if (translation != null) return translation; //found.
     }
-    dev.log('Missing translation: $key');
-    missingTranslations[locale.toLanguageTag()]?[key] = '';
+    missingTranslations.add(locale.toLanguageTag());
+    if (_logger) dev.log('Missing translation: $key');
     return null; //not found.
   }
 
   ///Current [locale].
-  static Locale get locale => _locale!;
-  static Locale get fallback => _fallback!;
+  Locale get fallback => _fallback;
+  Locale get locale => _locale ?? _fallback;
 
   ///Change app language with locale.
-  static void changeLanguage(Locale locale) {
+  void changeLanguage(Locale locale) async {
     _locale = locale;
-    dev.log('Translation changed: $_locale -> $locale');
+
+    if (_logger) dev.log('Translation changed: $_locale -> $locale');
+    if (_logger && _lazyTranslation) dev.log('isLazy = true. Loading...');
+    if (_lazyTranslation) await loadByLocale(locale);
+    if (_logger && _lazyTranslation) dev.log('isLazy = true. Loaded!');
+
     key.currentContext?.visitAll(rebuild: true);
-    postFrame(Translation.missingTranslations.log);
+
+    if (key.currentContext == null && _logger) {
+      dev.log('Currently running is read mode. In order to update '
+          'the UI, set Translation.key on any widget above your app or manage the '
+          'the state manually. Use setLogger(false) to disable this.');
+    }
+
+    //Log missing translations.
+    postFrame(
+      () {
+        if (_logger) dev.log('Missing translations: $missingTranslations');
+      },
+    );
   }
 
   ///Changes default path. Default: 'assets/translations'.
-  static void setPath(String path) {
-    dev.log('Translation path: $path');
-    Translation._path = path;
+  void setPath(String path) {
+    if (_logger) dev.log('Translation path: $path');
+    _path = path;
   }
 
   ///Changes default fallback. Default: 'en-US'.
-  static void setFallback(Locale locale) {
-    dev.log('Translation fallback: $locale');
-    Translation._fallback = locale;
+  void setFallback(Locale locale) {
+    if (_logger) dev.log('Translation fallback: $locale');
+    _fallback = locale;
+  }
+
+  ///Changes default fallback. Default: 'en-US'.
+  void setLogger(bool isActive) {
+    dev.log('Logger isActive: $isActive');
+    _logger = isActive;
+  }
+
+  ///Changes translation behavior. Default: false.
+  ///
+  ///If true, translation won't be instant. It will only load translations files
+  ///when the locale set on changeLanguage is first used.
+  ///
+  ///Tip: Only use in case you have lots of translations and huge files.
+  void setLazyTranslation(bool isLazy) {
+    if (_logger) dev.log('Translation isLazy: $isLazy');
+    _lazyTranslation = isLazy;
   }
 }
 
-class TranslationDelegate extends LocalizationsDelegate<Translation> {
+class _TranslationLocalizations extends LocalizationsDelegate {
+  const _TranslationLocalizations._();
+  static const delegate = _TranslationLocalizations._();
+
+  ///Intance.
+  Translation get trans => Translation.to;
+
   @override
-  bool isSupported(Locale locale) =>
-      Translation._instance!.translations.keys.contains(locale.toLanguageTag());
+  bool isSupported(Locale locale) => true;
 
   @override
   Future<Translation> load(Locale locale) async {
-    final translations = await Translation._loadFolder(Translation._path);
-    final supported = translations.keys.contains(locale.toLanguageTag());
-    final fallback = Translation._fallback ??= const Locale('en', 'US');
-    final initialLocale = supported ? locale : fallback;
+    final locales = await trans.loadLocales(trans._path);
+    final hasLocale = locales.contains(locale);
+    final localeToLoad = hasLocale ? locale : trans._fallback;
 
-    //init
-    return Translation._instance ??= Translation._(initialLocale, translations);
+    if (trans._lazyTranslation) {
+      await trans.loadByLocale(localeToLoad);
+    } else {
+      await trans.loadAll();
+    }
+
+    trans.changeLanguage(localeToLoad);
+    return Translation.to;
   }
 
   @override
@@ -134,19 +217,19 @@ extension TranlationExtension on String {
   ///
   ///Pattern: 'a.b.c' -> 'a.b' -> 'a' -> null.
   String? get trn {
-    if (Translation._instance == null) {
+    if (Translation._instance == null && Translation.to._logger) {
       dev.log('Translation failed. You need to call Translation.init()');
     }
-    return Translation._instance?.translate(this);
+    return Translation.to.translate(this);
   }
 }
 
 ///Simplest way to track any [Exception] in the app.
 ///
 ///Additionally auto translates this [key] if any translation matches.
-class ExceptionKey implements Exception {
+class KeyException implements Exception {
   ///Identifies [Exception] with unique [key]. Translates, if any.
-  ExceptionKey(this.key);
+  KeyException(this.key);
   final String key;
 
   @override

@@ -59,6 +59,7 @@ bool isFlutterWidget(widget) {
   if (widget is Navigator) return true;
   if (widget is NestedScrollView) return true;
   if (widget is Overlay) return true;
+  if (widget is PageStorage) return true;
   if (widget is PageView) return true;
   if (widget is PopupMenuButton) return true;
   if (widget is PositionedDirectional) return true;
@@ -74,6 +75,7 @@ bool isFlutterWidget(widget) {
   if (widget is RootRestorationScope) return true;
   if (widget is Router) return true;
   if (widget is SafeArea) return true;
+  if (widget is Scaffold) return true;
   if (widget is ScaffoldMessenger) return true;
   if (widget is ScrollNotificationObserver) return true;
   if (widget is Scrollbar) return true;
@@ -88,6 +90,7 @@ bool isFlutterWidget(widget) {
   if (widget is Stepper) return true;
   if (widget is Switch) return true;
   if (widget is TabBarView) return true;
+  if (widget is Text) return true;
   if (widget is TextField) return true;
   if (widget is Theme) return true;
   if (widget is TickerMode) return true;

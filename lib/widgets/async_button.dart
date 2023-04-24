@@ -18,16 +18,16 @@ class Buttons extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           const ElevatedButtonX(
-            onTap: fun,
+            onPressed: fun,
             child: Text('Arthur Miranda'),
           ),
           OutlinedButtonX(
-            onTap: 3.seconds.call,
+            onPressed: 3.seconds.call,
             child: const Text('Iran Neto'),
           ),
           TextButtonX(
             controller: ctrl,
-            onTap: 3.seconds.call,
+            onPressed: 3.seconds.call,
             child: const Text('Juan Alesson'),
           ),
           ElevatedButton(onPressed: ctrl.tap, child: const Text('tap'))
@@ -90,7 +90,7 @@ class ButtonController {
 ///Use [ButtonController] to tap programatically.
 class ElevatedButtonX extends HookWidget {
   const ElevatedButtonX({
-    required this.onTap,
+    required this.onPressed,
     required this.child,
     this.controller,
     this.loader = const SmallIndicator(color: Colors.white),
@@ -99,7 +99,7 @@ class ElevatedButtonX extends HookWidget {
     super.key,
   });
 
-  final FutureOr<void> Function()? onTap;
+  final FutureOr<void> Function()? onPressed;
   final Widget child;
   final ButtonController? controller;
   final Widget loader;
@@ -112,10 +112,10 @@ class ElevatedButtonX extends HookWidget {
     final ctrl = useRef(this.ctrl).value;
     ctrl._isLoading = useState(false);
     ctrl._hasError = useState(false);
-    ctrl._tap = onTap;
+    ctrl._tap = onPressed;
 
     return ElevatedButton(
-      onPressed: (onTap != null && ctrl.isEnabled) ? ctrl.tap : null,
+      onPressed: (onPressed != null && ctrl.isEnabled) ? ctrl.tap : null,
 
       //inherited style
       style: ElevatedButton.styleFrom(
@@ -140,7 +140,7 @@ class ElevatedButtonX extends HookWidget {
 ///Use [ButtonController] to tap programatically.
 class OutlinedButtonX extends HookWidget {
   const OutlinedButtonX({
-    required this.onTap,
+    required this.onPressed,
     required this.child,
     this.controller,
     this.loader = const SmallIndicator(),
@@ -148,7 +148,7 @@ class OutlinedButtonX extends HookWidget {
     this.style,
     super.key,
   });
-  final FutureOr<void> Function()? onTap;
+  final FutureOr<void> Function()? onPressed;
   final Widget child;
   final ButtonController? controller;
   final Widget loader;
@@ -161,13 +161,13 @@ class OutlinedButtonX extends HookWidget {
     final ctrl = useRef(this.ctrl).value;
     ctrl._isLoading = useState(false);
     ctrl._hasError = useState(false);
-    ctrl._tap = onTap;
+    ctrl._tap = onPressed;
 
     //Current default border color.
     final border = Theme.of(context).colorScheme.onSurface.withOpacity(0.12);
 
     return OutlinedButton(
-      onPressed: (onTap != null && ctrl.isEnabled) ? ctrl.tap : null,
+      onPressed: (onPressed != null && ctrl.isEnabled) ? ctrl.tap : null,
 
       //inherited style
       style: OutlinedButton.styleFrom(
@@ -193,7 +193,7 @@ class OutlinedButtonX extends HookWidget {
 ///Use [ButtonController] to tap programatically.
 class TextButtonX extends HookWidget {
   const TextButtonX({
-    required this.onTap,
+    required this.onPressed,
     required this.child,
     this.controller,
     this.loader = const SmallIndicator(),
@@ -201,7 +201,7 @@ class TextButtonX extends HookWidget {
     this.style,
     super.key,
   });
-  final FutureOr<void> Function()? onTap;
+  final FutureOr<void> Function()? onPressed;
   final Widget child;
   final ButtonController? controller;
   final Widget loader;
@@ -214,10 +214,10 @@ class TextButtonX extends HookWidget {
     final ctrl = useRef(this.ctrl).value;
     ctrl._isLoading = useState(false);
     ctrl._hasError = useState(false);
-    ctrl._tap = onTap;
+    ctrl._tap = onPressed;
 
     return TextButton(
-      onPressed: (onTap != null && ctrl.isEnabled) ? ctrl.tap : null,
+      onPressed: (onPressed != null && ctrl.isEnabled) ? ctrl.tap : null,
 
       //inherited style
       style: TextButton.styleFrom(

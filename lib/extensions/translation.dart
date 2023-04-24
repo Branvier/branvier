@@ -20,7 +20,7 @@ typedef Translations = Map<String, Map<String, String>>;
 /// [.trn] Pattern: 'a.b.c' -> 'a.b' -> 'a' -> null.
 class Translation {
   static Translation? _instance;
-  static final to = _instance ??= Translation();
+  static final instance = _instance ??= Translation();
 
   ///Set this [key] on any widget above your translations getters.
   ///Ex: [MaterialApp].
@@ -81,7 +81,7 @@ class Translation {
     translations[fileLocale.toString()] = json.parse<StringMap>();
 
     ///Merge with existings.
-    Translation.to.translations.addAll(translations);
+    Translation.instance.translations.addAll(translations);
   }
 
   ///Translation loader. Loads all if [_lazyTranslation] = false.
@@ -95,7 +95,7 @@ class Translation {
     }
 
     ///Merge with existings.
-    Translation.to.translations.addAll(translations);
+    Translation.instance.translations.addAll(translations);
   }
 
   ///Translates [key]. Fallbacks to subkeys.
@@ -183,7 +183,7 @@ class _TranslationLocalizations extends LocalizationsDelegate {
   static const delegate = _TranslationLocalizations._();
 
   ///Intance.
-  Translation get trans => Translation.to;
+  Translation get trans => Translation.instance;
 
   @override
   bool isSupported(Locale locale) => true;
@@ -197,7 +197,7 @@ class _TranslationLocalizations extends LocalizationsDelegate {
     if (!trans._lazyTranslation) await trans.loadAll();
 
     await trans.changeLanguage(trans._locale ?? localeToLoad);
-    return Translation.to;
+    return Translation.instance;
   }
 
   @override
@@ -214,10 +214,13 @@ extension TranlationExtension on String {
   ///
   ///Pattern: 'a.b.c' -> 'a.b' -> 'a' -> null.
   String? get trn {
-    if (Translation._instance == null && Translation.to._logger) {
-      dev.log('Translation failed. You need to call Translation.init()');
+    final trans = Translation.instance;
+    if (trans._logger && trans.translations.isEmpty) {
+      dev.log(
+        '0 translations. Did you set Translation.delegates on MaterialApp?',
+      );
     }
-    return Translation.to.translate(this);
+    return Translation.instance.translate(this);
   }
 
   ///Converts this String to [Locale].

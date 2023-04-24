@@ -6,12 +6,16 @@ part of '/branvier.dart';
 abstract class ISafeBox implements IBox {
   @override
   Future<T?> read<T>(String key, {T? or});
+  @override
+  Future<Json> readAll();
 }
 
 ///An [IBox] used for accessible storage.
 abstract class IOpenBox implements IBox {
   @override
   T? read<T>(String key, {T? or});
+  @override
+  Json readAll();
 }
 
 ///A storage interface for key/value databases.
@@ -20,13 +24,13 @@ abstract class IBox {
   FutureOr<T?> read<T>(String key, {T? or});
 
   ///Writes [data] in [key].
-  FutureOr<void> write(String key, data);
+  Future<void> write(String key, data);
 
   ///Removes data in [key].
-  FutureOr<void> delete(String key);
+  Future<void> delete(String key);
 
   ///Clear all data.
-  FutureOr<void> deleteAll();
+  Future<void> deleteAll();
 
   ///Gets all data.
   FutureOr<Json> readAll();

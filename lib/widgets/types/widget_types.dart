@@ -28,7 +28,6 @@ bool isFlutterWidget(widget) {
   if (widget is AnimatedSize) return true;
   if (widget is AnimatedWidget) return true;
   if (widget is AutomaticKeepAlive) return true;
-  if (widget is Banner) return true;
   if (widget is Builder) return true;
   if (widget is ButtonStyleButton) return true;
   if (widget is Checkbox) return true;
@@ -98,6 +97,7 @@ bool isFlutterWidget(widget) {
   if (widget is Tooltip) return true;
   if (widget is UnconstrainedBox) return true;
   if (widget is VerticalDivider) return true;
+  if (widget is WidgetsApp) return true;
   if (widget is WillPopScope) return true;
 
   return false;

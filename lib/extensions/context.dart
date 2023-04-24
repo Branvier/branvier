@@ -47,6 +47,7 @@ extension ContextExt on BuildContext {
       if (isFlutterWidget(widget)) return true;
       if (isBranvierWidget(widget)) return true;
       if (widget.runtimeType.toString().startsWith('_')) return true;
+      if (widget.runtimeType.toString().startsWith('Cupertino')) return true;
       return false;
     }
 

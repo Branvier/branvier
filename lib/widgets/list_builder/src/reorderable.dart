@@ -1,3 +1,5 @@
+// ignore_for_file: prefer_asserts_with_message
+
 import 'package:flutter/material.dart';
 
 import 'src.dart';
@@ -10,19 +12,6 @@ typedef ReorderableBuilder = Widget Function(
 
 /// The parent widget of every item in an [ImplicitlyAnimatedReorderableList].
 class Reorderable extends StatefulWidget {
-  /// Called, as needed, to build the child this Reorderable.
-  ///
-  /// The [ReorderableBuilder] `animation` parameter supplies you with an animation you can use to
-  /// transition between the normal and the dragged state of the item. The `inDrag` parameter
-  /// indicates whether this item is currently being dragged/reordered.
-  final ReorderableBuilder? builder;
-
-  /// Used, as needed, to build the child this Reorderable.
-  ///
-  /// This can be used to show a child that should not have
-  /// any animation when being dragged or dropped.
-  final Widget? child;
-
   /// Creates a reorderable widget that must be the parent of every
   /// item in an [ImplicitlyAnimatedReorderableList].
   ///
@@ -42,6 +31,19 @@ class Reorderable extends StatefulWidget {
     this.child,
   })  : assert(builder != null || child != null),
         super(key: key);
+
+  /// Called, as needed, to build the child this Reorderable.
+  ///
+  /// The [ReorderableBuilder] `animation` parameter supplies you with an animation you can use to
+  /// transition between the normal and the dragged state of the item. The `inDrag` parameter
+  /// indicates whether this item is currently being dragged/reordered.
+  final ReorderableBuilder? builder;
+
+  /// Used, as needed, to build the child this Reorderable.
+  ///
+  /// This can be used to show a child that should not have
+  /// any animation when being dragged or dropped.
+  final Widget? child;
 
   @override
   ReorderableState createState() => ReorderableState();
@@ -118,7 +120,6 @@ class ReorderableState extends State<Reorderable>
     }();
 
     return AnimatedBuilder(
-      child: child,
       animation: _translation ?? const AlwaysStoppedAnimation(0.0),
       builder: (context, child) {
         final offset = _translation?.value ?? 0.0;
@@ -131,6 +132,7 @@ class ReorderableState extends State<Reorderable>
           child: child,
         );
       },
+      child: child,
     );
   }
 

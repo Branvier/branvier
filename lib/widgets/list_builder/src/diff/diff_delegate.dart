@@ -1,8 +1,8 @@
 import 'diff.dart';
 
 class DiffDelegate<E> {
-  final DiffCallback<E> _callback;
   const DiffDelegate(this._callback);
+  final DiffCallback<E> _callback;
 
   void applyDiffs(List<Diff> diffs) {
     for (final diff in diffs) {

@@ -1,12 +1,14 @@
+// ignore_for_file: avoid_returning_this
+
 abstract class PathNode {
-  final int originIndex;
-  final int revisedIndex;
-  final PathNode? previousNode;
   PathNode(
     this.originIndex,
     this.revisedIndex,
     this.previousNode,
   );
+  final int originIndex;
+  final int revisedIndex;
+  final PathNode? previousNode;
 
   bool get isSnake;
 
@@ -25,9 +27,9 @@ abstract class PathNode {
     while (node != null) {
       buffer
         ..write('(')
-        ..write('${node.originIndex.toString()}')
+        ..write(node.originIndex.toString())
         ..write(',')
-        ..write('${node.revisedIndex.toString()}')
+        ..write(node.revisedIndex.toString())
         ..write(')');
 
       node = node.previousNode;
@@ -39,14 +41,10 @@ abstract class PathNode {
 
 class Snake extends PathNode {
   Snake(
-    int originIndex,
-    int revisedIndex,
-    PathNode? previousNode,
-  ) : super(
-          originIndex,
-          revisedIndex,
-          previousNode,
-        );
+    super.originIndex,
+    super.revisedIndex,
+    super.previousNode,
+  );
 
   @override
   bool get isSnake => true;

@@ -1,3 +1,5 @@
+// ignore_for_file: prefer_asserts_with_message
+
 import 'dart:async';
 import 'dart:math';
 
@@ -9,12 +11,69 @@ import 'src.dart';
 typedef ReorderStartedCallback<E> = void Function(E item, int index);
 
 typedef ReorderFinishedCallback<E> = void Function(
-    E item, int from, int to, List<E> newItems);
+  E item,
+  int from,
+  int to,
+  List<E> newItems,
+);
 
 /// A Flutter ListView that implicitly animates between the changes of two lists with
 /// the support to reorder its items.
 class ImplicitlyAnimatedReorderableList<E extends Object>
     extends ImplicitlyAnimatedListBase<Reorderable, E> {
+  /// Creates a Flutter ListView that implicitly animates between the changes of two lists with
+  /// the support to reorder its items.
+  ///
+  /// The [items] parameter represents the current items that should be displayed in
+  /// the list.
+  ///
+  /// The [itemBuilder] callback is used to build each child as needed. The parent must
+  /// be a [Reorderable] widget.
+  ///
+  /// The [areItemsTheSame] callback is called by the DiffUtil to decide whether two objects
+  /// represent the same item. For example, if your items have unique ids, this method should
+  /// check their id equality.
+  ///
+  /// The [onReorderFinished] callback is called in response to when the dragged item has
+  /// been released and animated to its final destination. Here you should update
+  /// the underlying data in your model/bloc/database etc.
+  ///
+  /// The [spawnIsolate] flag indicates whether to spawn a new isolate on which to
+  /// calculate the diff between the lists. Usually you wont have to specify this
+  /// value as the MyersDiff implementation will use its own metrics to decide, whether
+  /// a new isolate has to be spawned or not for optimal performance.
+  const ImplicitlyAnimatedReorderableList({
+    super.key,
+    required super.items,
+    required super.itemBuilder,
+    required super.areItemsTheSame,
+    super.removeItemBuilder,
+    super.updateItemBuilder,
+    super.insertDuration = const Duration(milliseconds: 500),
+    super.removeDuration = const Duration(milliseconds: 500),
+    super.updateDuration = const Duration(milliseconds: 500),
+    Duration? liftDuration,
+    Duration? settleDuration,
+    super.spawnIsolate,
+    this.reverse = false,
+    this.scrollDirection = Axis.vertical,
+    this.controller,
+    this.primary,
+    this.physics,
+    this.shrinkWrap = false,
+    this.padding,
+    this.reorderDuration = const Duration(milliseconds: 300),
+    this.onReorderStarted,
+    required this.onReorderFinished,
+    this.header,
+    this.footer,
+  })  : liftDuration = liftDuration ?? reorderDuration,
+        settleDuration = settleDuration ?? liftDuration ?? reorderDuration,
+        assert(
+          reorderDuration <= const Duration(milliseconds: 1500),
+          'The drag duration should not be longer than 1500 milliseconds.',
+        );
+
   /// Whether the scroll view scrolls in the reading direction.
   ///
   /// Defaults to false.
@@ -125,71 +184,6 @@ class ImplicitlyAnimatedReorderableList<E extends Object>
   /// list in another `Scrollable` and thereby loose out
   /// on performance and autoscrolling.
   final Widget? footer;
-
-  /// Creates a Flutter ListView that implicitly animates between the changes of two lists with
-  /// the support to reorder its items.
-  ///
-  /// The [items] parameter represents the current items that should be displayed in
-  /// the list.
-  ///
-  /// The [itemBuilder] callback is used to build each child as needed. The parent must
-  /// be a [Reorderable] widget.
-  ///
-  /// The [areItemsTheSame] callback is called by the DiffUtil to decide whether two objects
-  /// represent the same item. For example, if your items have unique ids, this method should
-  /// check their id equality.
-  ///
-  /// The [onReorderFinished] callback is called in response to when the dragged item has
-  /// been released and animated to its final destination. Here you should update
-  /// the underlying data in your model/bloc/database etc.
-  ///
-  /// The [spawnIsolate] flag indicates whether to spawn a new isolate on which to
-  /// calculate the diff between the lists. Usually you wont have to specify this
-  /// value as the MyersDiff implementation will use its own metrics to decide, whether
-  /// a new isolate has to be spawned or not for optimal performance.
-  const ImplicitlyAnimatedReorderableList({
-    Key? key,
-    required List<E> items,
-    required AnimatedItemBuilder<Reorderable, E> itemBuilder,
-    required ItemDiffUtil<E> areItemsTheSame,
-    RemovedItemBuilder<Reorderable, E>? removeItemBuilder,
-    UpdatedItemBuilder<Reorderable, E>? updateItemBuilder,
-    Duration insertDuration = const Duration(milliseconds: 500),
-    Duration removeDuration = const Duration(milliseconds: 500),
-    Duration updateDuration = const Duration(milliseconds: 500),
-    Duration? liftDuration,
-    Duration? settleDuration,
-    bool? spawnIsolate,
-    this.reverse = false,
-    this.scrollDirection = Axis.vertical,
-    this.controller,
-    this.primary,
-    this.physics,
-    this.shrinkWrap = false,
-    this.padding,
-    this.reorderDuration = const Duration(milliseconds: 300),
-    this.onReorderStarted,
-    required this.onReorderFinished,
-    this.header,
-    this.footer,
-  })  : liftDuration = liftDuration ?? reorderDuration,
-        settleDuration = settleDuration ?? liftDuration ?? reorderDuration,
-        assert(
-          reorderDuration <= const Duration(milliseconds: 1500),
-          'The drag duration should not be longer than 1500 milliseconds.',
-        ),
-        super(
-          key: key,
-          items: items,
-          itemBuilder: itemBuilder,
-          areItemsTheSame: areItemsTheSame,
-          removeItemBuilder: removeItemBuilder,
-          updateItemBuilder: updateItemBuilder,
-          insertDuration: insertDuration,
-          removeDuration: removeDuration,
-          updateDuration: updateDuration,
-          spawnIsolate: spawnIsolate,
-        );
 
   @override
   ImplicitlyAnimatedReorderableListState<E> createState() =>
@@ -351,6 +345,7 @@ class ImplicitlyAnimatedReorderableListState<E extends Object>
       if (item == dragItem) continue;
 
       final key = item.key;
+      // ignore: use_if_null_to_convert_nulls_to_bools
       if (_itemTranslations[key]?.isAnimating == true) continue;
 
       final translation = getTranslation(key);
@@ -375,9 +370,13 @@ class ImplicitlyAnimatedReorderableListState<E extends Object>
     }
   }
 
-  void _dispatchMove(Key? key, double delta,
-      {VoidCallback? onEnd, Duration? duration}) {
-    double value = 0.0;
+  void _dispatchMove(
+    Key? key,
+    double delta, {
+    VoidCallback? onEnd,
+    Duration? duration,
+  }) {
+    var value = 0.0;
 
     // Remove and stop the old controller if there was one
     // and start from the value where it left off.
@@ -477,7 +476,7 @@ class ImplicitlyAnimatedReorderableListState<E extends Object>
 
         final toIndex = _itemBoxes[target.key]?.index;
         if (toIndex != null) {
-          final E item = data.removeAt(_dragIndex!);
+          final item = data.removeAt(_dragIndex!);
           data.insert(toIndex, item);
 
           widget.onReorderFinished(
@@ -522,7 +521,7 @@ class ImplicitlyAnimatedReorderableListState<E extends Object>
   }
 
   _Item? findDropTargetItem() {
-    _Item? target = dragItem;
+    var target = dragItem;
 
     // Boxes are in the order in which they are build, not
     // necessarily index based.
@@ -678,7 +677,7 @@ class ImplicitlyAnimatedReorderableListState<E extends Object>
             key: animatedListKey,
             initialItemCount: newList.length,
             itemBuilder: (context, index, animation) {
-              final Reorderable reorderable = buildItem(
+              final reorderable = buildItem(
                 context,
                 animation,
                 data[index],
@@ -747,8 +746,7 @@ class ImplicitlyAnimatedReorderableListState<E extends Object>
   }
 
   Widget _buildDraggedItem() {
-    final EdgeInsets listPadding =
-        widget.padding as EdgeInsets? ?? EdgeInsets.zero;
+    final listPadding = widget.padding as EdgeInsets? ?? EdgeInsets.zero;
 
     return ValueListenableBuilder<double>(
       // ignore: sort_child_properties_last
@@ -799,7 +797,7 @@ class ImplicitlyAnimatedReorderableListState<E extends Object>
 
   // A more complex and less efficient update animation support implementation.
   void _addReorderableUpdateAnimationSupport() {
-    bool didUpdateList = false;
+    var didUpdateList = false;
 
     updateAnimController
       ..addListener(() {
@@ -836,11 +834,6 @@ class ImplicitlyAnimatedReorderableListState<E extends Object>
 
 // A class that holds meta information about items in the list such as position and size.
 class _Item extends Rect implements Comparable<_Item> {
-  final RenderBox box;
-  final Key? key;
-  final int? index;
-  final Offset offset;
-  final bool _isVertical;
   _Item(
     this.key,
     this.box,
@@ -854,6 +847,11 @@ class _Item extends Rect implements Comparable<_Item> {
           box.size.width,
           box.size.height,
         );
+  final RenderBox box;
+  final Key? key;
+  final int? index;
+  final Offset offset;
+  final bool _isVertical;
 
   double get start => _isVertical ? top : left;
   double get end => _isVertical ? bottom : right;

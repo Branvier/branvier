@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import 'animations.dart';
 import 'animated_builder.dart';
+import 'animations.dart';
 
 const _defaultDuration = Duration(seconds: 2);
 const _defaultDelay = Duration.zero;
@@ -16,8 +16,10 @@ extension AnimationExtension on Widget {
     ValueSetter<AnimationController>? onComplete,
     bool isSequential = false,
   }) {
-    assert(isSequential || this is! FadeOutAnimation,
-        'Can not use fadeOut + fadeIn when isSequential is false');
+    assert(
+      isSequential || this is! FadeOutAnimation,
+      'Can not use fadeOut + fadeIn when isSequential is false',
+    );
 
     return FadeInAnimation(
       duration: duration,
@@ -33,8 +35,10 @@ extension AnimationExtension on Widget {
     ValueSetter<AnimationController>? onComplete,
     bool isSequential = false,
   }) {
-    assert(isSequential || this is! FadeInAnimation,
-        'Can not use fadeOut() + fadeIn when isSequential is false');
+    assert(
+      isSequential || this is! FadeInAnimation,
+      'Can not use fadeOut() + fadeIn when isSequential is false',
+    );
 
     return FadeOutAnimation(
       duration: duration,
@@ -70,7 +74,6 @@ extension AnimationExtension on Widget {
     ValueSetter<AnimationController>? onComplete,
     bool isSequential = false,
   }) {
-    
     return ScaleAnimation(
       duration: duration,
       delay: _getDelay(isSequential, delay),
@@ -82,7 +85,7 @@ extension AnimationExtension on Widget {
   }
 
   AnimatedBuilderX slide({
-    required OffsetBuilder offset, 
+    required OffsetBuilder offset,
     double begin = 0,
     double end = 1,
     Duration duration = _defaultDuration,
@@ -206,8 +209,10 @@ extension AnimationExtension on Widget {
   }
 
   Duration _getDelay(bool isSequential, Duration delay) {
-    assert(!(isSequential && delay != Duration.zero),
-        "Error: When isSequential is true, delay must be non-zero. Context: isSequential: $isSequential delay: $delay");
+    assert(
+      !(isSequential && delay != Duration.zero),
+      'Error: When isSequential is true, delay must be non-zero. Context: isSequential: $isSequential delay: $delay',
+    );
 
     return isSequential
         ? (_currentAnimation?.totalDuration ?? Duration.zero)

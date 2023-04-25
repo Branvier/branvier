@@ -17,7 +17,6 @@ bool isBranvierWidget(Widget widget) {
   if (widget is PageBuilder) return true;
   if (widget is FormX) return true;
   if (widget is AnimatedBuilderX) return true;
-  if (widget is AnimatedLoader) return true;
 
   return false;
 }

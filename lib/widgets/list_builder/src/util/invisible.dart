@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 
 class Invisible extends StatelessWidget {
-  final bool invisible;
-  final Widget? child;
   const Invisible({
-    Key? key,
+    super.key,
     this.child,
     this.invisible = false,
-  }) : super(key: key);
+  });
+  final bool invisible;
+  final Widget? child;
 
   @override
   Widget build(BuildContext context) {

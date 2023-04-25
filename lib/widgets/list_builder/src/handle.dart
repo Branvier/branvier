@@ -9,6 +9,20 @@ import 'src.dart';
 /// A `Handle` must have a [Reorderable] and an [ImplicitlyAnimatedReorderableList]
 /// as its ancestor.
 class Handle extends StatefulWidget {
+  /// Creates a widget that can initiate a drag/reorder of an item inside an
+  /// [ImplicitlyAnimatedReorderableList].
+  ///
+  /// A Handle must have a [Reorderable] and an [ImplicitlyAnimatedReorderableList]
+  /// as its ancestor.
+  const Handle({
+    super.key,
+    required this.child,
+    this.delay = Duration.zero,
+    this.capturePointer = true,
+    this.vibrate = true,
+    this.enabled = true,
+  });
+
   /// The child of this Handle that can initiate a reorder.
   ///
   /// This might for instance be an [Icon] or a [ListTile].
@@ -36,20 +50,6 @@ class Handle extends StatefulWidget {
   final bool capturePointer;
 
   final bool enabled;
-
-  /// Creates a widget that can initiate a drag/reorder of an item inside an
-  /// [ImplicitlyAnimatedReorderableList].
-  ///
-  /// A Handle must have a [Reorderable] and an [ImplicitlyAnimatedReorderableList]
-  /// as its ancestor.
-  const Handle({
-    Key? key,
-    required this.child,
-    this.delay = Duration.zero,
-    this.capturePointer = true,
-    this.vibrate = true,
-    this.enabled = true,
-  }) : super(key: key);
 
   @override
   _HandleState createState() => _HandleState();
@@ -133,11 +133,15 @@ class _HandleState extends State<Handle> {
     if (!widget.enabled) return widget.child;
 
     _list = ImplicitlyAnimatedReorderableList.maybeOf(context);
-    assert(_list != null,
-        'No ancestor ImplicitlyAnimatedReorderableList was found in the hierarchy!');
+    assert(
+      _list != null,
+      'No ancestor ImplicitlyAnimatedReorderableList was found in the hierarchy!',
+    );
     _reorderable = Reorderable.maybeOf(context);
-    assert(_reorderable != null,
-        'No ancestor Reorderable was found in the hierarchy!');
+    assert(
+      _reorderable != null,
+      'No ancestor Reorderable was found in the hierarchy!',
+    );
     _parent = Scrollable.maybeOf(_list!.context);
 
     // Sometimes the cancel callbacks of the GestureDetector

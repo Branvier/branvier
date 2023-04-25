@@ -1,3 +1,5 @@
+// ignore_for_file: prefer_asserts_with_message
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
@@ -6,11 +8,10 @@ const Duration _kDuration = Duration(milliseconds: 300);
 class CustomSliverAnimatedList extends StatefulWidget {
   /// Creates a sliver that animates items when they are inserted or removed.
   const CustomSliverAnimatedList({
-    Key? key,
+    super.key,
     required this.itemBuilder,
     this.initialItemCount = 0,
-  })  : assert(initialItemCount >= 0),
-        super(key: key);
+  }) : assert(initialItemCount >= 0);
 
   /// Called, as needed, to build list item widgets.
   ///
@@ -48,7 +49,7 @@ class CustomSliverAnimatedList extends StatefulWidget {
   ///  * [maybeOf], a similar function that will return null if no
   ///    [SliverAnimatedList] ancestor is found.
   static CustomSliverAnimatedListState of(BuildContext context) {
-    final CustomSliverAnimatedListState? result =
+    final result =
         context.findAncestorStateOfType<CustomSliverAnimatedListState>();
     assert(() {
       if (result == null) {
@@ -101,19 +102,19 @@ class CustomSliverAnimatedListState extends State<CustomSliverAnimatedList>
 
   @override
   void dispose() {
-    for (final _ActiveItem item in _incomingItems.followedBy(_outgoingItems)) {
+    for (final item in _incomingItems.followedBy(_outgoingItems)) {
       item.controller!.dispose();
     }
     super.dispose();
   }
 
   _ActiveItem? _removeActiveItemAt(List<_ActiveItem> items, int itemIndex) {
-    final int i = binarySearch(items, _ActiveItem.index(itemIndex));
+    final i = binarySearch(items, _ActiveItem.index(itemIndex));
     return i == -1 ? null : items.removeAt(i);
   }
 
   _ActiveItem? _activeItemAt(List<_ActiveItem> items, int itemIndex) {
-    final int i = binarySearch(items, _ActiveItem.index(itemIndex));
+    final i = binarySearch(items, _ActiveItem.index(itemIndex));
     return i == -1 ? null : items[i];
   }
 
@@ -124,8 +125,8 @@ class CustomSliverAnimatedListState extends State<CustomSliverAnimatedList>
   // and removed from _outgoingItems when the remove animation finishes.
 
   int _indexToItemIndex(int index) {
-    int itemIndex = index;
-    for (final _ActiveItem item in _outgoingItems) {
+    var itemIndex = index;
+    for (final item in _outgoingItems) {
       if (item.itemIndex <= itemIndex) {
         itemIndex += 1;
       } else {
@@ -136,8 +137,8 @@ class CustomSliverAnimatedListState extends State<CustomSliverAnimatedList>
   }
 
   int _itemIndexToIndex(int itemIndex) {
-    int index = itemIndex;
-    for (final _ActiveItem item in _outgoingItems) {
+    var index = itemIndex;
+    for (final item in _outgoingItems) {
       assert(item.itemIndex != itemIndex);
       if (item.itemIndex < itemIndex) {
         index -= 1;
@@ -161,25 +162,25 @@ class CustomSliverAnimatedListState extends State<CustomSliverAnimatedList>
   void insertItem(int index, {Duration duration = _kDuration}) {
     assert(index >= 0);
 
-    final int itemIndex = _indexToItemIndex(index);
+    final itemIndex = _indexToItemIndex(index);
     if (itemIndex < 0 || itemIndex > _itemsCount) {
       return;
     }
 
     // Increment the incoming and outgoing item indices to account
     // for the insertion.
-    for (final _ActiveItem item in _incomingItems) {
+    for (final item in _incomingItems) {
       if (item.itemIndex >= itemIndex) item.itemIndex += 1;
     }
-    for (final _ActiveItem item in _outgoingItems) {
+    for (final item in _outgoingItems) {
       if (item.itemIndex >= itemIndex) item.itemIndex += 1;
     }
 
-    final AnimationController controller = AnimationController(
+    final controller = AnimationController(
       duration: duration,
       vsync: this,
     );
-    final _ActiveItem incomingItem = _ActiveItem.incoming(
+    final incomingItem = _ActiveItem.incoming(
       controller,
       itemIndex,
     );
@@ -208,40 +209,41 @@ class CustomSliverAnimatedListState extends State<CustomSliverAnimatedList>
   /// This method's semantics are the same as Dart's [List.remove] method:
   /// it decreases the length of the list by one and shifts all items at or
   /// before [index] towards the beginning of the list.
-  void removeItem(int index, AnimatedRemovedItemBuilder builder,
-      {Duration duration = _kDuration}) {
+  void removeItem(
+    int index,
+    AnimatedRemovedItemBuilder builder, {
+    Duration duration = _kDuration,
+  }) {
     assert(index >= 0);
 
-    final int itemIndex = _indexToItemIndex(index);
+    final itemIndex = _indexToItemIndex(index);
     if (itemIndex < 0 || itemIndex >= _itemsCount) {
       return;
     }
 
     assert(_activeItemAt(_outgoingItems, itemIndex) == null);
 
-    final _ActiveItem? incomingItem =
-        _removeActiveItemAt(_incomingItems, itemIndex);
-    final AnimationController controller = incomingItem?.controller ??
+    final incomingItem = _removeActiveItemAt(_incomingItems, itemIndex);
+    final controller = incomingItem?.controller ??
         AnimationController(duration: duration, value: 1.0, vsync: this);
-    final _ActiveItem outgoingItem =
-        _ActiveItem.outgoing(controller, itemIndex, builder);
+    final outgoingItem = _ActiveItem.outgoing(controller, itemIndex, builder);
     setState(() {
       _outgoingItems
         ..add(outgoingItem)
         ..sort();
     });
 
-    controller.reverse().then<void>((void value) {
+    controller.reverse().then<void>((value) {
       _removeActiveItemAt(_outgoingItems, outgoingItem.itemIndex)!
           .controller!
           .dispose();
 
       // Decrement the incoming and outgoing item indices to account
       // for the removal.
-      for (final _ActiveItem item in _incomingItems) {
+      for (final item in _incomingItems) {
         if (item.itemIndex > outgoingItem.itemIndex) item.itemIndex -= 1;
       }
-      for (final _ActiveItem item in _outgoingItems) {
+      for (final item in _outgoingItems) {
         if (item.itemIndex > outgoingItem.itemIndex) item.itemIndex -= 1;
       }
 
@@ -250,7 +252,7 @@ class CustomSliverAnimatedListState extends State<CustomSliverAnimatedList>
   }
 
   Widget _itemBuilder(BuildContext context, int itemIndex) {
-    final _ActiveItem? outgoingItem = _activeItemAt(_outgoingItems, itemIndex);
+    final outgoingItem = _activeItemAt(_outgoingItems, itemIndex);
     if (outgoingItem != null) {
       return outgoingItem.removedItemBuilder!(
         context,
@@ -258,8 +260,8 @@ class CustomSliverAnimatedListState extends State<CustomSliverAnimatedList>
       );
     }
 
-    final _ActiveItem? incomingItem = _activeItemAt(_incomingItems, itemIndex);
-    final Animation<double> animation =
+    final incomingItem = _activeItemAt(_incomingItems, itemIndex);
+    final animation =
         incomingItem?.controller?.view ?? kAlwaysCompleteAnimation;
     return widget.itemBuilder(
       context,
@@ -280,7 +282,10 @@ class _ActiveItem implements Comparable<_ActiveItem> {
   _ActiveItem.incoming(this.controller, this.itemIndex)
       : removedItemBuilder = null;
   _ActiveItem.outgoing(
-      this.controller, this.itemIndex, this.removedItemBuilder);
+    this.controller,
+    this.itemIndex,
+    this.removedItemBuilder,
+  );
   _ActiveItem.index(this.itemIndex)
       : controller = null,
         removedItemBuilder = null;

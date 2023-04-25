@@ -1,5 +1,6 @@
 import 'dart:async';
 
+// ignore: depend_on_referenced_packages
 import 'package:async/async.dart';
 
 import 'package:flutter/foundation.dart';
@@ -9,16 +10,39 @@ import 'custom_sliver_animated_list.dart';
 import 'src.dart';
 
 typedef AnimatedItemBuilder<W extends Widget, E> = W Function(
-    BuildContext context, Animation<double> animation, E item, int i);
+  BuildContext context,
+  Animation<double> animation,
+  E item,
+  int i,
+);
 
 typedef RemovedItemBuilder<W extends Widget, E> = W Function(
-    BuildContext context, Animation<double> animation, E item);
+  BuildContext context,
+  Animation<double> animation,
+  E item,
+);
 
 typedef UpdatedItemBuilder<W extends Widget, E> = W Function(
-    BuildContext context, Animation<double> animation, E item);
+  BuildContext context,
+  Animation<double> animation,
+  E item,
+);
 
 abstract class ImplicitlyAnimatedListBase<W extends Widget, E extends Object>
     extends StatefulWidget {
+  const ImplicitlyAnimatedListBase({
+    super.key,
+    required this.items,
+    required this.areItemsTheSame,
+    required this.itemBuilder,
+    required this.removeItemBuilder,
+    required this.updateItemBuilder,
+    required this.insertDuration,
+    required this.removeDuration,
+    required this.updateDuration,
+    required this.spawnIsolate,
+  });
+
   /// Called, as needed, to build list item widgets.
   ///
   /// List items are only built when they're scrolled into view.
@@ -62,18 +86,6 @@ abstract class ImplicitlyAnimatedListBase<W extends Widget, E extends Object>
   /// use its own metrics to decide, whether a new isolate has to be spawned or not for
   /// optimal performance.
   final bool? spawnIsolate;
-  const ImplicitlyAnimatedListBase({
-    Key? key,
-    required this.items,
-    required this.areItemsTheSame,
-    required this.itemBuilder,
-    required this.removeItemBuilder,
-    required this.updateItemBuilder,
-    required this.insertDuration,
-    required this.removeDuration,
-    required this.updateDuration,
-    required this.spawnIsolate,
-  }) : super(key: key);
 }
 
 abstract class ImplicitlyAnimatedListBaseState<W extends Widget,
@@ -160,7 +172,7 @@ abstract class ImplicitlyAnimatedListBaseState<W extends Widget,
     _newItems = List<E>.from(widget.items);
     _oldItems = List<E>.from(data);
 
-    _calcDiffs();
+    await _calcDiffs();
   }
 
   Future<void> _calcDiffs() async {
@@ -243,7 +255,7 @@ abstract class ImplicitlyAnimatedListBaseState<W extends Widget,
   @protected
   @override
   void onChanged(int startIndex, List<E> itemsChanged) {
-    int i = 0;
+    var i = 0;
     for (final item in itemsChanged) {
       final index = startIndex + i;
       if (index >= data.length) continue;
@@ -256,7 +268,11 @@ abstract class ImplicitlyAnimatedListBaseState<W extends Widget,
   @nonVirtual
   @protected
   Widget buildItem(
-      BuildContext context, Animation<double> animation, E item, int index) {
+    BuildContext context,
+    Animation<double> animation,
+    E item,
+    int index,
+  ) {
     if (updateItemBuilder != null && changes[item] != null) {
       return buildUpdatedItemWidget(item);
     }

@@ -1,37 +1,47 @@
 part of '../branvier.dart';
 
-// void main() => runApp(MaterialApp(home: Scaffold(body: Buttons())));
+void main() => runApp(MaterialApp(home: Scaffold(body: Buttons())));
 
 Future<void> fun() async {
   await 2.seconds();
+  // ignore: only_throw_errors
   throw '';
 }
 
-class Buttons extends StatelessWidget {
+class Buttons extends HookWidget {
   Buttons({super.key});
   final ctrl = ButtonController();
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          const ElevatedButtonX(
-            onPressed: fun,
-            child: Text('Arthur Miranda'),
-          ),
-          OutlinedButtonX(
-            onPressed: 3.seconds.call,
-            child: const Text('Iran Neto'),
-          ),
-          TextButtonX(
-            controller: ctrl,
-            onPressed: 3.seconds.call,
-            child: const Text('Juan Alesson'),
-          ),
-          ElevatedButton(onPressed: ctrl.tap, child: const Text('tap'))
-        ],
+    return FormX(
+      onSubmit: (form) async {
+        await 3.seconds();
+      },
+      child: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Field('test'),
+            const ElevatedButtonX(
+              hasFormX: true, // todo: looses bind on hot reload.
+              onPressed: fun,
+              child: Text('Arthur Miranda'),
+            ),
+            OutlinedButtonX(
+              hasFormX: true,
+              onPressed: 3.seconds.call,
+              child: const Text('Iran Neto'),
+            ),
+            TextButtonX(
+              hasFormX: true,
+              controller: ctrl,
+              onPressed: 3.seconds.call,
+              child: const Text('Juan Alesson'),
+            ),
+            ElevatedButton(onPressed: ctrl.tap, child: const Text('tap'))
+          ],
+        ),
       ),
     );
   }
@@ -41,11 +51,9 @@ class ButtonController {
   ButtonController({
     this.animationDuration = const Duration(milliseconds: 600),
     this.errorDuration = const Duration(seconds: 3),
-    this.errorColor = Colors.redAccent,
   });
   final Duration animationDuration;
   final Duration errorDuration;
-  final Color errorColor;
   StackTrace? _stackTrace;
   Object? _error;
 
@@ -92,6 +100,7 @@ class ElevatedButtonX extends HookWidget {
   const ElevatedButtonX({
     required this.onPressed,
     required this.child,
+    this.hasFormX = false,
     this.controller,
     this.loader = const SmallIndicator(color: Colors.white),
     this.error = const Text('!'),
@@ -99,20 +108,47 @@ class ElevatedButtonX extends HookWidget {
     super.key,
   });
 
+  ///In the presence of a [FormX] above, animates loading.
+  final bool hasFormX;
+
+  ///Controls this button programatically. -> controller.tap().
+  final ButtonController? controller;
+
+  ///The widget to show on loading.
+  final Widget loader;
+
+  ///The widget to show on error.
+  final Widget error;
+
+  //Same as [TextButton].
   final FutureOr<void> Function()? onPressed;
   final Widget child;
-  final ButtonController? controller;
-  final Widget loader;
-  final Widget error;
   final ButtonStyle? style;
-  ButtonController get ctrl => controller ?? ButtonController();
 
   @override
   Widget build(BuildContext context) {
-    final ctrl = useRef(this.ctrl).value;
+    final ctrl = useFinal(controller ?? ButtonController());
     ctrl._isLoading = useState(false);
     ctrl._hasError = useState(false);
     ctrl._tap = onPressed;
+
+    final formx = useFinal(
+      hasFormX ? context.dependOnInheritedWidgetOfExactType<FormScope>() : null,
+    );
+
+    if (hasFormX && formx == null) dev.log('No Formx above this button!');
+
+    void onLoading() {
+      ctrl._isLoading?.value = formx!.isLoading.value;
+    }
+
+    useInit(
+      () => formx?.isLoading.addListener(onLoading),
+      dispose: () => formx?.isLoading.removeListener(onLoading),
+    );
+
+    //Theme inherited.
+    final colors = Theme.of(context).colorScheme;
 
     return ElevatedButton(
       onPressed: (onPressed != null && ctrl.isEnabled) ? ctrl.tap : null,
@@ -120,12 +156,12 @@ class ElevatedButtonX extends HookWidget {
       //inherited style
       style: ElevatedButton.styleFrom(
         padding: EdgeInsets.zero,
-        backgroundColor: ctrl.hasError ? ctrl.errorColor : null,
+        backgroundColor: ctrl.hasError ? colors.error : null,
         minimumSize: const Size.square(36),
       ).merge(style),
 
       //load animation
-      child: AnimatedLoader(
+      child: _ButtonLoader(
         loader: loader,
         loading: ctrl.isLoading,
         duration: ctrl.animationDuration,
@@ -142,29 +178,59 @@ class OutlinedButtonX extends HookWidget {
   const OutlinedButtonX({
     required this.onPressed,
     required this.child,
+    this.hasFormX = false,
     this.controller,
     this.loader = const SmallIndicator(),
     this.error = const Text('!'),
     this.style,
     super.key,
   });
+
+  ///In the presence of a [FormX] above, animates loading.
+  final bool hasFormX;
+
+  ///Controls this button programatically. -> controller.tap().
+  final ButtonController? controller;
+
+  ///The widget to show on loading.
+  final Widget loader;
+
+  ///The widget to show on error.
+  final Widget error;
+
+  //Same as [TextButton].
   final FutureOr<void> Function()? onPressed;
   final Widget child;
-  final ButtonController? controller;
-  final Widget loader;
-  final Widget error;
   final ButtonStyle? style;
-  ButtonController get ctrl => controller ?? ButtonController();
 
   @override
   Widget build(BuildContext context) {
-    final ctrl = useRef(this.ctrl).value;
+    final ctrl = useFinal(controller ?? ButtonController());
     ctrl._isLoading = useState(false);
     ctrl._hasError = useState(false);
     ctrl._tap = onPressed;
 
-    //Current default border color.
-    final border = Theme.of(context).colorScheme.onSurface.withOpacity(0.12);
+    final formx = useFinal(
+      hasFormX ? context.dependOnInheritedWidgetOfExactType<FormScope>() : null,
+    );
+
+    if (hasFormX && formx == null) dev.log('No Formx above this button!');
+
+    void onLoading() => ctrl._isLoading?.value = formx!.isLoading.value;
+
+    useInit(
+      () => formx?.isLoading.addListener(onLoading),
+      dispose: () => formx?.isLoading.removeListener(onLoading),
+    );
+
+    //Theme inherited.
+    final colors = Theme.of(context).colorScheme;
+    final side = Theme.of(context).outlinedButtonTheme.style?.side?.resolve({});
+    final errorSide = BorderSide(color: colors.error).copyWith(
+      width: side?.width,
+      style: side?.style,
+      strokeAlign: side?.strokeAlign,
+    );
 
     return OutlinedButton(
       onPressed: (onPressed != null && ctrl.isEnabled) ? ctrl.tap : null,
@@ -172,13 +238,13 @@ class OutlinedButtonX extends HookWidget {
       //inherited style
       style: OutlinedButton.styleFrom(
         padding: EdgeInsets.zero,
-        foregroundColor: ctrl.hasError ? ctrl.errorColor : null,
-        side: BorderSide(color: ctrl.hasError ? ctrl.errorColor : border),
+        foregroundColor: ctrl.hasError ? colors.error : null,
+        side: ctrl.hasError ? errorSide : null,
         minimumSize: const Size.square(36),
       ).merge(style),
 
       //load animation
-      child: AnimatedLoader(
+      child: _ButtonLoader(
         loader: loader,
         loading: ctrl.isLoading,
         duration: ctrl.animationDuration,
@@ -195,26 +261,53 @@ class TextButtonX extends HookWidget {
   const TextButtonX({
     required this.onPressed,
     required this.child,
+    this.hasFormX = false,
     this.controller,
     this.loader = const SmallIndicator(),
     this.error = const Text('!'),
     this.style,
     super.key,
   });
+
+  ///In the presence of a [FormX] above, animates loading.
+  final bool hasFormX;
+
+  ///Controls this button programatically. -> controller.tap().
+  final ButtonController? controller;
+
+  ///The widget to show on loading.
+  final Widget loader;
+
+  ///The widget to show on error.
+  final Widget error;
+
+  //Same as [TextButton].
   final FutureOr<void> Function()? onPressed;
   final Widget child;
-  final ButtonController? controller;
-  final Widget loader;
-  final Widget error;
   final ButtonStyle? style;
-  ButtonController get ctrl => controller ?? ButtonController();
 
   @override
   Widget build(BuildContext context) {
-    final ctrl = useRef(this.ctrl).value;
+    final ctrl = useFinal(controller ?? ButtonController());
     ctrl._isLoading = useState(false);
     ctrl._hasError = useState(false);
     ctrl._tap = onPressed;
+
+    final formx = useFinal(
+      hasFormX ? context.dependOnInheritedWidgetOfExactType<FormScope>() : null,
+    );
+
+    if (hasFormX && formx == null) dev.log('No Formx above this button!');
+
+    void onLoading() => ctrl._isLoading?.value = formx!.isLoading.value;
+
+    useInit(
+      () => formx?.isLoading.addListener(onLoading),
+      dispose: () => formx?.isLoading.removeListener(onLoading),
+    );
+
+    //Theme inherited.
+    final colors = Theme.of(context).colorScheme;
 
     return TextButton(
       onPressed: (onPressed != null && ctrl.isEnabled) ? ctrl.tap : null,
@@ -222,12 +315,12 @@ class TextButtonX extends HookWidget {
       //inherited style
       style: TextButton.styleFrom(
         padding: EdgeInsets.zero,
-        foregroundColor: ctrl.hasError ? ctrl.errorColor : null,
+        foregroundColor: ctrl.hasError ? colors.error : null,
         minimumSize: const Size.square(36),
       ).merge(style),
 
       //load animation
-      child: AnimatedLoader(
+      child: _ButtonLoader(
         loader: loader,
         loading: ctrl.isLoading,
         duration: ctrl.animationDuration,
@@ -238,9 +331,8 @@ class TextButtonX extends HookWidget {
 }
 
 ///Animates the loading indicator.
-class AnimatedLoader extends HookWidget {
-  const AnimatedLoader({
-    super.key,
+class _ButtonLoader extends HookWidget {
+  const _ButtonLoader({
     required this.child,
     required this.loading,
     this.loader = const SmallIndicator(),

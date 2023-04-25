@@ -51,7 +51,7 @@ class FormController {
     return any.contains(true);
   }
 
-  ///Validates one, two or all fields. Returns [FormMap] on success.
+  ///Validates one, two or all fields. Returns [FormMap] success or throw.
   Json submit([List<String>? tags]) {
     final isValid = tags == null ? validate() : validateSelected(tags);
     if (!isValid) throw FormException.invalid();
@@ -59,13 +59,13 @@ class FormController {
     return form ?? {};
   }
 
-  ///Validates one, two or all fields. Returns [FormMap] on success.
+  ///Validates one, two or all fields. Returns [FormMap] success or null.
   Json? trySubmit([List<String>? tags]) {
     final isValid = tags == null ? validate() : validateSelected(tags);
     return isValid ? form : null;
   }
 
-  ///Validates one. Returns [String] on success.
+  ///Validates one. Returns [String] success or throw.
   String submitTag(String tag) {
     final isValid = validateTag(tag);
     if (!isValid) throw FormException.invalid(tag);
@@ -73,7 +73,7 @@ class FormController {
     return isValid ? form![tag] : null;
   }
 
-  ///Validates one. Returns [String] on success.
+  ///Validates one. Returns [String] success or null.
   String? trySubmitTag(String tag) {
     final isValid = validateTag(tag);
     return isValid ? form![tag] : null;
@@ -192,7 +192,7 @@ class FormScope extends InheritedWidget {
   // bool updateShouldNotify(MapFormScope oldWidget) => form != oldWidget.form;
 }
 
-///A TextField that saves all the value changes in MapForm.of(context).
+///A TextField that saves all the value changes in Form.of(context).form.
 class Field extends StatefulWidget {
   ///Creates a TextField where the value is stored in [tag].
   const Field(
@@ -383,10 +383,10 @@ class _FieldState extends State<Field> {
           scope?.isLoading.value = false;
           return;
         }
-        if (scope!.controller.validate()) {
-          await scope.onSubmit?.call(scope.form);
+        if (scope?.controller.validate() ?? false) {
+          await scope?.onSubmit?.call(scope.form);
         }
-        scope.isLoading.value = false;
+        scope?.isLoading.value = false;
       },
       decoration: decoration.copyWith(suffixIcon: icon()),
     );

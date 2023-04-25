@@ -10,6 +10,7 @@ class AsyncController<T> {
   ///Calls the async callback again. Rebuilds AsyncBuilder.
   void reload() => _resync?.call();
 
+  // ignore: use_setters_to_change_properties
   void listen(AsyncListener<T> onState) {
     this.onState = onState;
   }

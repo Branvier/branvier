@@ -1,3 +1,5 @@
+// ignore_for_file: comment_references, prefer_asserts_with_message
+
 import 'package:flutter/material.dart';
 
 /// A transition that fades the `child` in or out before shrinking or expanding
@@ -5,6 +7,16 @@ import 'package:flutter/material.dart';
 ///
 /// This can be used as a item transition in an [ImplicitlyAnimatedReorderableList].
 class SizeFadeTransition extends StatefulWidget {
+  const SizeFadeTransition({
+    super.key,
+    required this.animation,
+    this.sizeFraction = 2 / 3,
+    this.curve = Curves.linear,
+    this.axis = Axis.vertical,
+    this.axisAlignment = 0.0,
+    this.child,
+  }) : assert(sizeFraction >= 0.0 && sizeFraction <= 1.0);
+
   /// The animation to be used.
   final Animation<double> animation;
 
@@ -38,16 +50,6 @@ class SizeFadeTransition extends StatefulWidget {
 
   /// The child widget.
   final Widget? child;
-  const SizeFadeTransition({
-    Key? key,
-    required this.animation,
-    this.sizeFraction = 2 / 3,
-    this.curve = Curves.linear,
-    this.axis = Axis.vertical,
-    this.axisAlignment = 0.0,
-    this.child,
-  })  : assert(sizeFraction >= 0.0 && sizeFraction <= 1.0),
-        super(key: key);
 
   @override
   _SizeFadeTransitionState createState() => _SizeFadeTransitionState();
@@ -70,9 +72,13 @@ class _SizeFadeTransitionState extends State<SizeFadeTransition> {
     final curve =
         CurvedAnimation(parent: widget.animation, curve: widget.curve);
     size = CurvedAnimation(
-        curve: Interval(0.0, widget.sizeFraction), parent: curve);
+      curve: Interval(0.0, widget.sizeFraction),
+      parent: curve,
+    );
     opacity = CurvedAnimation(
-        curve: Interval(widget.sizeFraction, 1.0), parent: curve);
+      curve: Interval(widget.sizeFraction, 1.0),
+      parent: curve,
+    );
   }
 
   @override

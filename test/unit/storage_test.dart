@@ -1,6 +1,5 @@
-import 'package:flutter_test/flutter_test.dart';
-
 import 'package:branvier/branvier.dart';
+import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   final box = FakeBox();
@@ -72,17 +71,5 @@ void main() {
       expect(data, isNotNull);
       expect(data!.length, 4);
     });
-
-  });
-}
-
-class Test {
-  final String a;
-  final int b;
-  final Map c;
-  Test({
-    required this.a,
-    required this.b,
-    required this.c,
   });
 }

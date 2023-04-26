@@ -1,6 +1,20 @@
 part of '/branvier.dart';
 
 extension ContextExt on BuildContext {
+
+  /// The same of [MediaQuery.of(context).size]
+  Size get mediaQuerySize => MediaQuery.of(this).size;
+
+  /// The same of [MediaQuery.of(context).size.height]
+  /// Note: updates when you rezise your screen (like on a browser or
+  /// desktop window)
+  double get height => mediaQuerySize.height;
+
+  /// The same of [MediaQuery.of(context).size.width]
+  /// Note: updates when you rezise your screen (like on a browser or
+  /// desktop window)
+  double get width => mediaQuerySize.width;
+
   ///Ensure the context widget is entirely visible. Defaults to scroll center.
   Future<void> ensureVisible({
     Duration duration = const Duration(milliseconds: 600),

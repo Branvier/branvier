@@ -2,6 +2,7 @@ library branvier;
 
 import 'dart:async';
 import 'dart:convert';
+import 'dart:ui' as ui;
 import 'dart:developer' as dev;
 import 'dart:math' as math;
 
@@ -59,3 +60,35 @@ WidgetsBinding get engine => WidgetsFlutterBinding.ensureInitialized();
 ///Tells if the *system* [Theme] is dark. Not the app theme.
 bool get kIsDark =>
     engine.platformDispatcher.platformBrightness == Brightness.dark;
+
+/// A dart:ui access point. Obs: It's immutable! For adaptativeness use context [MediaQuery].
+mixin Ui {
+  /// The window to which this binding is bound.
+  ui.SingletonFlutterWindow get window => ui.window;
+
+  ///System's [Locale].
+  Locale? get deviceLocale => ui.window.locale;
+
+  ///The number of device pixels for each logical pixel.
+  double get pixelRatio => ui.window.devicePixelRatio;
+
+  ///The [Size] of this device in logical pixels.
+  Size get size => ui.window.physicalSize / pixelRatio;
+
+  ///The horizontal extent of this size.
+  double get width => size.width;
+
+  ///The vertical extent of this size
+  double get height => size.height;
+
+  ///The distance from the top edge to the first unpadded pixel,
+  ///in physical pixels.
+  double get statusBarHeight => ui.window.padding.top;
+
+  ///The distance from the bottom edge to the first unpadded pixel,
+  ///in physical pixels.
+  double get bottomBarHeight => ui.window.padding.bottom;
+
+  ///The system-reported text scale.
+  double get textScaleFactor => ui.window.textScaleFactor;
+}

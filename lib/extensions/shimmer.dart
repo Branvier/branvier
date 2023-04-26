@@ -236,7 +236,7 @@ class _ShimmerFilter extends RenderProxyBox {
       final height = child!.size.height;
       Rect rect;
       double dx, dy;
-      
+
       if (_direction == ShimmerDirection.rtl) {
         dx = _offset(width, -width, _percent);
         dy = 0.0;
@@ -257,7 +257,7 @@ class _ShimmerFilter extends RenderProxyBox {
       layer ??= ShaderMaskLayer();
       layer!
         ..shader = _gradient.createShader(rect)
-        ..maskRect = offset & size
+        ..maskRect = offset & this.size
         ..blendMode = BlendMode.srcIn;
       context.pushLayer(layer!, super.paint, offset);
     } else {

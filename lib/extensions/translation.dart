@@ -21,6 +21,7 @@ typedef Translations = Map<String, Map<String, String>>;
 class Translation {
   static Translation? _instance;
   static final instance = _instance ??= Translation();
+  static Translation get to => instance;
 
   ///Set this [key] on any widget above your translations getters.
   ///Ex: [MaterialApp].
@@ -39,7 +40,7 @@ class Translation {
 
   Locale? _locale; //current [Locale].
   var _fallback = const Locale('en', 'US');
-  var _lazyTranslation = false;
+  var _lazyLoad = false;
   var _logger = true;
 
   ///All translations. {'locale': {'key': 'translation'}, ... }.
@@ -49,7 +50,7 @@ class Translation {
   final supportedLocales = <Locale>{};
 
   ///Load all locales from asset [path].
-  Future<Set<Locale>> loadLocales(String path) async {
+  Future<Set<Locale>> _loadLocales(String path) async {
     final manifestContent = await rootBundle.loadString('AssetManifest.json');
     final Map<String, dynamic> manifestMap = json.decode(manifestContent);
 
@@ -67,8 +68,8 @@ class Translation {
     return supportedLocales;
   }
 
-  ///Translation loader. Loads one if [_lazyTranslation] = true.
-  Future<void> loadByLocale(Locale locale) async {
+  ///Translation loader. Loads one if [_lazyLoad] = true.
+  Future<void> _loadByLocale(Locale locale) async {
     final translations = <String, StringMap>{};
     late Locale fileLocale;
 
@@ -84,8 +85,8 @@ class Translation {
     Translation.instance.translations.addAll(translations);
   }
 
-  ///Translation loader. Loads all if [_lazyTranslation] = false.
-  Future<void> loadAll() async {
+  ///Translation loader. Loads all if [_lazyLoad] = false.
+  Future<void> _loadAll() async {
     final translations = <String, StringMap>{};
 
     for (final file in translationFiles) {
@@ -122,9 +123,9 @@ class Translation {
     if (_logger) dev.log('Translation changed: $_locale -> $locale');
     _locale = locale;
 
-    if (_logger && _lazyTranslation) dev.log('isLazy = true. Loading...');
-    if (_lazyTranslation) await loadByLocale(locale);
-    if (_logger && _lazyTranslation) dev.log('isLazy = true. Loaded!');
+    if (_logger && _lazyLoad) dev.log('isLazy = true. Loading...');
+    if (_lazyLoad) await _loadByLocale(locale);
+    if (_logger && _lazyLoad) dev.log('isLazy = true. Loaded!');
 
     key.currentContext?.visitAll(rebuild: true);
 
@@ -143,38 +144,38 @@ class Translation {
   }
 
   ///Changes default path. Default: 'assets/translations'.
-  void setPath(String path) {
-    if (_logger) dev.log('Translation path: $path');
-    _path = path;
+  static void setPath(String path) {
+    if (to._logger) dev.log('Translation path: $path');
+    to._path = path;
   }
 
   ///The [Locale] the app starts. If null, use system's or fallback.
-  void setInitial(Locale locale) {
-    if (_logger) dev.log('Translation initial locale: $locale');
-    _locale = locale;
+  static void setInitial(Locale locale) {
+    if (to._logger) dev.log('Translation initial locale: $locale');
+    to._locale = locale;
   }
 
   ///Changes default fallback. Default: 'enUS'.
-  void setFallback(Locale locale) {
-    if (_logger) dev.log('Translation fallback: $locale');
-    _fallback = locale;
+  static void setFallback(Locale locale) {
+    if (to._logger) dev.log('Translation fallback: $locale');
+    to._fallback = locale;
   }
 
   ///Activates or desactivate log messages.
-  void setLogger(bool isActive) {
+  static void setLogger(bool isActive) {
     dev.log('Logger isActive: $isActive');
-    _logger = isActive;
+    to._logger = isActive;
   }
 
   ///Changes translation behavior. Default: false.
   ///
   ///If true, translation won't be instant. It will only load translations files
-  ///when the locale set on changeLanguage is first used.
+  ///when changeLanguage is first used.
   ///
   ///Tip: Only use in case you have lots of translations and huge files.
-  void setLazyTranslation(bool isLazy) {
-    if (_logger) dev.log('Translation isLazy: $isLazy');
-    _lazyTranslation = isLazy;
+  static void setLazyLoad(bool isLazy) {
+    if (to._logger) dev.log('Translation isLazy: $isLazy');
+    to._lazyLoad = isLazy;
   }
 }
 
@@ -183,20 +184,20 @@ class _TranslationLocalizations extends LocalizationsDelegate {
   static const delegate = _TranslationLocalizations._();
 
   ///Intance.
-  Translation get trans => Translation.instance;
+  Translation get to => Translation.instance;
 
   @override
   bool isSupported(Locale locale) => true;
 
   @override
   Future<Translation> load(Locale locale) async {
-    final locales = await trans.loadLocales(trans._path);
+    final locales = await to._loadLocales(to._path);
     final hasLocale = locales.contains(locale);
-    final localeToLoad = hasLocale ? locale : trans._fallback;
+    final localeToLoad = hasLocale ? locale : to._fallback;
 
-    if (!trans._lazyTranslation) await trans.loadAll();
+    if (!to._lazyLoad) await to._loadAll();
 
-    await trans.changeLanguage(trans._locale ?? localeToLoad);
+    await to.changeLanguage(to._locale ?? localeToLoad);
     return Translation.instance;
   }
 

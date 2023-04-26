@@ -416,8 +416,8 @@ The Controller manages the local business logic of a view.
 - Single reponsability. Will handle business logic of components. 1 for each business logic.
 
 ```dart
-//Anything operation related to login the [User] must only be done here.
-class LoginController {
+//You can extends [Disposable] in case you need to dispose anything when the controller dies.
+class LoginController extends Disposable { // <- optional
 
   //Dependencies.
   UserService _user = Modular.get();
@@ -456,8 +456,8 @@ class LoginController {
     }
   }
   
-  // ! Must attach to the Module.bind
-  void onDispose() {
+  @override
+  void dispose() { <- optional [Disposable]
     // _myService.onLoginDispose();
   }
 }
@@ -473,11 +473,8 @@ The module binds the business **logic** (Service/Controller) to the **global** v
 class MyModule extends Module {
   @override
   final List<Bind> binds = [
-    Bind.lazySingleton<MyController>(
-      (i) => MyController(),
-      //create onDispose() method on controller.
-      onDispose: (controller) => controller.onDispose(),
-    ),
+    AsyncBind<MyService>((i) => MyService().init()),
+    Bind<MyController>((i) => MyController()),
   ];
 
   @override
@@ -488,6 +485,24 @@ class MyModule extends Module {
 ```
 
 > To know more about Flutter Modular: [Getting Started](https://github.com/branvier-dev/branvier_template.git)
+
+## ModuleBuilder
+
+---
+In case you need to use [AsyncBind]. You'll have to wait your module to be ready.
+You can use `Modular.isModuleReady()` or use the [ModuleBuilder] widget, that automatically waits for it
+and adds a custom loader while loading.
+
+```dart
+    //just type the Module you want to wait to be ready.
+    ModuleBuilder<AppModule>( //or any other module
+      builder: (context {
+        return MaterialApp.router( //or any other widget
+           {...}
+        );
+      },
+    );
+```
 
 ## Page
 
@@ -549,11 +564,7 @@ class ThemeButtonModule extends WidgetModule {
 
   @override
   final List<Bind> binds = [
-    Bind.lazySingleton<ThemeButtonController>(
-      (i) => ThemeButtonController(),
-      //create onDispose() method on controller.
-      onDispose: (controller) => controller.onDispose(),
-    ),
+    Bind((i) => ThemeButtonController()),
   ];
 
   @override
@@ -625,26 +636,39 @@ UI Elements that have **zero** business logic (Service/Controller).
 ```dart
 main() async {
 
-  // Init [Translation] before the app starts.
-  Translation.init(
-    initialLocale: 'pt',
-    translations: { // Map<String, Map<String,String>>
-      'pt': {
-        'home.button.increment': 'Somar 1',
-        'home.button': 'Aperte',
-      },
-      'en': {
-        'home.button.increment': 'Add 1',
-        'home.button': 'Press',
-      },
-    }
+  // * Optional configs.
+  //
+  Translation.setPath(String path) //Defaults to 'assets/translations/'
+  Translation.setInitial(Locale locale) //Defaults to system's Locale.
+  Translation.setFallback(Locale locale) //Defaults to en_US.
+  Translation.setLogger(bool isActive) //Defaults to true.
+  Translation.setLazyLoad(bool isLazy) //Defaults to false.
+
+  // Setup.
+  {...} => MaterialApp(
+    key: Translation.key,
+    localizationsDelegates: Translation.delegates,
   );
-
-  // Recommended: You can also load all .json files from asset folder. Ex en.json, etc.
-  await Translation.initAsset('pt','assets/translations');
-
-  {...} => MaterialApp();
 }
+```
+
+Your json files have to be named in the Locale format. Any separator will work. You can also use only the language code, without country code. Ex: es, pt, for neutral languages that works for any country.
+
+```dart
+> asset/translations/en_US.dart
+
+{
+  "home.button.increment": "Increase 1", 
+  "home.button": "Press", 
+}
+
+> asset/translations/pt_BR.dart
+
+{
+  "home.button.increment": "Somar 1", 
+  "home.button": "Aperte", 
+}
+
 ```
 
 ### Translate with `.tr` or `.trn`
@@ -665,11 +689,11 @@ main() async {
 
 ```
 
-### Change Language with `Translate.changeLanguage()`
+### Change Language with `Translate.to.changeLanguage()`
 
 ```dart
   ElevatedButtonX(
-    onTap: () async => Translate.changeLanguage('en'),
+    onTap: () async => Translate.to.changeLanguage('en'),
     child: Text('home.button'.tr), // 'Aperte' -> 'Press'
   ),
 

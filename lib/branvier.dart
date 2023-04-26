@@ -11,6 +11,7 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:flutter_modular/flutter_modular.dart';
 import 'package:mocktail/mocktail.dart';
 
 import 'widgets/list_builder/list_builder.dart';
@@ -45,7 +46,7 @@ part 'widgets/async_button.dart';
 part 'widgets/formx.dart';
 part 'widgets/list_builder.dart';
 part 'widgets/nest_builder.dart';
-part 'widgets/nil.dart';
+part 'widgets/modular.dart';
 part 'widgets/page_builder.dart';
 
 ///Schedule a callback for the end of this frame.

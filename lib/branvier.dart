@@ -2,9 +2,9 @@ library branvier;
 
 import 'dart:async';
 import 'dart:convert';
-import 'dart:ui' as ui;
 import 'dart:developer' as dev;
 import 'dart:math' as math;
+import 'dart:ui' as ui;
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -46,8 +46,8 @@ part 'widgets/async_builder.dart';
 part 'widgets/async_button.dart';
 part 'widgets/formx.dart';
 part 'widgets/list_builder.dart';
-part 'widgets/nest_builder.dart';
 part 'widgets/modular.dart';
+part 'widgets/nest_builder.dart';
 part 'widgets/page_builder.dart';
 
 ///Schedule a callback for the end of this frame.
@@ -64,31 +64,31 @@ bool get kIsDark =>
 /// A dart:ui access point. Obs: It's immutable! For adaptativeness use context [MediaQuery].
 mixin Ui {
   /// The window to which this binding is bound.
-  ui.SingletonFlutterWindow get window => ui.window;
+  static ui.SingletonFlutterWindow get window => ui.window;
 
   ///System's [Locale].
-  Locale? get deviceLocale => ui.window.locale;
+  static Locale? get deviceLocale => ui.window.locale;
 
   ///The number of device pixels for each logical pixel.
-  double get pixelRatio => ui.window.devicePixelRatio;
+  static double get pixelRatio => ui.window.devicePixelRatio;
 
   ///The [Size] of this device in logical pixels.
-  Size get size => ui.window.physicalSize / pixelRatio;
+  static Size get size => ui.window.physicalSize / pixelRatio;
 
   ///The horizontal extent of this size.
-  double get width => size.width;
+  static double get width => size.width;
 
   ///The vertical extent of this size
-  double get height => size.height;
+  static double get height => size.height;
 
   ///The distance from the top edge to the first unpadded pixel,
   ///in physical pixels.
-  double get statusBarHeight => ui.window.padding.top;
+  static double get statusBarHeight => ui.window.padding.top;
 
   ///The distance from the bottom edge to the first unpadded pixel,
   ///in physical pixels.
-  double get bottomBarHeight => ui.window.padding.bottom;
+  static double get bottomBarHeight => ui.window.padding.bottom;
 
   ///The system-reported text scale.
-  double get textScaleFactor => ui.window.textScaleFactor;
+  static double get textScaleFactor => ui.window.textScaleFactor;
 }

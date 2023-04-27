@@ -27,16 +27,11 @@ extension CallState<T> on ValueNotifier<T> {
   ///Checks if both notifiers have the same value.
   bool same(ValueNotifier<T> other) => value == other.value;
 
-  ///Switches between [left] and [right] values;
+  ///Switches between [left] and [right] values.
   T switcher(T left, T right) => value = value != left ? left : right;
 
-  bool get isEmpty => [{}, [], ''].contains(value);
+  ///The inside value as string.
   String get string => value.toString();
-}
-
-extension NullNotifier<V> on ValueNotifier<V?> {
-  ///Sets value to null.
-  V? toNull() => value = null;
 }
 
 extension ListNotifier<V> on ValueNotifier<List<V>> {
@@ -103,7 +98,10 @@ extension MapNotifier<K, V> on ValueNotifier<Map<K, V>> {
     return response;
   }
 
-  void forEach(void Function(K, V) action) => update((e) => e.forEach(action));
+  void forEach(void action(K, V)) => update((e) => e.forEach(action));
+
+  Map<K2, V2> map<K2, V2>(MapEntry<K2, V2> action(K, V)) =>
+      update((e) => e.map(action));
 
   //Operators
   V? operator [](Object? key) => update((map) => map[key]);
@@ -121,31 +119,29 @@ extension SetNotifier<V> on ValueNotifier<Set<V>> {
 }
 
 extension BoolNotifier on ValueNotifier<bool> {
-  ///Toggles the values. Can set instead.
-  bool toggle([bool? value]) => this.value = value ?? !this.value;
-
-  ///Toggles on. Sets to true.
-  bool on() => call(true);
-
-  ///Toggles off. Sets to false.
-  bool off() => call(false);
+  ///Toggles the values.
+  bool toggle() => value = !value;
 
   ///Test if the inner value is true.
-  bool get isTrue => value == true;
+  bool get isTrue => value;
 
   ///Test if the inner value is false.
-  bool get isFalse => value == false;
+  bool get isFalse => !isTrue;
 
-  ///Toggles boolean after [duration].
-  Future<bool> delay<T>(Duration duration, [bool? value]) {
-    return Future.delayed(duration, () => toggle(value));
-  }
-
+  ///AND operator.
   bool operator &(bool other) => value && other;
+
+  ///OR operator.
+  bool operator |(bool other) => other || value;
+
+  ///Equality operator.
+  bool operator ^(bool other) => !other == value;
 }
 
-extension ListNotifiers<T> on List<ValueNotifier<T>> {
-  // void off() => map((e) => e.off());
+extension IntNotifier on ValueNotifier<num> {
+  /// Addition operator.
+  num operator +(num other) => value = value + other;
 
-  void call(T value) => map((e) => e(value));
+  /// Subtraction operator.
+  num operator -(num other) => value = value - other;
 }

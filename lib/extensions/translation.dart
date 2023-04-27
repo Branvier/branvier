@@ -111,7 +111,6 @@ class Translation {
         (key) => key.startsWith(locale.languageCode),
       );
       if (languages.isNotEmpty) {
-        if (_logger) dev.log('[$locale] not found, using [$code] instead.');
         code = languages.first;
       }
     }

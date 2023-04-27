@@ -444,7 +444,7 @@ class SnackbarController {
   }
 
   void _configureOverlay() {
-    _overlayState = Overlay.of(Messenger.key.currentContext!);
+    _overlayState = Overlay.of(Messenger.overlayContext!);
     _overlayEntries.clear();
     _overlayEntries.addAll(_createOverlayEntries(_getBodyWidget()));
     _overlayState!.insertAll(_overlayEntries);

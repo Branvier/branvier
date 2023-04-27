@@ -148,6 +148,16 @@ typedef OnTap = void Function(GetSnackBar snack);
 typedef SnackbarStatusCallback = void Function(SnackbarStatus? status);
 mixin Messenger {
   static final key = GlobalKey<ScaffoldMessengerState>();
+
+  /// give access to current Overlay Context
+  static BuildContext? get overlayContext {
+    BuildContext? overlay;
+    key.currentContext?.visitChildElements((element) {
+      overlay = element;
+    });
+    return overlay;
+  }
+
   static SnackbarController rawSnackbar({
     String? title,
     String? message,

@@ -298,6 +298,8 @@ class _FieldState extends State<Field> {
     final dec = scope?.decoration?.call(widget.tag) ?? const InputDecoration();
     final decoration = dec.update(widget.decoration);
 
+    // final deccontext = context.theme.inputDecorationTheme;
+
     void onChanged(String value) {
       var text = value;
 

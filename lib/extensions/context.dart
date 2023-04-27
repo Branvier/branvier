@@ -1,7 +1,6 @@
 part of '/branvier.dart';
 
 extension ContextExt on BuildContext {
-
   /// The same of [MediaQuery.of(context).size]
   Size get mediaQuerySize => MediaQuery.of(this).size;
 
@@ -42,7 +41,16 @@ extension ContextExt on BuildContext {
 
   ///Current theme of the app.
   ThemeData get theme => Theme.of(this);
-  
+
+  ///The colors of the current theme.
+  ColorScheme get colors => Theme.of(this).colorScheme;
+
+  ///The font styles of the current theme.
+  TextTheme get font => theme.textTheme;
+
+  ///If the [ThemeMode] is dark.
+  bool get isDarkMode => colors.brightness == Brightness.dark;
+
   ///Visits all [T] widgets below this context. If [T] is absent, visits all.
   ///
   ///Additionally returns a list of the Widgets found.

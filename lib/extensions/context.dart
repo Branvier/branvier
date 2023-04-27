@@ -236,13 +236,13 @@ mixin Messenger {
     return controller;
   }
 
-  SnackbarController showSnackbar(GetSnackBar snackbar) {
+  static SnackbarController showSnackbar(GetSnackBar snackbar) {
     final controller = SnackbarController(snackbar);
     controller.show();
     return controller;
   }
 
-  SnackbarController snackbar(
+  static SnackbarController snackbar(
     String title,
     String message, {
     Color? colorText,

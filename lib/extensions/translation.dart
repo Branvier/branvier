@@ -103,9 +103,22 @@ class Translation {
   String? translate(String key) {
     final keys = key.subWords('.');
 
+    //checking locale.
+    var code = locale.toString();
+    final hasCode = translations.keys.contains(locale.toString());
+    if (!hasCode) {
+      final languages = translations.keys.where(
+        (key) => key.startsWith(locale.languageCode),
+      );
+      if (languages.isNotEmpty) {
+        if (_logger) dev.log('[$locale] not found, using [$code] instead.');
+        code = languages.first;
+      }
+    }
+
     //looking for sub keys.
     for (final key in keys) {
-      final translation = translations[locale.toString()]?[key];
+      final translation = translations[code]?[key];
       if (translation != null) return translation; //found.
     }
     missingTranslations.add(key);

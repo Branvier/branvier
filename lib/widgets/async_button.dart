@@ -23,7 +23,7 @@ class Buttons extends HookWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             const Field('test'),
-            const ElevatedButtonX(
+            ElevatedButtonX(
               hasFormX: true, // todo: looses bind on hot reload.
               onPressed: fun,
               child: Text('Arthur Miranda'),
@@ -149,16 +149,22 @@ class ElevatedButtonX extends HookWidget {
 
     //Theme inherited.
     final colors = Theme.of(context).colorScheme;
+    final appStyle = context.theme.elevatedButtonTheme.style;
+
+    final mustStyle = ElevatedButton.styleFrom(
+      backgroundColor: ctrl.hasError ? colors.error : null,
+    );
+
+    final defaultStyle = ElevatedButton.styleFrom(
+      padding: appStyle?.padding?.resolve({}) ?? EdgeInsets.zero,
+      minimumSize: appStyle?.minimumSize?.resolve({}) ?? const Size.square(36),
+    );
 
     return ElevatedButton(
       onPressed: (onPressed != null && ctrl.isEnabled) ? ctrl.tap : null,
 
       //inherited style
-      style: ElevatedButton.styleFrom(
-        padding: EdgeInsets.zero,
-        backgroundColor: ctrl.hasError ? colors.error : null,
-        minimumSize: const Size.square(36),
-      ).merge(style),
+      style: mustStyle.merge(style).merge(defaultStyle),
 
       //load animation
       child: _ButtonLoader(
@@ -231,17 +237,22 @@ class OutlinedButtonX extends HookWidget {
       style: side?.style,
       strokeAlign: side?.strokeAlign,
     );
+    final appStyle = context.theme.elevatedButtonTheme.style;
 
+    final mustStyle = OutlinedButton.styleFrom(
+      foregroundColor: ctrl.hasError ? colors.error : null,
+      side: ctrl.hasError ? errorSide : null,
+    );
+
+    final defaultStyle = OutlinedButton.styleFrom(
+      padding: appStyle?.padding?.resolve({}) ?? EdgeInsets.zero,
+      minimumSize: appStyle?.minimumSize?.resolve({}) ?? const Size.square(36),
+    );
     return OutlinedButton(
       onPressed: (onPressed != null && ctrl.isEnabled) ? ctrl.tap : null,
 
       //inherited style
-      style: OutlinedButton.styleFrom(
-        padding: EdgeInsets.zero,
-        foregroundColor: ctrl.hasError ? colors.error : null,
-        side: ctrl.hasError ? errorSide : null,
-        minimumSize: const Size.square(36),
-      ).merge(style),
+      style: mustStyle.merge(style).merge(defaultStyle),
 
       //load animation
       child: _ButtonLoader(
@@ -308,16 +319,22 @@ class TextButtonX extends HookWidget {
 
     //Theme inherited.
     final colors = Theme.of(context).colorScheme;
+    final appStyle = context.theme.elevatedButtonTheme.style;
+
+    final mustStyle = ElevatedButton.styleFrom(
+      foregroundColor: ctrl.hasError ? colors.error : null,
+    );
+
+    final defaultStyle = ElevatedButton.styleFrom(
+      padding: appStyle?.padding?.resolve({}) ?? EdgeInsets.zero,
+      minimumSize: appStyle?.minimumSize?.resolve({}) ?? const Size.square(36),
+    );
 
     return TextButton(
       onPressed: (onPressed != null && ctrl.isEnabled) ? ctrl.tap : null,
 
       //inherited style
-      style: TextButton.styleFrom(
-        padding: EdgeInsets.zero,
-        foregroundColor: ctrl.hasError ? colors.error : null,
-        minimumSize: const Size.square(36),
-      ).merge(style),
+      style: mustStyle.merge(style).merge(defaultStyle),
 
       //load animation
       child: _ButtonLoader(

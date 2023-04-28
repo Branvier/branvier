@@ -97,6 +97,29 @@ extension ContextExt on BuildContext {
   }
 }
 
+extension ColorSchemeExtension on ColorScheme {
+  ///Tells if the current theme in this is dark.
+  bool get isDark => brightness == Brightness.dark;
+
+  ///Flutter official guideline for disabled color.
+  Color get disabled => onSurface.withOpacity(0.38);
+
+  ///The default flutter textTheme. This will override your theme. Use as ref.
+  TextTheme get defaultText =>
+      isDark ? ThemeData.dark().textTheme : ThemeData.light().textTheme;
+}
+
+extension SetMaterialStateExtension on Set<MaterialState> {
+  bool get isHovered => contains(MaterialState.hovered);
+  bool get isFocused => contains(MaterialState.focused);
+  bool get isPressed => contains(MaterialState.pressed);
+  bool get isDragged => contains(MaterialState.dragged);
+  bool get isSelected => contains(MaterialState.selected);
+  bool get isScrolledUnder => contains(MaterialState.scrolledUnder);
+  bool get isDisabled => contains(MaterialState.disabled);
+  bool get isError => contains(MaterialState.error);
+}
+
 extension MaterialColorGenerator on Color {
   ///Add shades to this [Color].
   ///
@@ -141,6 +164,33 @@ extension MaterialColorGenerator on Color {
     }
     return MaterialColor(color.value, swatch);
   }
+
+  ///Set this [Color] as default and add optional states.
+  ///
+  ///Attention, this will be applied for all states!
+  ///It's really recommended to set some invidiual states.
+  MaterialStateProperty<Color?> resolve({
+    Color? hovered,
+    Color? focused,
+    Color? pressed,
+    Color? dragged,
+    Color? selected,
+    Color? scrolledUnder,
+    Color? disabled,
+    Color? error,
+  }) {
+    return MaterialStateColor.resolveWith((states) {
+      if (states.isHovered && hovered != null) return hovered;
+      if (states.isFocused && focused != null) return focused;
+      if (states.isPressed && pressed != null) return pressed;
+      if (states.isDragged && dragged != null) return dragged;
+      if (states.isSelected && selected != null) return selected;
+      if (states.isScrolledUnder && scrolledUnder != null) return scrolledUnder;
+      if (states.isDisabled && disabled != null) return disabled;
+      if (states.isError && error != null) return error;
+      return this;
+    });
+  }
 }
 
 typedef OnTap = void Function(GetSnackBar snack);
@@ -158,8 +208,6 @@ mixin Messenger {
     });
     return overlay;
   }
-
-  
 
   static SnackbarController rawSnackbar({
     String? title,
@@ -299,57 +347,56 @@ mixin Messenger {
     final theme = Messenger.key.currentContext?.theme;
 
     final getSnackBar = GetSnackBar(
-        snackbarStatus: snackbarStatus,
-        titleText: titleText ??
-            Text(
-              title,
-              style: TextStyle(
-                color:
-                    colorText ?? theme?.colorScheme.onSurface ?? Colors.black,
-                fontWeight: FontWeight.w800,
-                fontSize: 16,
-              ),
+      snackbarStatus: snackbarStatus,
+      titleText: titleText ??
+          Text(
+            title,
+            style: TextStyle(
+              color: colorText ?? theme?.colorScheme.onSurface ?? Colors.black,
+              fontWeight: FontWeight.w800,
+              fontSize: 16,
             ),
-        messageText: messageText ??
-            Text(
-              message,
-              style: TextStyle(
-                color:
-                    colorText ?? theme?.colorScheme.onSurface ?? Colors.black,
-                fontWeight: FontWeight.w300,
-                fontSize: 14,
-              ),
+          ),
+      messageText: messageText ??
+          Text(
+            message,
+            style: TextStyle(
+              color: colorText ?? theme?.colorScheme.onSurface ?? Colors.black,
+              fontWeight: FontWeight.w300,
+              fontSize: 14,
             ),
-        snackPosition: snackPosition ?? SnackPosition.TOP,
-        borderRadius: borderRadius ?? 15,
-        margin: margin ?? const EdgeInsets.symmetric(horizontal: 10),
-        duration: duration,
-        barBlur: barBlur ?? 7.0,
-        backgroundColor: backgroundColor ?? Colors.grey.withOpacity(0.2),
-        icon: icon,
-        shouldIconPulse: shouldIconPulse ?? true,
-        maxWidth: maxWidth,
-        padding: padding ?? const EdgeInsets.all(16),
-        borderColor: borderColor,
-        borderWidth: borderWidth,
-        leftBarIndicatorColor: leftBarIndicatorColor,
-        boxShadows: boxShadows,
-        backgroundGradient: backgroundGradient,
-        mainButton: mainButton,
-        onTap: onTap,
-        isDismissible: isDismissible ?? true,
-        dismissDirection: dismissDirection,
-        showProgressIndicator: showProgressIndicator ?? false,
-        progressIndicatorController: progressIndicatorController,
-        progressIndicatorBackgroundColor: progressIndicatorBackgroundColor,
-        progressIndicatorValueColor: progressIndicatorValueColor,
-        snackStyle: snackStyle ?? SnackStyle.FLOATING,
-        forwardAnimationCurve: forwardAnimationCurve ?? Curves.easeOutCirc,
-        reverseAnimationCurve: reverseAnimationCurve ?? Curves.easeOutCirc,
-        animationDuration: animationDuration ?? const Duration(seconds: 1),
-        overlayBlur: overlayBlur ?? 0.0,
-        overlayColor: overlayColor ?? Colors.transparent,
-        userInputForm: userInputForm);
+          ),
+      snackPosition: snackPosition ?? SnackPosition.TOP,
+      borderRadius: borderRadius ?? 15,
+      margin: margin ?? const EdgeInsets.symmetric(horizontal: 10),
+      duration: duration,
+      barBlur: barBlur ?? 7.0,
+      backgroundColor: backgroundColor ?? Colors.grey.withOpacity(0.2),
+      icon: icon,
+      shouldIconPulse: shouldIconPulse ?? true,
+      maxWidth: maxWidth,
+      padding: padding ?? const EdgeInsets.all(16),
+      borderColor: borderColor,
+      borderWidth: borderWidth,
+      leftBarIndicatorColor: leftBarIndicatorColor,
+      boxShadows: boxShadows,
+      backgroundGradient: backgroundGradient,
+      mainButton: mainButton,
+      onTap: onTap,
+      isDismissible: isDismissible ?? true,
+      dismissDirection: dismissDirection,
+      showProgressIndicator: showProgressIndicator ?? false,
+      progressIndicatorController: progressIndicatorController,
+      progressIndicatorBackgroundColor: progressIndicatorBackgroundColor,
+      progressIndicatorValueColor: progressIndicatorValueColor,
+      snackStyle: snackStyle ?? SnackStyle.FLOATING,
+      forwardAnimationCurve: forwardAnimationCurve ?? Curves.easeOutCirc,
+      reverseAnimationCurve: reverseAnimationCurve ?? Curves.easeOutCirc,
+      animationDuration: animationDuration ?? const Duration(seconds: 1),
+      overlayBlur: overlayBlur ?? 0.0,
+      overlayColor: overlayColor ?? Colors.transparent,
+      userInputForm: userInputForm,
+    );
 
     final controller = SnackbarController(getSnackBar);
 
@@ -363,8 +410,6 @@ mixin Messenger {
     }
     return controller;
   }
-
-
 }
 
 class SnackbarController {

@@ -4,6 +4,7 @@ void main() => runApp(MaterialApp(home: Scaffold(body: Buttons())));
 
 Future<void> fun() async {
   await 2.seconds();
+  print('fui chamado');
   // ignore: only_throw_errors
   throw '';
 }
@@ -24,19 +25,24 @@ class Buttons extends HookWidget {
           children: [
             const Field('test'),
             ElevatedButtonX(
-              hasFormX: true, // todo: looses bind on hot reload.
+              // hasFormX: true, // todo: looses bind on hot reload.
               onPressed: fun,
+              onLongPress: fun,
+              // onHover: (isHovering) async => fun(),
+              // on: fun,
               child: Text('Arthur Miranda'),
             ),
             OutlinedButtonX(
-              hasFormX: true,
-              onPressed: 3.seconds.call,
+              // hasFormX: true,
+              onPressed: fun,
+              onLongPress: fun,
               child: const Text('Iran Neto'),
             ),
             TextButtonX(
-              hasFormX: true,
+              // hasFormX: true,
               controller: ctrl,
-              onPressed: 3.seconds.call,
+              onPressed: fun,
+              onLongPress: fun,
               child: const Text('Juan Alesson'),
             ),
             ElevatedButton(onPressed: ctrl.tap, child: const Text('tap'))
@@ -57,16 +63,28 @@ class ButtonController {
   StackTrace? _stackTrace;
   Object? _error;
 
-  FutureOr Function()? _tap;
+  FutureOr Function()? _press;
+  FutureOr Function()? _longPress;
+  FutureOr Function(bool value)? _hover;
   ValueNotifier<bool>? _isLoading;
   ValueNotifier<bool>? _hasError;
+  var _hovering = false;
 
-  ///Taps the [ElevatedButtonX] programatically.
-  void tap() async {
+  ///Performs press programatically.
+  void tap() => _animate(_press);
+
+  ///Performs longPress programatically.
+  void hold() => _animate(_longPress);
+
+  ///Performs hover programatically.
+  void hover([bool isHovering = true]) => _hover?.call(_hovering = isHovering);
+
+  ///Starts animating the button.
+  void _animate(FutureOr action()?) async {
     if (isLoading || hasError) return;
     try {
       _isLoading?.value = true;
-      await _tap?.call();
+      await action?.call();
       // ignore: avoid_catches_without_on_clauses
     } catch (e, s) {
       _hasError?.value = true;
@@ -89,8 +107,29 @@ class ButtonController {
   Object? get error => _error;
   StackTrace? get stackTrace => _stackTrace;
 
-  ///Tell if the button can be tapped.
+  ///Tell if the button is animating.
+  bool get isAnimating => isLoading || hasError;
   bool get isEnabled => !isLoading || !hasError;
+
+  ///Tell if this button is being hovered.
+  bool get isHovering => _hovering;
+}
+
+///Hook for listening [FormX] loading state.
+void useFormxLoading(bool hasFormX, void onChange(bool isLoading)) {
+  final context = useContext();
+  final formx = useFinal(
+    hasFormX ? context.dependOnInheritedWidgetOfExactType<FormScope>() : null,
+  );
+
+  if (hasFormX && formx == null) dev.log('No Formx above this button!');
+
+  void onLoading() => onChange(formx!.isLoading.value);
+
+  useInit(
+    () => formx?.isLoading.addListener(onLoading),
+    dispose: () => formx?.isLoading.removeListener(onLoading),
+  );
 }
 
 ///Native [ElevatedButton] with animations for [loader] and [error].
@@ -98,21 +137,43 @@ class ButtonController {
 ///Use [ButtonController] to tap programatically.
 class ElevatedButtonX extends HookWidget {
   const ElevatedButtonX({
-    required this.onPressed,
-    required this.child,
-    this.hasFormX = false,
+    //Extended.
     this.controller,
-    this.loader = const SmallIndicator(color: Colors.white),
+    this.hasFormx = false,
     this.error = const Text('!'),
-    this.style,
+    this.loader = const SmallIndicator(color: Colors.white),
+
+    //ElevatedButton.
     super.key,
+    required this.onPressed,
+    this.onLongPress,
+    this.onHover,
+    this.onFocusChange,
+    this.style,
+    this.focusNode,
+    this.autofocus = false,
+    this.clipBehavior = Clip.none,
+    this.statesController,
+    required this.child,
   });
 
-  ///In the presence of a [FormX] above, animates loading.
-  final bool hasFormX;
+  //Same as [ElevatedButton].
+  final FutureOr<void> Function()? onPressed;
+  final FutureOr Function()? onLongPress;
+  final FutureOr Function(bool isHovering)? onHover;
+  final void Function(bool value)? onFocusChange;
+  final ButtonStyle? style;
+  final FocusNode? focusNode;
+  final Clip clipBehavior;
+  final bool autofocus;
+  final MaterialStatesController? statesController;
+  final Widget child;
 
   ///Controls this button programatically. -> controller.tap().
   final ButtonController? controller;
+
+  ///In the presence of a [FormX] above, animates loading.
+  final bool hasFormx;
 
   ///The widget to show on loading.
   final Widget loader;
@@ -120,58 +181,43 @@ class ElevatedButtonX extends HookWidget {
   ///The widget to show on error.
   final Widget error;
 
-  //Same as [TextButton].
-  final FutureOr<void> Function()? onPressed;
-  final Widget child;
-  final ButtonStyle? style;
-
   @override
   Widget build(BuildContext context) {
     final ctrl = useFinal(controller ?? ButtonController());
     ctrl._isLoading = useState(false);
     ctrl._hasError = useState(false);
-    ctrl._tap = onPressed;
+    ctrl._press = onPressed;
+    ctrl._longPress = onLongPress;
+    ctrl._hover = onHover;
 
-    final formx = useFinal(
-      hasFormX ? context.dependOnInheritedWidgetOfExactType<FormScope>() : null,
-    );
+    useFormxLoading(hasFormx, (value) => ctrl._isLoading?.value = value);
 
-    if (hasFormX && formx == null) dev.log('No Formx above this button!');
-
-    void onLoading() {
-      ctrl._isLoading?.value = formx!.isLoading.value;
-    }
-
-    useInit(
-      () => formx?.isLoading.addListener(onLoading),
-      dispose: () => formx?.isLoading.removeListener(onLoading),
-    );
-
-    //Theme inherited.
-    final colors = Theme.of(context).colorScheme;
-    final appStyle = context.theme.elevatedButtonTheme.style;
-
-    final mustStyle = ElevatedButton.styleFrom(
-      backgroundColor: ctrl.hasError ? colors.error : null,
-    );
-
-    final defaultStyle = ElevatedButton.styleFrom(
-      padding: appStyle?.padding?.resolve({}) ?? EdgeInsets.zero,
-      minimumSize: appStyle?.minimumSize?.resolve({}) ?? const Size.square(36),
+    final animationStyle = ElevatedButton.styleFrom(
+      padding: ctrl.isAnimating ? EdgeInsets.zero : null,
+      backgroundColor: ctrl.hasError ? context.colors.error : null,
+      minimumSize: ctrl.isAnimating ? const Size.square(36) : null,
     );
 
     return ElevatedButton(
+      key: key,
       onPressed: (onPressed != null && ctrl.isEnabled) ? ctrl.tap : null,
+      onLongPress: (onLongPress != null && ctrl.isEnabled) ? ctrl.hold : null,
+      onHover: ctrl.hover,
+      autofocus: autofocus,
+      clipBehavior: clipBehavior,
+      focusNode: focusNode,
+      onFocusChange: onFocusChange,
+      statesController: statesController,
 
       //inherited style
-      style: mustStyle.merge(style).merge(defaultStyle),
+      style: animationStyle.merge(style),
 
       //load animation
       child: _ButtonLoader(
         loader: loader,
         loading: ctrl.isLoading,
         duration: ctrl.animationDuration,
-        child: (ctrl.hasError ? error : child).pad(horizontal: 8),
+        child: ctrl.hasError ? error : child,
       ),
     );
   }
@@ -182,21 +228,43 @@ class ElevatedButtonX extends HookWidget {
 ///Use [ButtonController] to tap programatically.
 class OutlinedButtonX extends HookWidget {
   const OutlinedButtonX({
-    required this.onPressed,
-    required this.child,
-    this.hasFormX = false,
+    //Extended.
     this.controller,
-    this.loader = const SmallIndicator(),
+    this.hasFormx = false,
     this.error = const Text('!'),
-    this.style,
+    this.loader = const SmallIndicator(),
+
+    //ElevatedButton.
     super.key,
+    required this.onPressed,
+    this.onLongPress,
+    this.onHover,
+    this.onFocusChange,
+    this.style,
+    this.focusNode,
+    this.autofocus = false,
+    this.clipBehavior = Clip.none,
+    this.statesController,
+    required this.child,
   });
 
-  ///In the presence of a [FormX] above, animates loading.
-  final bool hasFormX;
+  //Same as [ElevatedButton].
+  final FutureOr<void> Function()? onPressed;
+  final FutureOr Function()? onLongPress;
+  final FutureOr Function(bool isHovering)? onHover;
+  final void Function(bool value)? onFocusChange;
+  final ButtonStyle? style;
+  final FocusNode? focusNode;
+  final Clip clipBehavior;
+  final bool autofocus;
+  final MaterialStatesController? statesController;
+  final Widget child;
 
   ///Controls this button programatically. -> controller.tap().
   final ButtonController? controller;
+
+  ///In the presence of a [FormX] above, animates loading.
+  final bool hasFormx;
 
   ///The widget to show on loading.
   final Widget loader;
@@ -204,62 +272,52 @@ class OutlinedButtonX extends HookWidget {
   ///The widget to show on error.
   final Widget error;
 
-  //Same as [TextButton].
-  final FutureOr<void> Function()? onPressed;
-  final Widget child;
-  final ButtonStyle? style;
-
   @override
   Widget build(BuildContext context) {
     final ctrl = useFinal(controller ?? ButtonController());
     ctrl._isLoading = useState(false);
     ctrl._hasError = useState(false);
-    ctrl._tap = onPressed;
+    ctrl._press = onPressed;
+    ctrl._longPress = onLongPress;
+    ctrl._hover = onHover;
 
-    final formx = useFinal(
-      hasFormX ? context.dependOnInheritedWidgetOfExactType<FormScope>() : null,
-    );
-
-    if (hasFormX && formx == null) dev.log('No Formx above this button!');
-
-    void onLoading() => ctrl._isLoading?.value = formx!.isLoading.value;
-
-    useInit(
-      () => formx?.isLoading.addListener(onLoading),
-      dispose: () => formx?.isLoading.removeListener(onLoading),
-    );
+    useFormxLoading(hasFormx, (value) => ctrl._isLoading?.value = value);
 
     //Theme inherited.
-    final colors = Theme.of(context).colorScheme;
-    final side = Theme.of(context).outlinedButtonTheme.style?.side?.resolve({});
-    final errorSide = BorderSide(color: colors.error).copyWith(
+    final side = context.theme.outlinedButtonTheme.style?.side?.resolve({});
+    final errorSide = BorderSide(color: context.colors.error).copyWith(
       width: side?.width,
       style: side?.style,
       strokeAlign: side?.strokeAlign,
     );
-    final appStyle = context.theme.elevatedButtonTheme.style;
 
-    final mustStyle = OutlinedButton.styleFrom(
-      foregroundColor: ctrl.hasError ? colors.error : null,
+    final animationStyle = OutlinedButton.styleFrom(
+      padding: ctrl.isAnimating ? EdgeInsets.zero : null,
+      foregroundColor: ctrl.hasError ? context.colors.error : null,
+      minimumSize: ctrl.isAnimating ? const Size.square(36) : null,
       side: ctrl.hasError ? errorSide : null,
     );
 
-    final defaultStyle = OutlinedButton.styleFrom(
-      padding: appStyle?.padding?.resolve({}) ?? EdgeInsets.zero,
-      minimumSize: appStyle?.minimumSize?.resolve({}) ?? const Size.square(36),
-    );
     return OutlinedButton(
+      key: key,
       onPressed: (onPressed != null && ctrl.isEnabled) ? ctrl.tap : null,
+      onLongPress: (onLongPress != null && ctrl.isEnabled) ? ctrl.hold : null,
+      onHover: ctrl.hover,
+      autofocus: autofocus,
+      clipBehavior: clipBehavior,
+      focusNode: focusNode,
+      onFocusChange: onFocusChange,
+      statesController: statesController,
 
       //inherited style
-      style: mustStyle.merge(style).merge(defaultStyle),
+      style: animationStyle.merge(style),
 
       //load animation
       child: _ButtonLoader(
         loader: loader,
         loading: ctrl.isLoading,
         duration: ctrl.animationDuration,
-        child: (ctrl.hasError ? error : child).pad(horizontal: 8),
+        child: ctrl.hasError ? error : child,
       ),
     );
   }
@@ -270,21 +328,43 @@ class OutlinedButtonX extends HookWidget {
 ///Use [ButtonController] to tap programatically.
 class TextButtonX extends HookWidget {
   const TextButtonX({
-    required this.onPressed,
-    required this.child,
-    this.hasFormX = false,
+    //Extended.
     this.controller,
-    this.loader = const SmallIndicator(),
+    this.hasFormx = false,
     this.error = const Text('!'),
-    this.style,
+    this.loader = const SmallIndicator(),
+
+    //ElevatedButton.
     super.key,
+    required this.onPressed,
+    this.onLongPress,
+    this.onHover,
+    this.onFocusChange,
+    this.style,
+    this.focusNode,
+    this.autofocus = false,
+    this.clipBehavior = Clip.none,
+    this.statesController,
+    required this.child,
   });
 
-  ///In the presence of a [FormX] above, animates loading.
-  final bool hasFormX;
+  //Same as [ElevatedButton].
+  final FutureOr<void> Function()? onPressed;
+  final FutureOr Function()? onLongPress;
+  final FutureOr Function(bool isHovering)? onHover;
+  final void Function(bool value)? onFocusChange;
+  final ButtonStyle? style;
+  final FocusNode? focusNode;
+  final Clip clipBehavior;
+  final bool autofocus;
+  final MaterialStatesController? statesController;
+  final Widget child;
 
   ///Controls this button programatically. -> controller.tap().
   final ButtonController? controller;
+
+  ///In the presence of a [FormX] above, animates loading.
+  final bool hasFormx;
 
   ///The widget to show on loading.
   final Widget loader;
@@ -292,56 +372,43 @@ class TextButtonX extends HookWidget {
   ///The widget to show on error.
   final Widget error;
 
-  //Same as [TextButton].
-  final FutureOr<void> Function()? onPressed;
-  final Widget child;
-  final ButtonStyle? style;
-
   @override
   Widget build(BuildContext context) {
     final ctrl = useFinal(controller ?? ButtonController());
     ctrl._isLoading = useState(false);
     ctrl._hasError = useState(false);
-    ctrl._tap = onPressed;
+    ctrl._press = onPressed;
+    ctrl._longPress = onLongPress;
+    ctrl._hover = onHover;
 
-    final formx = useFinal(
-      hasFormX ? context.dependOnInheritedWidgetOfExactType<FormScope>() : null,
-    );
+    useFormxLoading(hasFormx, (value) => ctrl._isLoading?.value = value);
 
-    if (hasFormX && formx == null) dev.log('No Formx above this button!');
-
-    void onLoading() => ctrl._isLoading?.value = formx!.isLoading.value;
-
-    useInit(
-      () => formx?.isLoading.addListener(onLoading),
-      dispose: () => formx?.isLoading.removeListener(onLoading),
-    );
-
-    //Theme inherited.
-    final colors = Theme.of(context).colorScheme;
-    final appStyle = context.theme.elevatedButtonTheme.style;
-
-    final mustStyle = ElevatedButton.styleFrom(
-      foregroundColor: ctrl.hasError ? colors.error : null,
-    );
-
-    final defaultStyle = ElevatedButton.styleFrom(
-      padding: appStyle?.padding?.resolve({}) ?? EdgeInsets.zero,
-      minimumSize: appStyle?.minimumSize?.resolve({}) ?? const Size.square(36),
+    final animationStyle = TextButton.styleFrom(
+      padding: ctrl.isAnimating ? EdgeInsets.zero : null,
+      foregroundColor: ctrl.hasError ? context.colors.error : null,
+      minimumSize: ctrl.isAnimating ? const Size.square(36) : null,
     );
 
     return TextButton(
+      key: key,
       onPressed: (onPressed != null && ctrl.isEnabled) ? ctrl.tap : null,
+      onLongPress: (onLongPress != null && ctrl.isEnabled) ? ctrl.hold : null,
+      onHover: ctrl.hover,
+      autofocus: autofocus,
+      clipBehavior: clipBehavior,
+      focusNode: focusNode,
+      onFocusChange: onFocusChange,
+      statesController: statesController,
 
       //inherited style
-      style: mustStyle.merge(style).merge(defaultStyle),
+      style: animationStyle.merge(style),
 
       //load animation
       child: _ButtonLoader(
         loader: loader,
         loading: ctrl.isLoading,
         duration: ctrl.animationDuration,
-        child: (ctrl.hasError ? error : child).pad(horizontal: 8),
+        child: ctrl.hasError ? error : child,
       ),
     );
   }

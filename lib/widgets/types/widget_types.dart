@@ -30,12 +30,14 @@ bool isFlutterWidget(widget) {
   if (widget is ButtonStyleButton) return true;
   if (widget is Checkbox) return true;
   if (widget is CheckedModeBanner) return true;
+  if (widget is Container) return true;
   if (widget is DefaultTextEditingShortcuts) return true;
   if (widget is Dismissible) return true;
   if (widget is Divider) return true;
   if (widget is Draggable) return true;
   if (widget is Drawer) return true;
   if (widget is DropdownButton) return true;
+  if (widget is DualTransitionBuilder) return true;
   if (widget is ExpandIcon) return true;
   if (widget is ExpansionPanelList) return true;
   if (widget is FloatingActionButton) return true;
@@ -45,10 +47,14 @@ bool isFlutterWidget(widget) {
   if (widget is FormField) return true;
   if (widget is GestureDetector) return true;
   if (widget is Hero) return true;
+  if (widget is Icon) return true;
+  if (widget is IconButton) return true;
+  if (widget is Image) return true;
   if (widget is ImplicitlyAnimatedWidget) return true;
   if (widget is InkResponse) return true;
   if (widget is KeyedSubtree) return true;
   if (widget is ListTile) return true;
+  if (widget is ListView) return true;
   if (widget is Localizations) return true;
   if (widget is Material) return true;
   if (widget is ModalBarrier) return true;
@@ -60,7 +66,6 @@ bool isFlutterWidget(widget) {
   if (widget is PageView) return true;
   if (widget is PopupMenuButton) return true;
   if (widget is PositionedDirectional) return true;
-  if (widget is PreferredSizeWidget) return true;
   if (widget is ProgressIndicator) return true;
   if (widget is ProxyWidget) return true;
   if (widget is Radio) return true;
@@ -75,6 +80,7 @@ bool isFlutterWidget(widget) {
   if (widget is Scaffold) return true;
   if (widget is ScaffoldMessenger) return true;
   if (widget is ScrollNotificationObserver) return true;
+  if (widget is Scrollable) return true;
   if (widget is Scrollbar) return true;
   if (widget is SharedAppData) return true;
   if (widget is ShortcutRegistrar) return true;
@@ -97,6 +103,5 @@ bool isFlutterWidget(widget) {
   if (widget is VerticalDivider) return true;
   if (widget is WidgetsApp) return true;
   if (widget is WillPopScope) return true;
-
   return false;
 }

@@ -19,7 +19,7 @@ class Buttons extends HookWidget {
         data: ThemeData(
             elevatedButtonTheme: ElevatedButtonThemeData(
                 style: ElevatedButton.styleFrom(
-          minimumSize: Size(36, 54),
+          minimumSize: Size(80, 54),
         ))),
         child: FormX(
           onSubmit: (form) async {
@@ -209,7 +209,8 @@ class ElevatedButtonX extends HookWidget {
     final animationStyle = ElevatedButton.styleFrom(
       padding: ctrl.isLoading ? EdgeInsets.zero : null,
       backgroundColor: ctrl.hasError ? context.colors.error : null,
-      minimumSize: ctrl.isLoading ? Size.square(min) : null,
+      minimumSize: Size.square(min),
+      // minimumSize: ctrl.isLoading ? Size.square(min) : null,
     );
 
     return ElevatedButton(
@@ -313,7 +314,7 @@ class OutlinedButtonX extends HookWidget {
     final animationStyle = OutlinedButton.styleFrom(
       padding: ctrl.isLoading ? EdgeInsets.zero : null,
       foregroundColor: ctrl.hasError ? context.colors.error : null,
-      minimumSize: ctrl.isLoading ? Size.square(min) : null,
+      minimumSize: Size.square(min),
       side: ctrl.hasError ? errorSide : null,
     );
 
@@ -410,7 +411,7 @@ class TextButtonX extends HookWidget {
     final animationStyle = TextButton.styleFrom(
       padding: ctrl.isLoading ? EdgeInsets.zero : null,
       foregroundColor: ctrl.hasError ? context.colors.error : null,
-      minimumSize: ctrl.isLoading ? Size.square(min) : null,
+      minimumSize: Size.square(min),
     );
 
     return TextButton(

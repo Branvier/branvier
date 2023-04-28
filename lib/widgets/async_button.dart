@@ -15,43 +15,49 @@ class Buttons extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
-    return FormX(
-      onSubmit: (form) async {
-        await 3.seconds();
-      },
-      child: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Field('test'),
-            ElevatedButtonX(
-              // hasFormX: true, // todo: looses bind on hot reload.
-              onPressed: fun,
-              onLongPress: fun,
-              // onHover: (isHovering) async => fun(),
-              // on: fun,
-              child: Text('Arthur Miranda'),
-              error: Text.new,
+    return Theme(
+        data: ThemeData(
+            elevatedButtonTheme: ElevatedButtonThemeData(
+                style: ElevatedButton.styleFrom(
+          minimumSize: Size(36, 54),
+        ))),
+        child: FormX(
+          onSubmit: (form) async {
+            await 3.seconds();
+          },
+          child: Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Field('test'),
+                ElevatedButtonX(
+                  // hasFormX: true, // todo: looses bind on hot reload.
+                  onPressed: fun,
+                  onLongPress: fun,
+                  // onHover: (isHovering) async => fun(),
+                  // on: fun,
+                  child: Text('Arthur Miranda'),
+                  error: Text.new,
+                ),
+                OutlinedButtonX(
+                  // hasFormX: true,
+                  onPressed: fun,
+                  onLongPress: fun,
+                  child: const Text('Iran Neto'),
+                  error: (_) => Text('Falha ao logar, tente mais tarde'),
+                ),
+                TextButtonX(
+                  // hasFormX: true,
+                  controller: ctrl,
+                  onPressed: fun,
+                  onLongPress: fun,
+                  child: const Text('Juan Alesson'),
+                ),
+                ElevatedButton(onPressed: ctrl.tap, child: const Text('tap'))
+              ],
             ),
-            OutlinedButtonX(
-              // hasFormX: true,
-              onPressed: fun,
-              onLongPress: fun,
-              child: const Text('Iran Neto'),
-              error: (_) => Text('Falha ao logar, tente mais tarde'),
-            ),
-            TextButtonX(
-              // hasFormX: true,
-              controller: ctrl,
-              onPressed: fun,
-              onLongPress: fun,
-              child: const Text('Juan Alesson'),
-            ),
-            ElevatedButton(onPressed: ctrl.tap, child: const Text('tap'))
-          ],
-        ),
-      ),
-    );
+          ),
+        ));
   }
 }
 
@@ -145,7 +151,7 @@ class ElevatedButtonX extends HookWidget {
     this.controller,
     this.hasFormx = false,
     this.error, //!
-    this.loader = const SmallIndicator(color: Colors.white),
+    this.loader = const CircularProgressIndicator(color: Colors.white),
 
     //ElevatedButton.
     super.key,
@@ -196,10 +202,14 @@ class ElevatedButtonX extends HookWidget {
 
     useFormxLoading(hasFormx, (value) => ctrl._isLoading?.value = value);
 
+    final min = context.theme.elevatedButtonTheme.style?.minimumSize
+            ?.resolve({})?.height ??
+        36;
+
     final animationStyle = ElevatedButton.styleFrom(
       padding: ctrl.isLoading ? EdgeInsets.zero : null,
       backgroundColor: ctrl.hasError ? context.colors.error : null,
-      minimumSize: ctrl.isAnimating ? const Size.square(36) : null,
+      minimumSize: ctrl.isLoading ? Size.square(min) : null,
     );
 
     return ElevatedButton(
@@ -218,7 +228,7 @@ class ElevatedButtonX extends HookWidget {
 
       //load animation
       child: _ButtonLoader(
-        loader: loader,
+        loader: SizeTransform(size: min / 1.5, child: loader),
         loading: ctrl.isLoading,
         duration: ctrl.animationDuration,
         child: ctrl.hasError
@@ -238,7 +248,7 @@ class OutlinedButtonX extends HookWidget {
     this.controller,
     this.hasFormx = false,
     this.error, //!
-    this.loader = const SmallIndicator(),
+    this.loader = const CircularProgressIndicator(),
 
     //ElevatedButton.
     super.key,
@@ -288,6 +298,9 @@ class OutlinedButtonX extends HookWidget {
     ctrl._hover = onHover;
 
     useFormxLoading(hasFormx, (value) => ctrl._isLoading?.value = value);
+    final min = context.theme.outlinedButtonTheme.style?.minimumSize
+            ?.resolve({})?.height ??
+        36;
 
     //Theme inherited.
     final side = context.theme.outlinedButtonTheme.style?.side?.resolve({});
@@ -300,7 +313,7 @@ class OutlinedButtonX extends HookWidget {
     final animationStyle = OutlinedButton.styleFrom(
       padding: ctrl.isLoading ? EdgeInsets.zero : null,
       foregroundColor: ctrl.hasError ? context.colors.error : null,
-      minimumSize: ctrl.isAnimating ? const Size.square(36) : null,
+      minimumSize: ctrl.isLoading ? Size.square(min) : null,
       side: ctrl.hasError ? errorSide : null,
     );
 
@@ -320,7 +333,7 @@ class OutlinedButtonX extends HookWidget {
 
       //load animation
       child: _ButtonLoader(
-        loader: loader,
+        loader: SizeTransform(size: min / 1.5, child: loader),
         loading: ctrl.isLoading,
         duration: ctrl.animationDuration,
         child: ctrl.hasError
@@ -340,7 +353,7 @@ class TextButtonX extends HookWidget {
     this.controller,
     this.hasFormx = false,
     this.error, //!
-    this.loader = const SmallIndicator(),
+    this.loader = const CircularProgressIndicator(),
 
     //ElevatedButton.
     super.key,
@@ -390,11 +403,14 @@ class TextButtonX extends HookWidget {
     ctrl._hover = onHover;
 
     useFormxLoading(hasFormx, (value) => ctrl._isLoading?.value = value);
+    final min =
+        context.theme.textButtonTheme.style?.minimumSize?.resolve({})?.height ??
+            36;
 
     final animationStyle = TextButton.styleFrom(
       padding: ctrl.isLoading ? EdgeInsets.zero : null,
       foregroundColor: ctrl.hasError ? context.colors.error : null,
-      minimumSize: ctrl.isAnimating ? const Size.square(36) : null,
+      minimumSize: ctrl.isLoading ? Size.square(min) : null,
     );
 
     return TextButton(
@@ -413,7 +429,7 @@ class TextButtonX extends HookWidget {
 
       //load animation
       child: _ButtonLoader(
-        loader: loader,
+        loader: SizeTransform(size: min / 1.5, child: loader),
         loading: ctrl.isLoading,
         duration: ctrl.animationDuration,
         child: ctrl.hasError
@@ -479,6 +495,30 @@ class SmallIndicator extends StatelessWidget {
       child: Transform.scale(
         scale: scale,
         child: CircularProgressIndicator(color: color),
+      ),
+    );
+  }
+}
+
+///A Widget that sizes and transforms.
+class SizeTransform extends StatelessWidget {
+  const SizeTransform({
+    this.size = 24.0,
+    this.scale = 0.5,
+    required this.child,
+    super.key,
+  });
+  final double size;
+  final double scale;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox.fromSize(
+      size: Size.square(size),
+      child: Transform.scale(
+        scale: scale,
+        child: child,
       ),
     );
   }

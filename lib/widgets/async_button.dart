@@ -6,7 +6,7 @@ Future<void> fun() async {
   await 2.seconds();
   print('fui chamado');
   // ignore: only_throw_errors
-  throw '';
+  throw 'some error';
 }
 
 class Buttons extends HookWidget {
@@ -31,12 +31,14 @@ class Buttons extends HookWidget {
               // onHover: (isHovering) async => fun(),
               // on: fun,
               child: Text('Arthur Miranda'),
+              error: Text.new,
             ),
             OutlinedButtonX(
               // hasFormX: true,
               onPressed: fun,
               onLongPress: fun,
               child: const Text('Iran Neto'),
+              error: (_) => Text('Falha ao logar, tente mais tarde'),
             ),
             TextButtonX(
               // hasFormX: true,
@@ -81,6 +83,8 @@ class ButtonController {
 
   ///Starts animating the button.
   void _animate(FutureOr action()?) async {
+    _stackTrace = _error = null;
+
     if (isLoading || hasError) return;
     try {
       _isLoading?.value = true;
@@ -140,7 +144,7 @@ class ElevatedButtonX extends HookWidget {
     //Extended.
     this.controller,
     this.hasFormx = false,
-    this.error = const Text('!'),
+    this.error, //!
     this.loader = const SmallIndicator(color: Colors.white),
 
     //ElevatedButton.
@@ -178,8 +182,8 @@ class ElevatedButtonX extends HookWidget {
   ///The widget to show on loading.
   final Widget loader;
 
-  ///The widget to show on error.
-  final Widget error;
+  ///The widget with error as string.
+  final Widget Function(String e)? error;
 
   @override
   Widget build(BuildContext context) {
@@ -193,7 +197,7 @@ class ElevatedButtonX extends HookWidget {
     useFormxLoading(hasFormx, (value) => ctrl._isLoading?.value = value);
 
     final animationStyle = ElevatedButton.styleFrom(
-      padding: ctrl.isAnimating ? EdgeInsets.zero : null,
+      padding: ctrl.isLoading ? EdgeInsets.zero : null,
       backgroundColor: ctrl.hasError ? context.colors.error : null,
       minimumSize: ctrl.isAnimating ? const Size.square(36) : null,
     );
@@ -217,7 +221,9 @@ class ElevatedButtonX extends HookWidget {
         loader: loader,
         loading: ctrl.isLoading,
         duration: ctrl.animationDuration,
-        child: ctrl.hasError ? error : child,
+        child: ctrl.hasError
+            ? error?.call(ctrl.error.toString()) ?? const Text('!')
+            : child,
       ),
     );
   }
@@ -231,7 +237,7 @@ class OutlinedButtonX extends HookWidget {
     //Extended.
     this.controller,
     this.hasFormx = false,
-    this.error = const Text('!'),
+    this.error, //!
     this.loader = const SmallIndicator(),
 
     //ElevatedButton.
@@ -269,8 +275,8 @@ class OutlinedButtonX extends HookWidget {
   ///The widget to show on loading.
   final Widget loader;
 
-  ///The widget to show on error.
-  final Widget error;
+  ///The widget with error as string.
+  final Widget Function(String e)? error;
 
   @override
   Widget build(BuildContext context) {
@@ -292,7 +298,7 @@ class OutlinedButtonX extends HookWidget {
     );
 
     final animationStyle = OutlinedButton.styleFrom(
-      padding: ctrl.isAnimating ? EdgeInsets.zero : null,
+      padding: ctrl.isLoading ? EdgeInsets.zero : null,
       foregroundColor: ctrl.hasError ? context.colors.error : null,
       minimumSize: ctrl.isAnimating ? const Size.square(36) : null,
       side: ctrl.hasError ? errorSide : null,
@@ -317,7 +323,9 @@ class OutlinedButtonX extends HookWidget {
         loader: loader,
         loading: ctrl.isLoading,
         duration: ctrl.animationDuration,
-        child: ctrl.hasError ? error : child,
+        child: ctrl.hasError
+            ? error?.call(ctrl.error.toString()) ?? const Text('!')
+            : child,
       ),
     );
   }
@@ -331,7 +339,7 @@ class TextButtonX extends HookWidget {
     //Extended.
     this.controller,
     this.hasFormx = false,
-    this.error = const Text('!'),
+    this.error, //!
     this.loader = const SmallIndicator(),
 
     //ElevatedButton.
@@ -369,8 +377,8 @@ class TextButtonX extends HookWidget {
   ///The widget to show on loading.
   final Widget loader;
 
-  ///The widget to show on error.
-  final Widget error;
+  ///The widget with error as string.
+  final Widget Function(String e)? error;
 
   @override
   Widget build(BuildContext context) {
@@ -384,7 +392,7 @@ class TextButtonX extends HookWidget {
     useFormxLoading(hasFormx, (value) => ctrl._isLoading?.value = value);
 
     final animationStyle = TextButton.styleFrom(
-      padding: ctrl.isAnimating ? EdgeInsets.zero : null,
+      padding: ctrl.isLoading ? EdgeInsets.zero : null,
       foregroundColor: ctrl.hasError ? context.colors.error : null,
       minimumSize: ctrl.isAnimating ? const Size.square(36) : null,
     );
@@ -408,7 +416,9 @@ class TextButtonX extends HookWidget {
         loader: loader,
         loading: ctrl.isLoading,
         duration: ctrl.animationDuration,
-        child: ctrl.hasError ? error : child,
+        child: ctrl.hasError
+            ? error?.call(ctrl.error.toString()) ?? const Text('!')
+            : child,
       ),
     );
   }

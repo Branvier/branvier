@@ -1,12 +1,15 @@
 part of '../branvier.dart';
 
-void main() => runApp(MaterialApp(home: Scaffold(body: Buttons())));
+void main() {
+  // timeDilation = 4;
+  runApp(MaterialApp(home: Scaffold(body: Buttons())));
+}
 
 Future<void> fun() async {
-  await 2.seconds();
+  await 5.seconds();
   print('fui chamado');
   // ignore: only_throw_errors
-  throw 'some error';
+  throw '1234512345123451234512345123456';
 }
 
 class Buttons extends HookWidget {
@@ -16,55 +19,62 @@ class Buttons extends HookWidget {
   @override
   Widget build(BuildContext context) {
     return Theme(
-        data: ThemeData(
-            elevatedButtonTheme: ElevatedButtonThemeData(
-                style: ElevatedButton.styleFrom(
-          minimumSize: Size(80, 54),
-        ))),
-        child: FormX(
-          onSubmit: (form) async {
-            await 3.seconds();
-          },
-          child: Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Field('test'),
-                ElevatedButtonX(
-                  // hasFormX: true, // todo: looses bind on hot reload.
-                  onPressed: fun,
-                  onLongPress: fun,
-                  // onHover: (isHovering) async => fun(),
-                  // on: fun,
-                  child: Text('Arthur Miranda'),
-                  error: Text.new,
-                ),
-                OutlinedButtonX(
-                  // hasFormX: true,
-                  onPressed: fun,
-                  onLongPress: fun,
-                  child: const Text('Iran Neto'),
-                  error: (_) => Text('Falha ao logar, tente mais tarde'),
-                ),
-                TextButtonX(
-                  // hasFormX: true,
-                  controller: ctrl,
-                  onPressed: fun,
-                  onLongPress: fun,
-                  child: const Text('Juan Alesson'),
-                ),
-                ElevatedButton(onPressed: ctrl.tap, child: const Text('tap'))
-              ],
-            ),
+      data: ThemeData(
+          // visualDensity: VisualDensity.adaptivePlatformDensity,
+
           ),
-        ));
+      child: FormX(
+        onSubmit: (form) async {
+          await 3.seconds();
+        },
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Field('test'),
+              ElevatedButtonX(
+                // hasFormX: true, // todo: looses bind on hot reload.
+                onPressed: fun,
+                onLongPress: fun,
+                // onHover: (isHovering) async => fun(),
+                // on: fun,
+                child: SizedBox.shrink(),
+                // error: Text.new,
+              ),
+              ColoredBox(
+                color: Colors.red,
+                child: SizedBox.square(
+                  dimension: 60,
+                ),
+              ),
+              OutlinedButtonX(
+                // hasFormX: true,
+
+                onPressed: fun,
+                onLongPress: fun,
+                child: const Text('Iran Neto'),
+                // error: (_) => Text('Falha ao logar, tente mais tarde'),
+              ),
+              TextButtonX(
+                // hasFormX: true,
+                controller: ctrl,
+                onPressed: fun,
+                onLongPress: fun,
+                child: const Text('Juan Alesson'),
+              ),
+              ElevatedButton(onPressed: ctrl.tap, child: const Text('tap'))
+            ],
+          ),
+        ),
+      ),
+    );
   }
 }
 
 class ButtonController {
   ButtonController({
     this.animationDuration = const Duration(milliseconds: 600),
-    this.errorDuration = const Duration(seconds: 3),
+    this.errorDuration = const Duration(seconds: 5),
   });
   final Duration animationDuration;
   final Duration errorDuration;
@@ -79,7 +89,10 @@ class ButtonController {
   var _hovering = false;
 
   ///Performs press programatically.
-  void tap() => _animate(_press);
+  void tap() {
+    if (hasError) error.toString().copyToClipboard();
+    _animate(_press);
+  }
 
   ///Performs longPress programatically.
   void hold() => _animate(_longPress);
@@ -116,6 +129,7 @@ class ButtonController {
   //Errors.
   Object? get error => _error;
   StackTrace? get stackTrace => _stackTrace;
+  String get errorStack => 'Error: $error \n\nStack: $stackTrace';
 
   ///Tell if the button is animating.
   bool get isAnimating => isLoading || hasError;
@@ -150,7 +164,8 @@ class ElevatedButtonX extends HookWidget {
     //Extended.
     this.controller,
     this.hasFormx = false,
-    this.error, //!
+    this.error = Text.new,
+    this.errorLength = 30,
     this.loader = const CircularProgressIndicator(color: Colors.white),
 
     //ElevatedButton.
@@ -189,8 +204,10 @@ class ElevatedButtonX extends HookWidget {
   final Widget loader;
 
   ///The widget with error as string.
-  final Widget Function(String e)? error;
+  final Widget Function(String e) error;
 
+  ///The length limit of characters allowed in this error.
+  final int errorLength;
   @override
   Widget build(BuildContext context) {
     final ctrl = useFinal(controller ?? ButtonController());
@@ -202,15 +219,10 @@ class ElevatedButtonX extends HookWidget {
 
     useFormxLoading(hasFormx, (value) => ctrl._isLoading?.value = value);
 
-    final min = context.theme.elevatedButtonTheme.style?.minimumSize
-            ?.resolve({})?.height ??
-        36;
-
     final animationStyle = ElevatedButton.styleFrom(
-      padding: ctrl.isLoading ? EdgeInsets.zero : null,
+      minimumSize: Size.zero,
+      padding: EdgeInsets.zero,
       backgroundColor: ctrl.hasError ? context.colors.error : null,
-      minimumSize: Size.square(min),
-      // minimumSize: ctrl.isLoading ? Size.square(min) : null,
     );
 
     return ElevatedButton(
@@ -228,13 +240,13 @@ class ElevatedButtonX extends HookWidget {
       style: animationStyle.merge(style),
 
       //load animation
-      child: _ButtonLoader(
-        loader: SizeTransform(size: min / 1.5, child: loader),
-        loading: ctrl.isLoading,
-        duration: ctrl.animationDuration,
-        child: ctrl.hasError
-            ? error?.call(ctrl.error.toString()) ?? const Text('!')
-            : child,
+      child: _ButtonAnimations(
+        loader: loader,
+        style: style ?? context.theme.elevatedButtonTheme.style,
+        ctrl: ctrl,
+        error: error,
+        errorLength: errorLength,
+        child: child,
       ),
     );
   }
@@ -248,7 +260,8 @@ class OutlinedButtonX extends HookWidget {
     //Extended.
     this.controller,
     this.hasFormx = false,
-    this.error, //!
+    this.error = Text.new, //!
+    this.errorLength = 30,
     this.loader = const CircularProgressIndicator(),
 
     //ElevatedButton.
@@ -287,8 +300,10 @@ class OutlinedButtonX extends HookWidget {
   final Widget loader;
 
   ///The widget with error as string.
-  final Widget Function(String e)? error;
+  final Widget Function(String e) error;
 
+  ///The length limit of characters allowed in this error.
+  final int errorLength;
   @override
   Widget build(BuildContext context) {
     final ctrl = useFinal(controller ?? ButtonController());
@@ -298,10 +313,8 @@ class OutlinedButtonX extends HookWidget {
     ctrl._longPress = onLongPress;
     ctrl._hover = onHover;
 
+    //Formx inherited
     useFormxLoading(hasFormx, (value) => ctrl._isLoading?.value = value);
-    final min = context.theme.outlinedButtonTheme.style?.minimumSize
-            ?.resolve({})?.height ??
-        36;
 
     //Theme inherited.
     final side = context.theme.outlinedButtonTheme.style?.side?.resolve({});
@@ -311,12 +324,13 @@ class OutlinedButtonX extends HookWidget {
       strokeAlign: side?.strokeAlign,
     );
 
-    final animationStyle = OutlinedButton.styleFrom(
-      padding: ctrl.isLoading ? EdgeInsets.zero : null,
+    //Loading theme merged with inherited.
+    final resolvedStyle = OutlinedButton.styleFrom(
+      minimumSize: Size.zero,
+      padding: EdgeInsets.zero,
       foregroundColor: ctrl.hasError ? context.colors.error : null,
-      minimumSize: Size.square(min),
       side: ctrl.hasError ? errorSide : null,
-    );
+    ).merge(style);
 
     return OutlinedButton(
       key: key,
@@ -330,16 +344,16 @@ class OutlinedButtonX extends HookWidget {
       statesController: statesController,
 
       //inherited style
-      style: animationStyle.merge(style),
+      style: resolvedStyle,
 
       //load animation
-      child: _ButtonLoader(
-        loader: SizeTransform(size: min / 1.5, child: loader),
-        loading: ctrl.isLoading,
-        duration: ctrl.animationDuration,
-        child: ctrl.hasError
-            ? error?.call(ctrl.error.toString()) ?? const Text('!')
-            : child,
+      child: _ButtonAnimations(
+        loader: loader,
+        style: style ?? context.theme.outlinedButtonTheme.style,
+        ctrl: ctrl,
+        error: error,
+        errorLength: errorLength,
+        child: child,
       ),
     );
   }
@@ -353,7 +367,8 @@ class TextButtonX extends HookWidget {
     //Extended.
     this.controller,
     this.hasFormx = false,
-    this.error, //!
+    this.error = Text.new, //!
+    this.errorLength = 30,
     this.loader = const CircularProgressIndicator(),
 
     //ElevatedButton.
@@ -392,7 +407,10 @@ class TextButtonX extends HookWidget {
   final Widget loader;
 
   ///The widget with error as string.
-  final Widget Function(String e)? error;
+  final Widget Function(String e) error;
+
+  ///The length limit of characters allowed in this error.
+  final int errorLength;
 
   @override
   Widget build(BuildContext context) {
@@ -404,14 +422,11 @@ class TextButtonX extends HookWidget {
     ctrl._hover = onHover;
 
     useFormxLoading(hasFormx, (value) => ctrl._isLoading?.value = value);
-    final min =
-        context.theme.textButtonTheme.style?.minimumSize?.resolve({})?.height ??
-            36;
 
     final animationStyle = TextButton.styleFrom(
-      padding: ctrl.isLoading ? EdgeInsets.zero : null,
+      minimumSize: Size.zero,
+      padding: EdgeInsets.zero,
       foregroundColor: ctrl.hasError ? context.colors.error : null,
-      minimumSize: Size.square(min),
     );
 
     return TextButton(
@@ -429,13 +444,81 @@ class TextButtonX extends HookWidget {
       style: animationStyle.merge(style),
 
       //load animation
+      child: _ButtonAnimations(
+        isText: true,
+        loader: loader,
+        style: style ?? context.theme.textButtonTheme.style,
+        ctrl: ctrl,
+        error: error,
+        errorLength: errorLength,
+        child: child,
+      ),
+    );
+  }
+}
+
+class _ButtonAnimations extends HookWidget {
+  const _ButtonAnimations({
+    required this.loader,
+    required this.style,
+    required this.ctrl,
+    required this.error,
+    required this.child,
+    required this.errorLength,
+    this.isText = false,
+  });
+
+  final ButtonStyle? style;
+  final ButtonController ctrl;
+  final Widget loader;
+  final Widget Function(String) error;
+  final Widget child;
+  final int errorLength;
+  final bool isText;
+
+  @override
+  Widget build(BuildContext context) {
+    //minimumSize
+    final msize = style?.minimumSize?.resolve({}) ?? Size(isText ? 64 : 88, 36);
+    final vide = style?.visualDensity ?? VisualDensity.adaptivePlatformDensity;
+    final box = BoxConstraints(minWidth: msize.width, minHeight: msize.height);
+    final constraints = vide.effectiveConstraints(box);
+
+    //minHeight
+    final height = usePostSize()?.height ?? constraints.minHeight;
+    // final height = dy > constraints.minHeight ? dy : constraints.minHeight;
+
+    //errorText
+    String errorMessage() {
+      final message = ctrl.error.toString();
+      if (message.length <= 30) return message;
+      return '${message.substring(0, errorLength)}...';
+    }
+
+    return Tooltip(
+      message: 'Copied!',
+      waitDuration: 1.minutes,
+      triggerMode: TooltipTriggerMode.values[ctrl.hasError ? 1 : 0],
+      onTriggered: () async => ctrl.errorStack.copyToClipboard(),
       child: _ButtonLoader(
-        loader: SizeTransform(size: min / 1.5, child: loader),
+        loader: SizeTransform(size: height, child: loader),
         loading: ctrl.isLoading,
         duration: ctrl.animationDuration,
-        child: ctrl.hasError
-            ? error?.call(ctrl.error.toString()) ?? const Text('!')
-            : child,
+
+        // * readding constrainsts and padding from theme (only loader and error)
+        child: ConstrainedBox(
+          constraints: constraints,
+          child: Padding(
+            padding: style?.padding?.resolve({}) ?? const EdgeInsets.all(8.0),
+
+            // * using column just to center without taking all the space
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisSize: MainAxisSize.min,
+              children: [if (ctrl.hasError) error(errorMessage()) else child],
+            ),
+          ),
+        ),
       ),
     );
   }
@@ -446,7 +529,7 @@ class _ButtonLoader extends HookWidget {
   const _ButtonLoader({
     required this.child,
     required this.loading,
-    this.loader = const SmallIndicator(),
+    required this.loader,
     this.duration = const Duration(milliseconds: 600),
   });
   final Widget child;
@@ -461,17 +544,11 @@ class _ButtonLoader extends HookWidget {
       curve: Curves.fastOutSlowIn,
       child: loading
           ? loader
-          : Column(
-              mainAxisSize: MainAxisSize.min,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                AnimatedOpacity(
-                  opacity: useState(0.0).post(1),
-                  duration: duration,
-                  curve: Curves.easeInExpo,
-                  child: child,
-                ),
-              ],
+          : AnimatedOpacity(
+              opacity: useState(0.0).post(1),
+              duration: duration,
+              curve: Curves.easeInExpo,
+              child: child,
             ),
     );
   }

@@ -21,6 +21,11 @@ extension StrinExt on String {
     return this;
   }
 
+  ///Sends this to [Clipboard].
+  Future<void> copyToClipboard() async {
+    await Clipboard.setData(ClipboardData(text: this));
+  }
+
   ///All sub words between [pattern].
   ///Ex: 'a.b.c' -> ['a.b.c','a.b','a'].
   List<String> subWords(Pattern pattern) {

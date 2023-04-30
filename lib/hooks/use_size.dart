@@ -23,6 +23,13 @@ SizeState useSize(Size initialSize, [String key = '']) {
   return SizeState(list.value, initialSize);
 }
 
+Size? usePostSize() {
+  final context = useContext();
+  final size = useRef<Size?>(null);
+  postFrame(() => size.value = context.size);
+  return size.value;
+}
+
 class SizeState {
   SizeState(this.list, this.initial);
   final List<Size> list;

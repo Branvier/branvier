@@ -163,7 +163,7 @@ class Translation {
             dev.log('[Tr]: Keys 100% translated! ✓');
           } else {
             dev.log('[Tr]: There are $n missing keys. Progress: $percent%');
-            dev.log('[Tr]: Missing these: ${jsonEncode(missingTranslations)}');
+            dev.log('[Tr]: Missing keys: $missingTranslations');
           }
         }
       },

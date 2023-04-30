@@ -157,7 +157,7 @@ class Translation {
             total.addAll(value.values);
           });
 
-          final percent = 1 - (n / total.length);
+          final percent = (1 - (n / total.length)) * 100;
 
           if (percent == 1) {
             dev.log('[Tr]: Keys 100% translated! ✓');

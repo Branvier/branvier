@@ -159,12 +159,8 @@ class Translation {
 
           final percent = (1 - (n / total.length)) * 100;
 
-          if (percent == 1) {
-            dev.log('[Tr]: Keys 100% translated! ✓');
-          } else {
-            dev.log('[Tr]: There are $n missing keys. Progress: $percent%');
-            dev.log('[Tr]: Missing keys: $missingTranslations');
-          }
+          dev.log('[Tr]: There are $n missing keys. Progress: $percent%');
+          dev.log('[Tr]: Missing keys: $missingTranslations');
         }
       },
     );

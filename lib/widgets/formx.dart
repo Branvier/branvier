@@ -6,7 +6,8 @@ typedef FormMap = Map<String, String>;
 
 class FormException extends KeyException {
   ///Throwed when the validation fails with FormX [tag] parameter.
-  FormException([String? tag]) : super('FORM.INVALID.${tag?.toUpperCase()}');
+  FormException([String? tag])
+      : super('FORM.INVALID${tag == null ? '' : '.$tag'}'.toUpperCase());
 }
 
 ///Controls the [FormX]. Useful for managing field states in another controller.

@@ -120,8 +120,6 @@ class Translation {
       final translation = translations[code]?[key];
       if (translation != null) return translation; //found.
     }
-    missingTranslations.add(key);
-    if (_logger) dev.log('Missing translation: $key');
     return null; //not found.
   }
 
@@ -132,17 +130,18 @@ class Translation {
   ///Change app language with locale.
   Future<void> changeLanguage(Locale locale) async {
     if (_locale == locale) return; //ignoring.
-    if (_logger) dev.log('Translation changed: $_locale -> $locale');
+    if (_logger) dev.log('[Tr]: Translation changed: $_locale -> $locale');
     _locale = locale;
 
-    if (_logger && _lazyLoad) dev.log('isLazy = true. Loading...');
+    if (_logger && _lazyLoad) dev.log('[Tr]: isLazy = true. Loading...');
     if (_lazyLoad) await _loadByLocale(locale);
-    if (_logger && _lazyLoad) dev.log('isLazy = true. Loaded!');
+    if (_logger && _lazyLoad) dev.log('[Tr]: isLazy = true. Loaded!');
 
     key.currentContext?.visitAll(rebuild: true);
 
     if (key.currentContext == null && _logger) {
-      dev.log('Currently running is read mode. In order to update the UI, '
+      dev.log(
+          '[Tr]: Currently running is read mode. In order to update the UI, '
           'set Translation.key on any widget above your app or manage the '
           'the state manually. Use setLogger(false) to disable this.');
     }
@@ -150,32 +149,48 @@ class Translation {
     //Log missing translations.
     postFrame(
       () {
-        if (_logger) dev.log('Missing translations: $missingTranslations');
+        if (_logger) {
+          final total = <String>{};
+          final n = missingTranslations.length;
+
+          translations.forEach((key, value) {
+            total.addAll(value.values);
+          });
+
+          final percent = (n / total.length) - 1;
+
+          if (percent == 1) {
+            dev.log('[Tr]: Keys 100% translated! ✓');
+          } else {
+            dev.log('[Tr]: There are $n missing keys. Progress: $percent%');
+            dev.log('[Tr]: Missing these: ${jsonEncode(missingTranslations)}');
+          }
+        }
       },
     );
   }
 
   ///Changes default path. Default: 'assets/translations'.
   static void setPath(String path) {
-    if (to._logger) dev.log('Translation path: $path');
+    if (to._logger) dev.log('[Tr]: Translation path: $path');
     to._path = path;
   }
 
   ///The [Locale] the app starts. If null, use system's or fallback.
   static void setInitial(Locale locale) {
-    if (to._logger) dev.log('Translation initial locale: $locale');
+    if (to._logger) dev.log('[Tr]: Translation initial locale: $locale');
     to._locale = locale;
   }
 
   ///Changes default fallback. Default: 'enUS'.
   static void setFallback(Locale locale) {
-    if (to._logger) dev.log('Translation fallback: $locale');
+    if (to._logger) dev.log('[Tr]: Translation fallback: $locale');
     to._fallback = locale;
   }
 
   ///Activates or desactivate log messages.
   static void setLogger(bool isActive) {
-    dev.log('Logger isActive: $isActive');
+    dev.log('[Tr]: Logger isActive: $isActive');
     to._logger = isActive;
   }
 
@@ -186,7 +201,7 @@ class Translation {
   ///
   ///Tip: Only use in case you have lots of translations and huge files.
   static void setLazyLoad(bool isLazy) {
-    if (to._logger) dev.log('Translation isLazy: $isLazy');
+    if (to._logger) dev.log('[Tr]: Translation isLazy: $isLazy');
     to._lazyLoad = isLazy;
   }
 }
@@ -221,20 +236,27 @@ extension TranlationExtension on String {
   ///Translates this key. If no pattern found, returns this.
   ///
   ///Pattern: 'a.b.c' -> 'a.b' -> 'a' -> 'a.b.c'.
-  String get tr => trn ?? this;
+  String get tr {
+    final i = Translation.instance;
+    if (i._logger && i.translations.isEmpty) {
+      dev.log(
+        '[Tr]: 0 translations. Did you set Translation.delegates on MaterialApp?',
+      );
+    }
+    final translation = trn;
+
+    if (i._logger && translation == null) {
+      dev.log('[Tr]: Missing translation: $this');
+      i.missingTranslations.add(this);
+    }
+
+    return translation ?? this;
+  }
 
   ///Translates this key. If no pattern found, returns null.
   ///
   ///Pattern: 'a.b.c' -> 'a.b' -> 'a' -> null.
-  String? get trn {
-    final trans = Translation.instance;
-    if (trans._logger && trans.translations.isEmpty) {
-      dev.log(
-        '0 translations. Did you set Translation.delegates on MaterialApp?',
-      );
-    }
-    return Translation.instance.translate(this);
-  }
+  String? get trn => Translation.to.translate(this);
 
   ///Converts this String to [Locale].
   ///Separators: _ , - , + , . , / , | , \ and space.
@@ -245,7 +267,7 @@ extension TranlationExtension on String {
     } else if (parts.length == 1) {
       return Locale(parts[0]);
     } else {
-      dev.log('invalid Locale: $this');
+      dev.log('[Tr]: invalid Locale: $this');
       return Locale(this);
     }
   }

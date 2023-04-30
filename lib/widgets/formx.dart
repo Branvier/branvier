@@ -4,17 +4,25 @@ part of '/branvier.dart';
 typedef FieldMap = Map<String, GlobalKey<FormFieldState>>;
 typedef FormMap = Map<String, String>;
 
-class FormException implements Exception {
-  FormException(this.message);
-  factory FormException.invalid([String? tag]) =>
-      FormException('FORM.INVALID.${tag?.toUpperCase() ?? 'FIELD'}');
-  final String message;
+class FormException extends KeyException {
+  ///Throwed when the validation fails with FormX [tag] parameter.
+  FormException([String? tag]) : super('FORM.INVALID${tag?.toUpperCase()}');
 }
 
 ///Controls the [FormX]. Useful for managing field states in another controller.
 class FormController {
-  //All form states. Null is main form, tags are nested.
-  final states = <String?, FormState>{};
+  final _states = <String?, FormState>{};
+
+  /// A [Map] of [FormState]. Where key is the [FormX] tag parameter.
+  ///
+  /// The main [FormX] tag must be null. Only tag nested [FormX].
+  Map<String?, FormState> get states {
+    assert(
+      _states.isNotEmpty,
+      'Formx not attached, put a [Field] widget below [Formx]',
+    );
+    return _states;
+  }
 
   ///The form with nested forms included inside each tag.
   Json? get form => states.first.value?._scope.form;
@@ -54,7 +62,7 @@ class FormController {
   ///Validates one, two or all fields. Returns [FormMap] success or throw.
   Json submit([List<String>? tags]) {
     final isValid = tags == null ? validate() : validateSelected(tags);
-    if (!isValid) throw FormException.invalid();
+    if (!isValid) throw FormException();
     if (form == null) dev.log('No FormX found in the widget tree');
     return form ?? {};
   }
@@ -68,7 +76,7 @@ class FormController {
   ///Validates one. Returns [String] success or throw.
   String submitTag(String tag) {
     final isValid = validateTag(tag);
-    if (!isValid) throw FormException.invalid(tag);
+    if (!isValid) throw FormException(tag);
     if (form == null) dev.log('No FormX found in the widget tree');
     return isValid ? form![tag] : null;
   }
@@ -86,8 +94,9 @@ class FormX extends StatelessWidget {
     required this.child,
     this.controller,
     this.tag,
-    this.formWrapper,
-    this.fieldWrapper,
+    @Deprecated('Use [onField] instead.') this.fieldWrapper,
+    this.onField,
+    this.fieldPadding = const EdgeInsets.all(8),
     this.onChange,
     this.onSubmit,
     this.onErrorText,
@@ -96,14 +105,60 @@ class FormX extends StatelessWidget {
   final Widget child;
   final FormController? controller;
 
-  ///If this has a parent [FormX], sets form to the parent form[tag].
+  /// [FormX] with [Translation].
+  ///
+  /// Just add thoses translations keys, it will auto translate:
+  ///
+  /// hintText: 'form.hint.$tag'.tr, \ <- forced translation.
+  /// labelText: 'form.label.$tag'.trn, \
+  /// helperText: 'form.helper.$tag'.trn, \
+  /// prefixText: 'form.prefix.$tag'.trn, \
+  /// suffixText: 'form.suffix.$tag'.trn,
+  factory FormX.tr({
+    Key? key,
+    required Widget child,
+    FormController? controller,
+    String? tag,
+    Widget Function(String tag, Widget child)? onField,
+    EdgeInsets fieldPadding = const EdgeInsets.all(8),
+    ValueChanged<Json>? onChange,
+    FutureOr Function(Json form)? onSubmit,
+    String Function(String tag, String error)? onErrorText,
+    InputDecoration Function(String tag)? decoration,
+  }) =>
+      FormX(
+        key: key,
+        tag: tag,
+        controller: controller,
+        onField: onField,
+        fieldPadding: fieldPadding,
+        onChange: onChange,
+        onSubmit: onSubmit,
+        onErrorText: onErrorText ?? (tag, error) => error.tr,
+        decoration: decoration ??
+            (tag) => InputDecoration(
+                  hintText: 'form.hint.$tag'.tr,
+                  labelText: 'form.label.$tag'.trn,
+                  helperText: 'form.helper.$tag'.trn,
+                  prefixText: 'form.prefix.$tag'.trn,
+                  suffixText: 'form.suffix.$tag'.trn,
+                ).update(decoration?.call(tag)),
+        child: child,
+      );
+
+  ///A tag to indentify nested [FormX]. The main [FormX] tag must be null.
+  ///
+  ///Ex: { \
+  ///     'name': '', \
+  ///     'address': {...}, <- `FormX(tag: 'address')` \
+  ///     'telephone': '', \
+  ///    }
   final String? tag;
 
-  ///Wrapper for the form.
-  final Widget Function(Widget child)? formWrapper;
-
   ///Wrapper for each field.
+  @Deprecated('Use [onField] parameter instead.')
   final Widget Function(String tag, Widget child)? fieldWrapper;
+  final Widget Function(String tag, Widget child)? onField;
 
   ///Listens to all descendants changes.
   final ValueChanged<Json>? onChange;
@@ -117,6 +172,9 @@ class FormX extends StatelessWidget {
   ///Decorates each [Field] below. You can use tag to differentiate.
   final InputDecoration Function(String tag)? decoration;
 
+  ///The padding for each field.
+  final EdgeInsets fieldPadding;
+
   ///Access to [FormController].
   static FormController of(BuildContext context) => Form.of(context).controller;
 
@@ -124,6 +182,9 @@ class FormX extends StatelessWidget {
   Widget build(BuildContext context) {
     //Tries to inherits from other FormX.
     final parent = context.dependOnInheritedWidgetOfExactType<FormScope>();
+    final onField = this.onField ?? this.fieldWrapper;
+
+    if (fieldWrapper != null) dev.log('Param deprecated, use onField.');
 
     return FormScope(
       form: Json.from({}),
@@ -140,7 +201,8 @@ class FormX extends StatelessWidget {
       isLoading: ValueNotifier(false),
       onErrorText: onErrorText ?? parent?.onErrorText,
       decoration: decoration ?? parent?.decoration,
-      fieldWrapper: fieldWrapper ?? parent?.fieldWrapper,
+      onField: onField ?? parent?.onField,
+      fieldPadding: fieldPadding,
       child: Builder(
         builder: (context) {
           ///Adds each scope in the scopes map.
@@ -150,9 +212,9 @@ class FormX extends StatelessWidget {
             child: Builder(
               builder: (context) {
                 final state = Form.of(context);
-                scope?.controller.states[tag] = state;
+                scope?.controller._states[tag] = state;
 
-                return formWrapper?.call(child) ?? child;
+                return child;
               },
             ),
           );
@@ -173,7 +235,8 @@ class FormScope extends InheritedWidget {
     required this.onChange,
     required this.onSubmit,
     required this.onErrorText,
-    required this.fieldWrapper,
+    required this.onField,
+    required this.fieldPadding,
     required this.isLoading,
   });
 
@@ -185,7 +248,8 @@ class FormScope extends InheritedWidget {
   final ValueChanged<Json>? onChange;
   final FutureOr Function(Json form)? onSubmit;
   final String Function(String tag, String error)? onErrorText;
-  final Widget Function(String tag, Widget child)? fieldWrapper;
+  final Widget Function(String tag, Widget child)? onField;
+  final EdgeInsets fieldPadding;
 
   @override
   bool updateShouldNotify(FormScope oldWidget) => false;
@@ -393,8 +457,10 @@ class _FieldState extends State<Field> {
       decoration: decoration.copyWith(suffixIcon: icon()),
     );
 
-    //Field wrapper.
-    return scope?.fieldWrapper?.call(widget.tag, field) ?? field;
+    return Padding(
+      padding: scope?.fieldPadding ?? EdgeInsets.zero,
+      child: scope?.onField?.call(widget.tag, field) ?? field,
+    );
   }
 }
 

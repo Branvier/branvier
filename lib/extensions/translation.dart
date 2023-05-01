@@ -135,8 +135,8 @@ class Translation {
     if (_logger && _lazyLoad) dev.log('[Tr]: isLazy = true. Loaded!');
 
     //Refresh UI.
-    Branvier.context?.visitAll(rebuild: true);
-    if (Branvier.context == null && _logger) {
+    final context = Branvier.context?..visitAll(rebuild: true);
+    if (context == null && _logger) {
       dev.log('[Tr]: Currently running is read mode. In order to update the UI '
           'while changing language, set Branvier.navigatorKey on MaterialApp');
     }
@@ -212,10 +212,14 @@ class _TranslationLocalizations extends LocalizationsDelegate {
     final locales = await to._loadLocales(to._path);
     final hasLocale = locales.contains(locale);
     final localeToLoad = hasLocale ? locale : to._fallback;
+    to._locale = to._locale ?? localeToLoad;
 
-    if (!to._lazyLoad) await to._loadAll();
+    if (!to._lazyLoad) {
+      await to._loadAll();
+    } else {
+      await to._loadByLocale(to.locale);
+    }
 
-    await to.changeLanguage(to._locale ?? localeToLoad);
     return Translation.instance;
   }
 

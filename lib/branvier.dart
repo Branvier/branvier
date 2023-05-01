@@ -19,7 +19,6 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_modular/flutter_modular.dart';
 import 'package:mocktail/mocktail.dart';
 
-import 'branvier.dart';
 import 'widgets/list_builder/list_builder.dart';
 import 'widgets/types/widget_types.dart';
 
@@ -39,6 +38,7 @@ part 'extensions/string.dart';
 part 'extensions/texts.dart';
 part 'extensions/time.dart';
 part 'extensions/translation.dart';
+part 'extensions/navigation.dart';
 part 'extensions/validators.dart';
 part 'extensions/widget.dart';
 part 'hooks/use_animate.dart';
@@ -54,6 +54,46 @@ part 'widgets/list_builder.dart';
 part 'widgets/modular.dart';
 part 'widgets/nest_builder.dart';
 part 'widgets/page_builder.dart';
+
+///Package configuration.
+mixin Branvier {
+  static GlobalKey<NavigatorState>? _navigatorKey;
+
+  ///Set this on [MaterialApp]. No need if you use [ModularApp].
+  ///
+  ///This will be used for:
+  /// - [Translation] change language updates.
+  /// - [Messenger] dialogs, snackbars and bottomsheets.
+  static GlobalKey<NavigatorState> get navigatorKey {
+    return _navigatorKey ??= GlobalKey<NavigatorState>();
+  }
+
+  //Internal
+  static GlobalKey<NavigatorState> get _key {
+    final key = _navigatorKey ?? Modular.routerDelegate.navigatorKey;
+    if (key.currentState == null) {
+      dev.log(
+        '[Branvier] key not attached. '
+        'Put Branvier.navigatorKey on [MaterialApp] navigatorKey parameter '
+        'Obs: You must wait [MaterialApp] to be built',
+      );
+    }
+    return key;
+  }
+
+  ///Get the current navigator context.
+  static BuildContext? get context => _key.currentContext;
+
+  ///Get the current navigator state.
+  static NavigatorState? get state => _key.currentState;
+
+  ///Get the topmost overlay context.
+  static BuildContext? get overlay {
+    var overlay = state?.overlay?.context;
+    overlay?.visitChildElements((el) => overlay = el);
+    return overlay;
+  }
+}
 
 ///Schedule a callback for the end of this frame.
 void postFrame(VoidCallback? callback) =>

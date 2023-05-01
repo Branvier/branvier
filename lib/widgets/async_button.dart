@@ -32,7 +32,7 @@ class Buttons extends HookWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               const Field('test'),
-              ElevatedButtonX(
+              const ElevatedButtonX(
                 // hasFormX: true, // todo: looses bind on hot reload.
                 onPressed: fun,
                 onLongPress: fun,
@@ -41,18 +41,18 @@ class Buttons extends HookWidget {
                 child: SizedBox.shrink(),
                 // error: Text.new,
               ),
-              ColoredBox(
+              const ColoredBox(
                 color: Colors.red,
                 child: SizedBox.square(
                   dimension: 60,
                 ),
               ),
-              OutlinedButtonX(
+              const OutlinedButtonX(
                 // hasFormX: true,
 
                 onPressed: fun,
                 onLongPress: fun,
-                child: const Text('Iran Neto'),
+                child: Text('Iran Neto'),
                 // error: (_) => Text('Falha ao logar, tente mais tarde'),
               ),
               TextButtonX(

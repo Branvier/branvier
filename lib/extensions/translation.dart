@@ -19,13 +19,10 @@ typedef Translations = Map<String, Map<String, String>>;
 ///
 /// [.trn] Pattern: 'a.b.c' -> 'a.b' -> 'a' -> null.
 class Translation {
+  Translation._();
   static Translation? _instance;
-  static final instance = _instance ??= Translation();
+  static final instance = _instance ??= Translation._();
   static Translation get to => instance;
-
-  ///Set this [key] on any widget above your translations getters.
-  ///Ex: [MaterialApp].
-  static final key = GlobalKey();
 
   ///Set this on [MaterialApp].localizationsDelegates.
   static List<LocalizationsDelegate> get delegates => [
@@ -137,13 +134,11 @@ class Translation {
     if (_lazyLoad) await _loadByLocale(locale);
     if (_logger && _lazyLoad) dev.log('[Tr]: isLazy = true. Loaded!');
 
-    key.currentContext?.visitAll(rebuild: true);
-
-    if (key.currentContext == null && _logger) {
-      dev.log(
-          '[Tr]: Currently running is read mode. In order to update the UI, '
-          'set Translation.key on any widget above your app or manage the '
-          'the state manually. Use setLogger(false) to disable this.');
+    //Refresh UI.
+    Branvier.context?.visitAll(rebuild: true);
+    if (Branvier.context == null && _logger) {
+      dev.log('[Tr]: Currently running is read mode. In order to update the UI '
+          'while changing language, set Branvier.navigatorKey on MaterialApp');
     }
 
     //Log missing translations.

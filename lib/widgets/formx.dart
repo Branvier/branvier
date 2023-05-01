@@ -183,7 +183,7 @@ class FormX extends StatelessWidget {
   Widget build(BuildContext context) {
     //Tries to inherits from other FormX.
     final parent = context.dependOnInheritedWidgetOfExactType<FormScope>();
-    final onField = this.onField ?? this.fieldWrapper;
+    final onField = this.onField ?? fieldWrapper;
 
     if (fieldWrapper != null) dev.log('Param deprecated, use onField.');
 

@@ -111,7 +111,7 @@ class FormX extends StatelessWidget {
   /// Just add thoses translations keys, it will auto translate:
   ///
   /// hintText: 'form.hint.$tag'.tr, \ <- forced translation.
-  /// labelText: 'form.label.$tag'.trn, \
+  /// labelText: 'form.label.$tag'.trn, if (onField == null) \
   /// helperText: 'form.helper.$tag'.trn, \
   /// prefixText: 'form.prefix.$tag'.trn, \
   /// suffixText: 'form.suffix.$tag'.trn,
@@ -135,11 +135,11 @@ class FormX extends StatelessWidget {
         fieldPadding: fieldPadding,
         onChange: onChange,
         onSubmit: onSubmit,
-        onErrorText: onErrorText ?? (tag, error) => error.tr,
+        onErrorText: onErrorText,
         decoration: decoration ??
             (tag) => InputDecoration(
                   hintText: 'form.hint.$tag'.tr,
-                  labelText: 'form.label.$tag'.trn,
+                  labelText: onField == null ? 'form.label.$tag'.trn : null,
                   helperText: 'form.helper.$tag'.trn,
                   prefixText: 'form.prefix.$tag'.trn,
                   suffixText: 'form.suffix.$tag'.trn,

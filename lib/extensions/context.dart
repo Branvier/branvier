@@ -191,5 +191,6 @@ extension MaterialColorGenerator on Color {
       return this;
     });
   }
+
 }
 

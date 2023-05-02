@@ -55,6 +55,7 @@ class ReassemblePath with ReassembleMixin {
     final slash = !isLast || path.endsWith('/') ? '/' : '';
 
     //Add to stack.
+    
     Modular.to.pushNamed(Modular.to.path + paths[count++] + slash);
 
     //Completes after reading all.

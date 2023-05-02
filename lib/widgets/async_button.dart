@@ -601,3 +601,91 @@ class SizeTransform extends StatelessWidget {
     );
   }
 }
+
+// abstract class ButtonX extends ButtonStyleButton {
+//   const ButtonX({
+//     //Extended.
+//     this.controller,
+//     this.hasFormx = false,
+//     this.error = Text.new,
+//     this.errorLength = 30,
+//     this.loader = const CircularProgressIndicator(color: Colors.white),
+
+//     //ElevatedButton.
+//     super.key,
+//     required super.onPressed,
+//     super.onLongPress,
+//     super.onHover,
+//     super.onFocusChange,
+//     super.style,
+//     super.focusNode,
+//     super.autofocus = false,
+//     super.clipBehavior = Clip.none,
+//     super.statesController,
+//     required super.child,
+//   });
+
+//   ///Controls this button programatically. -> controller.tap().
+//   final ButtonController? controller;
+
+//   ///In the presence of a [FormX] above, animates loading.
+//   final bool hasFormx;
+
+//   ///The widget to show on loading.
+//   final Widget loader;
+
+//   ///The widget with error as string.
+//   final Widget Function(String e) error;
+
+//   ///The length limit of characters allowed in this error.
+//   final int errorLength;
+
+//   @override
+//   State<ButtonX> createState() => ButtonXState();
+// }
+
+// class ButtonXState extends State<ButtonX> {
+//   @override
+//   Widget build(BuildContext context) {
+//     final ctrl = useFinal(widget.controller ?? ButtonController());
+//     ctrl._isLoading = useState(false);
+//     ctrl._hasError = useState(false);
+//     ctrl._press = widget.onPressed;
+//     ctrl._longPress = widget.onLongPress;
+//     ctrl._hover = widget.onHover;
+
+//     useFormxLoading(widget.hasFormx, (value) => ctrl._isLoading?.value = value);
+
+//     final animationStyle = ElevatedButton.styleFrom(
+//       minimumSize: Size.zero,
+//       padding: EdgeInsets.zero,
+//       backgroundColor: ctrl.hasError ? context.colors.error : null,
+//     );
+
+//     return ElevatedButton(
+//       key: widget.key,
+//       onPressed: (widget.onPressed != null && ctrl.isEnabled) ? ctrl.tap : null,
+//       onLongPress:
+//           (widget.onLongPress != null && ctrl.isEnabled) ? ctrl.hold : null,
+//       onHover: ctrl.hover,
+//       autofocus: widget.autofocus,
+//       clipBehavior: widget.clipBehavior,
+//       focusNode: widget.focusNode,
+//       onFocusChange: widget.onFocusChange,
+//       statesController: widget.statesController,
+
+//       //inherited style
+//       style: animationStyle.merge(widget.style),
+
+//       //load animation
+//       child: _ButtonAnimations(
+//         loader: widget.loader,
+//         style: widget.style ?? context.theme.elevatedButtonTheme.style,
+//         ctrl: ctrl,
+//         error: widget.error,
+//         errorLength: widget.errorLength,
+//         child: widget.child!,
+//       ),
+//     );
+//   }
+// }

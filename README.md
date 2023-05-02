@@ -646,9 +646,13 @@ main() async {
 
   // Setup.
   {...} => MaterialApp(
-    key: Translation.key,
-    localizationsDelegates: Translation.delegates,
+    localizationsDelegates: Translation.delegates, // <- just that :)
+
+    //Use this key only if you are not using [flutter_modular]
+    navigatorKey: Branvier.navigatorKey, // <- optional
   );
+
+  // 
 }
 ```
 

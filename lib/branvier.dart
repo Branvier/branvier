@@ -137,3 +137,16 @@ mixin Ui {
   ///The system-reported text scale.
   static double get textScaleFactor => ui.window.textScaleFactor;
 }
+
+extension UriExtension on Uri {
+  ///Returns a parsed and decoded parameters from the Url.
+  Json get args {
+    var uri = this;
+    if (queryParameters.isEmpty) uri = Uri.parse(uri.fragment);
+
+    final map = <String, dynamic>{};
+    uri.queryParameters.forEach((key, value) => map[key] = jsonDecode(value));
+
+    return map;
+  }
+}

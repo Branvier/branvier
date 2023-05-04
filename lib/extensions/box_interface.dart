@@ -3,12 +3,7 @@
 part of '/branvier.dart';
 
 ///An [IBox] used for secure storage.
-abstract class ISafeBox implements IBox {
-  @override
-  Future<T?> read<T>(String key, {T? or});
-  @override
-  Future<Json> readAll();
-}
+abstract class ISafeBox implements IBox {}
 
 ///An [IBox] used for accessible storage.
 abstract class IOpenBox implements IBox {
@@ -18,10 +13,14 @@ abstract class IOpenBox implements IBox {
   Json readAll();
 }
 
-///A storage interface for key/value databases.
+///A storage interface for key/value databases. Use [ISafeBox] or [IOpenBox]
+@protected
 abstract class IBox {
   ///Reads [key], if null, sets and gets [or].
   FutureOr<T?> read<T>(String key, {T? or});
+
+  ///Gets all data.
+  FutureOr<Json> readAll();
 
   ///Writes [data] in [key].
   Future<void> write(String key, data);
@@ -31,9 +30,6 @@ abstract class IBox {
 
   ///Clear all data.
   Future<void> deleteAll();
-
-  ///Gets all data.
-  FutureOr<Json> readAll();
 }
 
 ///Storage extension.
@@ -46,7 +42,7 @@ extension StorageExtension on IBox {
 } // tested
 
 ///Simple fake key/value storage.
-class FakeBox extends Mock implements IBox {
+class FakeBox extends Mock implements IOpenBox, ISafeBox, IBox {
   ///Functional FakeBox. You can start with [initialData] content.
   FakeBox([this.initialData = const {}]) {
     storage.addAll(initialData);
@@ -57,11 +53,11 @@ class FakeBox extends Mock implements IBox {
   final Json initialData;
 
   @override
-  FutureOr<T?> read<T>(key, {or}) =>
+  T? read<T>(key, {or}) =>
       storage[key] ?? write(key, or).then((_) => or);
 
   @override
-  FutureOr<Json> readAll() => storage;
+  Json readAll() => storage;
 
   @override
   Future<void> delete(key) => storage.remove(key);

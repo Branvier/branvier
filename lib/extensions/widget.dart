@@ -79,7 +79,7 @@ typedef _To = Alignment;
 extension ListWidgetX on Iterable<Widget> {
   ///Adds a [Padding] to all [Widget] in this list, following the priority order:
   ///EdgeInsets: Only > Symmetrical > All > Zero.
-  List<Widget> padAll(
+  List<Widget> padAll({
     double? all,
     double? left,
     double? top,
@@ -87,7 +87,7 @@ extension ListWidgetX on Iterable<Widget> {
     double? bottom,
     double? horizontal,
     double? vertical,
-  ) {
+  }) {
     return map(
       (e) => e.pad(
         all: all,

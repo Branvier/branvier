@@ -103,3 +103,21 @@ extension ListWidgetX on Iterable<Widget> {
 
   List<Widget> expandAll() => map((e) => e.expand()).toList();
 }
+
+extension IterableWidgetX<T extends Object> on Iterable<T> {
+  ///Maps to List of [Widget].
+  List<Widget> builder(Widget toWidget(T item, int i)) {
+    var index = 0;
+    return map((e) => toWidget(e, index++)).toList();
+  }
+
+  ///Builds this list into a [Widget].
+  ///You can configure this list with [ListConfig].
+  Widget build(Widget toWidget(T item, int i), ListConfig config) {
+    return ListBuilder(
+      config: config,
+      list: toList(),
+      builder: toWidget,
+    );
+  }
+}

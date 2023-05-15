@@ -113,7 +113,10 @@ extension IterableWidgetX<T extends Object> on Iterable<T> {
 
   ///Builds this list into a [Widget].
   ///You can configure this list with [ListConfig].
-  Widget build(Widget toWidget(T item, int i), ListConfig config) {
+  Widget build(
+    Widget toWidget(T item, int i), {
+    ListConfig config = const ListConfig(),
+  }) {
     return ListBuilder(
       config: config,
       list: toList(),

@@ -8,28 +8,11 @@ extension DateTimeExt on DateTime {
 
 extension DurationExt on Duration {
   ///Transforms this Duration into a delayed function.
+  @Deprecated('User .delay instead, for clarity.')
   Future<void> call() => Future.delayed(this);
 
   ///Returns [value] after this Duration.
+  @Deprecated('User .delay.then() instead, for clarity.')
   Future<T> set<T>(T value) => Future.delayed(this, () => value);
 
-  ///Calls [function] after this Duration.
-  Future<T> then<T>(Getter<T>? function) => Future.delayed(this, function);
-}
-
-extension FutureNullable<T> on Future<T?> {
-  ///Returns [T] as non-nullable. On null/error fallbacks [value].
-  Future<T> or([T? value]) async {
-    return then((r) => r ?? value!, onError: (e) => value!);
-  }
-
-  ///Returns [T] as non-nullable. On null/error fallbacks [or].
-  Future<R> thenOr<R>(Then<T, R> action, {R? or}) async {
-    return then((r) => r != null ? (action(r)) : or!, onError: (e) => or!);
-  }
-
-  ///Returns [action] if [T] is non-null, else null.
-  Future<R?> thenTry<R>(Then<T, R> action) async {
-    return then((r) => r != null ? action(r) : null, onError: (e) => null);
-  }
 }

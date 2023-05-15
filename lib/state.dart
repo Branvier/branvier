@@ -1,18 +1,10 @@
 library state;
 
 import 'package:flutter/material.dart';
-import 'package:get/get_rx/src/rx_types/rx_types.dart';
-import 'package:get/get_state_manager/src/rx_flutter/rx_obx_widget.dart';
+import 'package:getx_lite/getx_lite.dart';
 
 import 'branvier.dart';
 
-export 'package:get/get_rx/src/rx_types/rx_types.dart';
-export 'package:get/get_state_manager/src/rx_flutter/rx_obx_widget.dart';
-
-extension RxnT<T> on T {
-  /// Returns a `Rx<T?>` instance with `null` as initial value.
-  Rx<T?> get obn => Rx<T?>(null);
-}
 
 class ObxListBuilder<T extends Object> extends ObxWidget {
   ///Reactive list builder that handles loading, empty, error and sucess states.
@@ -124,4 +116,8 @@ class ObxBuilder<T> extends ObxWidget {
       states: states,
     );
   }
+}
+
+extension GetxListExtension<E> on List<E> {
+  RxList<E> get obs => RxList<E>(this);
 }

@@ -414,7 +414,7 @@ class SnackbarController {
               animation: _filterBlurAnimation,
               builder: (context, child) {
                 return BackdropFilter(
-                  filter: ImageFilter.blur(
+                  filter: ui.ImageFilter.blur(
                     sigmaX: max(0.001, _filterBlurAnimation.value),
                     sigmaY: max(0.001, _filterBlurAnimation.value),
                   ),
@@ -920,7 +920,7 @@ class GetSnackBarState extends State<GetSnackBar>
                     return ClipRRect(
                       borderRadius: BorderRadius.circular(widget.borderRadius),
                       child: BackdropFilter(
-                        filter: ImageFilter.blur(
+                        filter: ui.ImageFilter.blur(
                           sigmaX: widget.barBlur,
                           sigmaY: widget.barBlur,
                         ),

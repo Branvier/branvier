@@ -6,8 +6,10 @@ import 'dart:developer' as dev;
 import 'dart:math' as math;
 import 'dart:math';
 import 'dart:ui' as ui;
-import 'dart:ui';
 
+// import 'dart:ui';
+
+import 'package:dartx/dartx.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -22,15 +24,18 @@ import 'package:mocktail/mocktail.dart';
 import 'widgets/list_builder/list_builder.dart';
 import 'widgets/types/widget_types.dart';
 
+export 'package:dartx/dartx.dart';
+export 'package:flutter_animate/flutter_animate.dart';
+export 'package:getx_lite/getx_lite.dart' hide ListExtension;
+
 export 'widgets/animations/index.dart';
 
 part 'extensions/api_interface.dart';
-part 'extensions/bool.dart';
 part 'extensions/box_interface.dart';
 part 'extensions/context.dart';
 part 'extensions/json.dart';
 part 'extensions/list.dart';
-part 'extensions/map.dart';
+part 'extensions/navigation.dart';
 part 'extensions/notifier.dart';
 part 'extensions/numbers.dart';
 part 'extensions/shimmer.dart';
@@ -38,7 +43,6 @@ part 'extensions/string.dart';
 part 'extensions/texts.dart';
 part 'extensions/time.dart';
 part 'extensions/translation.dart';
-part 'extensions/navigation.dart';
 part 'extensions/validators.dart';
 part 'extensions/widget.dart';
 part 'hooks/use_animate.dart';
@@ -46,7 +50,6 @@ part 'hooks/use_async.dart';
 part 'hooks/use_lifecycle.dart';
 part 'hooks/use_size.dart';
 part 'utils/transparent_image.dart';
-part 'utils/typedefs.dart';
 part 'widgets/async_builder.dart';
 part 'widgets/async_button.dart';
 part 'widgets/formx.dart';
@@ -109,7 +112,7 @@ bool get kIsDark =>
 /// A dart:ui access point. Obs: It's immutable! For adaptativeness use context [MediaQuery].
 mixin Ui {
   /// The window to which this binding is bound.
-  static ui.SingletonFlutterWindow get window => ui.window;
+  static ui.FlutterView get window => ui.window;
 
   ///System's [Locale].
   static Locale? get deviceLocale => ui.window.locale;

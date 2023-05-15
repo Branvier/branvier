@@ -27,8 +27,8 @@ typedef JsonMap<T> = Json<Json<T>>;
 typedef ListMap<T> = Json<List<T>>;
 
 extension CastList on List<num> {
-  List<double> toDouble() => list((e) => e.toDouble());
-  List<int> toInt() => list((e) => e.round());
+  List<double> toDouble() => map((e) => e.toDouble()).toList();
+  List<int> toInt() => map((e) => e.round()).toList();
 }
 
 extension CastMap on NumMap {
@@ -102,7 +102,7 @@ extension JsonString on String {
 }
 
 extension DateExt on DateTime {
-  ///Universal Timestamp Unix. Ex "1647323301".
+  ///Universal Timestamp Unix in seconds. Ex "1647323301".
   String toUnix() => secondsSinceEpoch.toJson();
 
   ///Human Readable Time. Ex: "2023-03-14T10:30:00.000".

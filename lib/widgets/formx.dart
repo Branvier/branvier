@@ -12,6 +12,7 @@ class FormException extends KeyException {
 
 ///Controls the [FormX]. Useful for managing field states in another controller.
 class FormController {
+  ///Where the main state is null.
   final _states = <String?, FormState>{};
 
   /// A [Map] of [FormState]. Where key is the [FormX] tag parameter.
@@ -25,8 +26,8 @@ class FormController {
     return _states;
   }
 
-  ///The form with nested forms included inside each tag.
-  Json? get form => states.first.value?._scope.form;
+  ///The form as [Json]. (includes nested).
+  Json? get form => states[null]?._scope.form;
 
   ///Resets all fields and nested [FormX].
   void reset() {
@@ -51,7 +52,7 @@ class FormController {
   ///Validates only the field with the enclosing [tag].
   ///If the tag is a sub form. Validates all tags below it.
   bool validateTag(String tag) {
-    final any = states.list(
+    final any = states.values.map(
       (state) {
         if (states.containsKey(tag)) return states[tag]?.validate() ?? false;
         return state._scope.fields[tag]?.currentState?.validate() ?? false;

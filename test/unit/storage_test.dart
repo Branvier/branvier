@@ -8,7 +8,7 @@ void main() {
     test('write & readAll', () async {
       await box.write('hello', 'world');
       await box.write('bye', 'world');
-      final map = await box.readAll();
+      final map = box.readAll();
 
       expect(map.values.length >= 2, true);
     });
@@ -50,7 +50,7 @@ void main() {
     test('update', () async {
       await box.write('market', fruits); //map
       await box.update<List>('market', (data) => data!..add('kiwi'));
-      final data = await box.read<List>('market'); //map
+      final data = box.read<List>('market'); //map
 
       expect(data, isNotNull);
       expect(data!.length, 4);
@@ -66,7 +66,7 @@ void main() {
       // });
       await box.write('market', fruits); //map
       await box.update<List>('market', (data) => data!..add('kiwi'));
-      final data = await box.read<List>('market'); //map
+      final data = box.read<List>('market'); //map
 
       expect(data, isNotNull);
       expect(data!.length, 4);

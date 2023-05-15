@@ -10,6 +10,7 @@ extension IntExt on int {
   List<String> get numbered => list((i) => (++i).toString());
 
   ///Calls [action] this many times. Callbacks index for each time.
+  @Deprecated('Use for instead, for clarity')
   void forEach(void Function(int i) action) {
     1.seconds;
     for (var i = 0; i < this; i++) {
@@ -18,23 +19,11 @@ extension IntExt on int {
   }
 
   ///Creates a list with this length. Callbacks element index.
+  @Deprecated('Use for instead, for clarity')
   List<T> list<T>(T Function(int i) toElement) {
     final list = <T>[];
     forEach((i) => list.add(toElement(i)));
     return list;
   }
 
-  Duration get milliseconds => Duration(milliseconds: this);
-  Duration get seconds => Duration(seconds: this);
-  Duration get minutes => Duration(minutes: this);
-  Duration get hours => Duration(hours: this);
-  Duration get days => Duration(days: this);
-}
-
-extension DoubleExt on double {
-  Duration get milliseconds => Duration(microseconds: (this * 1000).round());
-  Duration get seconds => (this * 1000).milliseconds;
-  Duration get minutes => (this * 60).seconds;
-  Duration get hours => (this * 60).minutes;
-  Duration get days => (this * 24).hours;
 }

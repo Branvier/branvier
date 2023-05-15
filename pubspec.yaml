@@ -1,11 +1,11 @@
 name: branvier
 description: A Branvier project.
-version: 0.8.0
+version: 0.9.0
 homepage:
 
 environment:
   sdk: '>=2.19.3 <3.0.0'
-  flutter: ">=1.17.0"
+  flutter: ">=1.16.1"
 
 main: lib/branvier.dart
 
@@ -13,10 +13,16 @@ dependencies:
   flutter:
     sdk: flutter
   flutter_hooks: ^0.18.6
+
+  #Extensions
+  dartx: ^1.1.0 
+  flutter_animate: ^4.1.1+1 
+
+  #Core
   flutter_localizations:
     sdk: flutter
   flutter_modular: ^5.0.3
-  get: ^4.6.5
+  getx_lite: ^4.6.5
   mocktail: ^0.3.0
 
 dev_dependencies:

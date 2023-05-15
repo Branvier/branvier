@@ -78,7 +78,7 @@ linter:
     deprecated_consistency: true
     # - diagnostic_describe_all_properties: true
     directives_ordering: true
-    do_not_use_environment: true
+    # do_not_use_environment: true
     empty_catches: true
     empty_constructor_bodies: true
     empty_statements: true
@@ -219,7 +219,7 @@ linter:
     use_string_in_part_of_directives: true
     use_colored_box: true
     unnecessary_to_list_in_spreads: true
-    unreachable_from_main: true
+    # unreachable_from_main: true
     unnecessary_null_aware_operator_on_extension_on_nullable: true
     collection_methods_unrelated_type: true
     combinators_ordering: true

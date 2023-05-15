@@ -39,7 +39,7 @@ class AsyncStates {
   });
 
   ///The builder with [AsyncSnapshot] error message.
-  final WidgetOn<String>? onError;
+  final Widget Function(String errorText)? onError;
 
   ///[Widget] to show when async is done, but null.
   final Widget onNull;

@@ -24,7 +24,7 @@ extension WidgetX on Widget {
   }
 
   ///Adds a [Padding] to this [Widget] following the priority order:
-  ///EdgeInsets: All > Symmetrical > Only > Zero.
+  ///EdgeInsets: Only > Symmetrical > All > Zero.
   Padding pad({
     double? all,
     double? left,
@@ -36,15 +36,15 @@ extension WidgetX on Widget {
   }) =>
       Padding(
         padding: EdgeInsets.fromLTRB(
-          all ?? horizontal ?? left ?? 0.0,
-          all ?? vertical ?? top ?? 0.0,
-          all ?? horizontal ?? right ?? 0.0,
-          all ?? vertical ?? bottom ?? 0.0,
+          left ?? horizontal ?? all ?? 0.0,
+          top ?? vertical ?? all ?? 0.0,
+          right ?? horizontal ?? all ?? 0.0,
+          bottom ?? vertical ?? all ?? 0.0,
         ),
         child: this,
       );
 
-  ///Fills the widget inside a [Stack] and controls its position.
+  ///Fill and controls its position (must be under [Stack]).
   Positioned fill({
     double? all,
     double? left,
@@ -55,10 +55,10 @@ extension WidgetX on Widget {
     double? vertical,
   }) =>
       Positioned.fill(
-        left: all ?? horizontal ?? left ?? 0.0,
-        top: all ?? vertical ?? top ?? 0.0,
-        right: all ?? horizontal ?? right ?? 0.0,
-        bottom: all ?? vertical ?? bottom ?? 0.0,
+        left: left ?? horizontal ?? all ?? 0.0,
+        top: top ?? vertical ?? all ?? 0.0,
+        right: right ?? horizontal ?? all ?? 0.0,
+        bottom: bottom ?? vertical ?? all ?? 0.0,
         child: this,
       );
 
@@ -75,3 +75,31 @@ extension WidgetX on Widget {
 
 // ignore: avoid_private_typedef_functions
 typedef _To = Alignment;
+
+extension ListWidgetX on Iterable<Widget> {
+  ///Adds a [Padding] to all [Widget] in this list, following the priority order:
+  ///EdgeInsets: Only > Symmetrical > All > Zero.
+  List<Widget> padAll(
+    double? all,
+    double? left,
+    double? top,
+    double? right,
+    double? bottom,
+    double? horizontal,
+    double? vertical,
+  ) {
+    return map(
+      (e) => e.pad(
+        all: all,
+        left: left,
+        top: top,
+        right: right,
+        bottom: bottom,
+        horizontal: horizontal,
+        vertical: vertical,
+      ),
+    ).toList();
+  }
+
+  List<Widget> expandAll() => map((e) => e.expand()).toList();
+}

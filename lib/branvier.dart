@@ -26,7 +26,6 @@ import 'widgets/types/widget_types.dart';
 
 export 'package:dartx/dartx.dart';
 export 'package:flutter_animate/flutter_animate.dart';
-export 'package:getx_lite/getx_lite.dart' hide ListExtension;
 
 export 'widgets/animations/index.dart';
 

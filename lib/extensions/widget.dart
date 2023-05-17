@@ -10,6 +10,13 @@ extension WidgetX on Widget {
       Opacity(opacity: value ?? false ? 0 : 1, child: this);
   Widget opacity([double value = 1.0]) => Opacity(opacity: value, child: this);
 
+  //Transform extensions.
+  Widget scale(double scale) => Transform.scale(scale: scale, child: this);
+  Widget rotate(double angle) => Transform.rotate(angle: angle, child: this);
+  Widget flipX() => Transform.flip(flipX: true, child: this);
+  Widget flipY() => Transform.flip(flipY: true, child: this);
+  Widget translate(Offset xy) => Transform.translate(offset: xy, child: this);
+
   Widget shimmer(bool enable, {Color? baseColor, Color? highlightColor}) {
     if (enable) {
       return Shimmer.fromColors(

@@ -74,7 +74,7 @@ LifecycleState useLifecycle({
 
   useOnAppLifecycleStateChange(
     (previous, current) {
-      logIf('changed ${previous?.name} -> ${current.name}');
+      // logIf('changed ${previous?.name} -> ${current.name}');
 
       onChange?.call(
         LifecycleState(previous, mounted, _rebuild),

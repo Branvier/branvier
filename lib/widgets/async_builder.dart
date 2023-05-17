@@ -15,7 +15,6 @@ class AsyncController<T> {
     this.onState = onState;
   }
 }
-
 typedef AsyncListener<T> = void Function(AsyncSnap<T> state);
 
 class AsyncStates {
@@ -61,9 +60,10 @@ class AsyncBuilder<T> extends HookWidget {
     this.initialData,
     this.controller,
     this.states = const AsyncStates(),
-    super.key,
+    Key? key,
   })  : _future = future,
-        _stream = null;
+        _stream = null,
+        super(key: key);
 
   const AsyncBuilder.stream({
     required Stream<T> Function() stream,
@@ -71,9 +71,10 @@ class AsyncBuilder<T> extends HookWidget {
     this.initialData,
     this.controller,
     this.states = const AsyncStates(),
-    super.key,
+    Key? key,
   })  : _stream = stream,
-        _future = null;
+        _future = null,
+        super(key: key);
 
   ///The main async function. Useful for fetching data.
   final Future<T> Function()? _future;

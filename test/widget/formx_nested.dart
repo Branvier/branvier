@@ -5,10 +5,10 @@ void main() => runApp(const MaterialApp(home: Scaffold(body: PaymentForm())));
 
 class PaymentForm extends StatelessWidget {
   const PaymentForm({
-    super.key,
+    Key? key,
     this.installments = false,
     this.onPaymentSubmit,
-  });
+  }) : super(key: key);
   final bool installments;
   final ValueSetter<Json>? onPaymentSubmit;
 
@@ -86,7 +86,8 @@ class PaymentForm extends StatelessWidget {
 }
 
 class BorderButton extends StatelessWidget {
-  const BorderButton({super.key, required this.text, required this.onTap});
+  const BorderButton({Key? key, required this.text, required this.onTap})
+      : super(key: key);
   final String text;
   final VoidCallback onTap;
   @override

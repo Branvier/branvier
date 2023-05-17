@@ -92,7 +92,7 @@ class FormController {
 
 class FormX extends StatelessWidget {
   const FormX({
-    super.key,
+    Key? key,
     required this.child,
     this.controller,
     this.tag,
@@ -103,7 +103,7 @@ class FormX extends StatelessWidget {
     this.onSubmit,
     this.onErrorText,
     this.decoration,
-  });
+  }) : super(key: key);
   final Widget child;
   final FormController? controller;
 
@@ -228,8 +228,8 @@ class FormX extends StatelessWidget {
 
 class FormScope extends InheritedWidget {
   const FormScope({
-    super.key,
-    required super.child,
+    Key? key,
+    required Widget child,
     required this.form,
     required this.controller,
     required this.fields,
@@ -240,7 +240,7 @@ class FormScope extends InheritedWidget {
     required this.onField,
     required this.fieldPadding,
     required this.isLoading,
-  });
+  }) : super(key: key, child: child);
 
   final ValueNotifier<bool> isLoading;
   final Json form;
@@ -272,8 +272,8 @@ class Field extends StatefulWidget {
     this.mask,
     this.keepMask = false,
     this.onSubmit,
-    super.key,
-  });
+    Key? key,
+  }) : super(key: key);
 
   ///Aditionally validates if the value is empty.
   ///Returns 'form.empty.$tag' if requiredText is null.
@@ -913,8 +913,8 @@ class AppDropdownInput<T> extends StatelessWidget {
     this.getLabel,
     required this.value,
     this.onChanged,
-    super.key,
-  });
+    Key? key,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {

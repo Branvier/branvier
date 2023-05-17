@@ -27,8 +27,6 @@ import 'widgets/types/widget_types.dart';
 export 'package:dartx/dartx.dart';
 export 'package:flutter_animate/flutter_animate.dart';
 
-export 'widgets/animations/index.dart';
-
 part 'extensions/api_interface.dart';
 part 'extensions/box_interface.dart';
 part 'extensions/context.dart';
@@ -54,8 +52,6 @@ part 'widgets/async_button.dart';
 part 'widgets/formx.dart';
 part 'widgets/list_builder.dart';
 part 'widgets/modular.dart';
-part 'widgets/nest_builder.dart';
-part 'widgets/page_builder.dart';
 
 ///Package configuration.
 mixin Branvier {

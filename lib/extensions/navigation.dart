@@ -645,7 +645,6 @@ enum SnackStyle { FLOATING, GROUNDED }
 
 class GetSnackBar extends StatefulWidget {
   const GetSnackBar({
-    super.key,
     this.title,
     this.message,
     this.titleText,

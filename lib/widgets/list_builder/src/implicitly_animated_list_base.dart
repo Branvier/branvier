@@ -31,7 +31,7 @@ typedef UpdatedItemBuilder<W extends Widget, E> = W Function(
 abstract class ImplicitlyAnimatedListBase<W extends Widget, E extends Object>
     extends StatefulWidget {
   const ImplicitlyAnimatedListBase({
-    super.key,
+    Key? key,
     required this.items,
     required this.areItemsTheSame,
     required this.itemBuilder,
@@ -41,7 +41,7 @@ abstract class ImplicitlyAnimatedListBase<W extends Widget, E extends Object>
     required this.removeDuration,
     required this.updateDuration,
     required this.spawnIsolate,
-  });
+  }) : super(key: key);
 
   /// Called, as needed, to build list item widgets.
   ///

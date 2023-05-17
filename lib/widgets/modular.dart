@@ -9,8 +9,8 @@ class ModuleBuilder<M extends Module> extends StatelessWidget {
     this.loader = const Center(child: CircularProgressIndicator()),
     this.onLoad,
     this.builder,
-    super.key,
-  });
+    Key? key,
+  }) : super(key: key);
 
   ///Called when isModuleReady() is done.
   final void Function()? onLoad;

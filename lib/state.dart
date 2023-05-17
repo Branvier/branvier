@@ -17,8 +17,8 @@ class ObxListBuilder<T extends Object> extends ObxWidget {
     this.controller,
     this.states = const AsyncStates(),
     this.config = const ListConfig(),
-    super.key,
-  });
+    Key? key,
+  }) : super(key: key);
 
   ///Reactive rebuilder just like Obx(()=>).
   final List<T> Function() obx;
@@ -51,8 +51,8 @@ class AsyncListBuilder<T extends Object> extends StatelessWidget {
     this.controller,
     this.states = const AsyncStates(),
     this.config = const ListConfig(),
-    super.key,
-  });
+    Key? key,
+  }) : super(key: key);
 
   ///Reactive rebuilder just like Obx(()=>).
   final List<T> list;
@@ -66,7 +66,7 @@ class AsyncListBuilder<T extends Object> extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AsyncBuilder(
+    return AsyncBuilder<List<T>>(
       initialData: list,
       controller: controller,
       future: () async {
@@ -88,8 +88,8 @@ class ObxBuilder<T> extends ObxWidget {
     this.future,
     this.controller,
     this.states = const AsyncStates.min(),
-    super.key,
-  });
+    Key? key,
+  }) : super(key: key);
 
   ///Reactive rebuilder just like Obx(()=>).
   final T? Function() obx;

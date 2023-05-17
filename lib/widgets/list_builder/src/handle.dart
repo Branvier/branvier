@@ -15,13 +15,13 @@ class Handle extends StatefulWidget {
   /// A Handle must have a [Reorderable] and an [ImplicitlyAnimatedReorderableList]
   /// as its ancestor.
   const Handle({
-    super.key,
+    Key? key,
     required this.child,
     this.delay = Duration.zero,
     this.capturePointer = true,
     this.vibrate = true,
     this.enabled = true,
-  });
+  }) : super(key: key);
 
   /// The child of this Handle that can initiate a reorder.
   ///

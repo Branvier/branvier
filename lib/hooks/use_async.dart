@@ -22,7 +22,7 @@ AsyncSnap<T> useAsyncFuture<T>(
 }) {
   final changes = useRef(0);
   final attempts = useState(0);
-  final changed = useChanged(initialData, onChange: (_) => changes.value++);
+  final changed = useChanged<T?>(initialData, onChange: (_) => changes.value++);
 
   Future<T> fetch() async {
     if (changed && initialData != null) return initialData;
@@ -54,7 +54,7 @@ AsyncSnap<T> useAsyncStream<T>(
 }) {
   final changes = useRef(0);
   final attempts = useState(0);
-  final changed = useChanged(initialData, onChange: (_) => changes.value++);
+  final changed = useChanged<T?>(initialData, onChange: (_) => changes.value++);
 
   Stream<T> fetch() async* {
     if (changed && initialData != null) {

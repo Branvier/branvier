@@ -8,14 +8,15 @@ import 'package:flutter/material.dart';
 /// This can be used as a item transition in an [ImplicitlyAnimatedReorderableList].
 class SizeFadeTransition extends StatefulWidget {
   const SizeFadeTransition({
-    super.key,
+    Key? key,
     required this.animation,
     this.sizeFraction = 2 / 3,
     this.curve = Curves.linear,
     this.axis = Axis.vertical,
     this.axisAlignment = 0.0,
     this.child,
-  }) : assert(sizeFraction >= 0.0 && sizeFraction <= 1.0);
+  })  : assert(sizeFraction >= 0.0 && sizeFraction <= 1.0),
+        super(key: key);
 
   /// The animation to be used.
   final Animation<double> animation;

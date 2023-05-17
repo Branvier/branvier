@@ -17,26 +17,26 @@ abstract class Diff implements Comparable<Diff> {
 
 class Insertion<E> extends Diff {
   const Insertion(
-    super.index,
-    super.size,
+    int index,
+    int size,
     this.items,
-  );
+  ) : super(index, size);
   final List<E> items;
 }
 
 class Deletion extends Diff {
   const Deletion(
-    super.index,
-    super.size,
-  );
+    int index,
+    int size,
+  ) : super(index, size);
 }
 
 class Modification<E> extends Diff {
   const Modification(
-    super.index,
-    super.size,
+    int index,
+    int size,
     this.items,
-  );
+  ) : super(index, size);
   final List<E> items;
 
   @override

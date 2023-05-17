@@ -43,18 +43,18 @@ class ImplicitlyAnimatedReorderableList<E extends Object>
   /// value as the MyersDiff implementation will use its own metrics to decide, whether
   /// a new isolate has to be spawned or not for optimal performance.
   const ImplicitlyAnimatedReorderableList({
-    super.key,
-    required super.items,
-    required super.itemBuilder,
-    required super.areItemsTheSame,
-    super.removeItemBuilder,
-    super.updateItemBuilder,
-    super.insertDuration = const Duration(milliseconds: 500),
-    super.removeDuration = const Duration(milliseconds: 500),
-    super.updateDuration = const Duration(milliseconds: 500),
+    Key? key,
+    required List<E> items,
+    required AnimatedItemBuilder<Reorderable, E> itemBuilder,
+    required ItemDiffUtil<E> areItemsTheSame,
+    RemovedItemBuilder<Reorderable, E>? removeItemBuilder,
+    UpdatedItemBuilder<Reorderable, E>? updateItemBuilder,
+    Duration insertDuration = const Duration(milliseconds: 500),
+    Duration removeDuration = const Duration(milliseconds: 500),
+    Duration updateDuration = const Duration(milliseconds: 500),
+    bool? spawnIsolate,
     Duration? liftDuration,
     Duration? settleDuration,
-    super.spawnIsolate,
     this.reverse = false,
     this.scrollDirection = Axis.vertical,
     this.controller,
@@ -72,6 +72,18 @@ class ImplicitlyAnimatedReorderableList<E extends Object>
         assert(
           reorderDuration <= const Duration(milliseconds: 1500),
           'The drag duration should not be longer than 1500 milliseconds.',
+        ),
+        super(
+          key: key,
+          items: items,
+          itemBuilder: itemBuilder,
+          areItemsTheSame: areItemsTheSame,
+          removeItemBuilder: removeItemBuilder,
+          updateItemBuilder: updateItemBuilder,
+          insertDuration: insertDuration,
+          removeDuration: removeDuration,
+          updateDuration: updateDuration,
+          spawnIsolate: spawnIsolate,
         );
 
   /// Whether the scroll view scrolls in the reading direction.

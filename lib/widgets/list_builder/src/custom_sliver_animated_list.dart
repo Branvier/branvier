@@ -8,10 +8,11 @@ const Duration _kDuration = Duration(milliseconds: 300);
 class CustomSliverAnimatedList extends StatefulWidget {
   /// Creates a sliver that animates items when they are inserted or removed.
   const CustomSliverAnimatedList({
-    super.key,
+    Key? key,
     required this.itemBuilder,
     this.initialItemCount = 0,
-  }) : assert(initialItemCount >= 0);
+  })  : assert(initialItemCount >= 0),
+        super(key: key);
 
   /// Called, as needed, to build list item widgets.
   ///

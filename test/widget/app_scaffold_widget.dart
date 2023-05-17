@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 
 class AppScaffold extends StatelessWidget {
   const AppScaffold({
-    super.key,
+    Key? key,
     required this.child,
     this.center = true,
-  });
+  }) : super(key: key);
   final Widget child;
   final bool center;
 

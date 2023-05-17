@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 
 class Invisible extends StatelessWidget {
   const Invisible({
-    super.key,
+    Key? key,
     this.child,
     this.invisible = false,
-  });
+  }) : super(key: key);
   final bool invisible;
   final Widget? child;
 

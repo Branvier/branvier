@@ -12,10 +12,7 @@ bool isBranvierWidget(Widget widget) {
   if (widget is AsyncBuilder) return true;
   if (widget is ObxBuilder) return true;
   if (widget is ObxListBuilder) return true;
-  if (widget is NestBuilder) return true;
-  if (widget is PageBuilder) return true;
   if (widget is FormX) return true;
-  if (widget is AnimatedBuilderX) return true;
 
   return false;
 }

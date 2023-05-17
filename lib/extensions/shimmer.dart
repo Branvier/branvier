@@ -50,7 +50,6 @@ enum ShimmerDirection { ltr, rtl, ttb, btt }
 @immutable
 class Shimmer extends StatefulWidget {
   const Shimmer({
-    super.key,
     required this.child,
     required this.gradient,
     this.direction = ShimmerDirection.ltr,
@@ -65,7 +64,6 @@ class Shimmer extends StatefulWidget {
   /// `highlightColor`.
   ///
   Shimmer.fromColors({
-    super.key,
     required this.child,
     required Color baseColor,
     required Color highlightColor,
@@ -169,11 +167,11 @@ class ShimmerState extends State<Shimmer> with SingleTickerProviderStateMixin {
 @immutable
 class _Shimmer extends SingleChildRenderObjectWidget {
   const _Shimmer({
-    super.child,
+    Widget? child,
     required this.percent,
     required this.direction,
     required this.gradient,
-  });
+  }) : super(child: child);
   final double percent;
   final ShimmerDirection direction;
   final Gradient gradient;

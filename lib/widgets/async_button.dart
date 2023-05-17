@@ -5,7 +5,7 @@ void main() {
   runApp(MaterialApp(home: Scaffold(body: Buttons())));
 }
 
-Future<void> fun() async {
+Future<void> fakeThrow() async {
   await 5.seconds();
   print('fui chamado');
   // ignore: only_throw_errors
@@ -13,7 +13,7 @@ Future<void> fun() async {
 }
 
 class Buttons extends HookWidget {
-  Buttons({super.key});
+  Buttons({Key? key}) : super(key: key);
   final ctrl = ButtonController();
 
   @override
@@ -34,8 +34,8 @@ class Buttons extends HookWidget {
               const Field('test'),
               const ElevatedButtonX(
                 // hasFormX: true, // todo: looses bind on hot reload.
-                onPressed: fun,
-                onLongPress: fun,
+                onPressed: fakeThrow,
+                onLongPress: fakeThrow,
                 // onHover: (isHovering) async => fun(),
                 // on: fun,
                 child: SizedBox.shrink(),
@@ -50,16 +50,16 @@ class Buttons extends HookWidget {
               const OutlinedButtonX(
                 // hasFormX: true,
 
-                onPressed: fun,
-                onLongPress: fun,
+                onPressed: fakeThrow,
+                onLongPress: fakeThrow,
                 child: Text('Iran Neto'),
                 // error: (_) => Text('Falha ao logar, tente mais tarde'),
               ),
               TextButtonX(
                 // hasFormX: true,
                 controller: ctrl,
-                onPressed: fun,
-                onLongPress: fun,
+                onPressed: fakeThrow,
+                onLongPress: fakeThrow,
                 child: const Text('Juan Alesson'),
               ),
               ElevatedButton(onPressed: ctrl.tap, child: const Text('tap'))
@@ -169,7 +169,7 @@ class ElevatedButtonX extends HookWidget {
     this.loader = const CircularProgressIndicator(color: Colors.white),
 
     //ElevatedButton.
-    super.key,
+    Key? key,
     required this.onPressed,
     this.onLongPress,
     this.onHover,
@@ -180,7 +180,7 @@ class ElevatedButtonX extends HookWidget {
     this.clipBehavior = Clip.none,
     this.statesController,
     required this.child,
-  });
+  }) : super(key: key);
 
   //Same as [ElevatedButton].
   final FutureOr<void> Function()? onPressed;
@@ -265,7 +265,7 @@ class OutlinedButtonX extends HookWidget {
     this.loader = const CircularProgressIndicator(),
 
     //ElevatedButton.
-    super.key,
+    Key? key,
     required this.onPressed,
     this.onLongPress,
     this.onHover,
@@ -276,7 +276,7 @@ class OutlinedButtonX extends HookWidget {
     this.clipBehavior = Clip.none,
     this.statesController,
     required this.child,
-  });
+  }) : super(key: key);
 
   //Same as [ElevatedButton].
   final FutureOr<void> Function()? onPressed;
@@ -372,7 +372,7 @@ class TextButtonX extends HookWidget {
     this.loader = const CircularProgressIndicator(),
 
     //ElevatedButton.
-    super.key,
+    Key? key,
     required this.onPressed,
     this.onLongPress,
     this.onHover,
@@ -383,7 +383,7 @@ class TextButtonX extends HookWidget {
     this.clipBehavior = Clip.none,
     this.statesController,
     required this.child,
-  });
+  }) : super(key: key);
 
   //Same as [ElevatedButton].
   final FutureOr<void> Function()? onPressed;
@@ -560,8 +560,8 @@ class SmallIndicator extends StatelessWidget {
     this.size = 24.0,
     this.scale = 0.5,
     this.color,
-    super.key,
-  });
+    Key? key,
+  }) : super(key: key);
   final double size;
   final double scale;
   final Color? color;
@@ -584,8 +584,8 @@ class SizeTransform extends StatelessWidget {
     this.size = 24.0,
     this.scale = 0.5,
     required this.child,
-    super.key,
-  });
+    Key? key,
+  }) : super(key: key);
   final double size;
   final double scale;
   final Widget child;

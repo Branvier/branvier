@@ -98,19 +98,19 @@ extension ContextExt on BuildContext {
 }
 
 extension BuildContextNavigationX on BuildContext {
-  /// The closest [Navigator] up.
+  /// Searches the closest [Navigator] up in the tree.
   NavigatorState get navigator => Navigator.of(this);
 
-  /// Same as [navigator], but searches down before going up in the tree.
+  /// Searches the furthest [Navigator] up in the tree.
+  NavigatorState get navigatorRoot => Navigator.of(this, rootNavigator: true);
+
+  /// Searches the furthest [Navigator] down in the tree.
   /// ! Use this only when you are sure to have navigator below this context!
-  NavigatorState get navigatorLeaf {
+  NavigatorState? get navigatorLeaf {
     Element? element;
     visitAll<Navigator>(onElement: (_, e) => element = e);
-    return Navigator.of(element ?? this);
+    return element != null ? Navigator.of(element!) : null;
   }
-
-  /// The furthest [Navigator] is given.
-  NavigatorState get navigatorRoot => Navigator.of(this, rootNavigator: true);
 }
 
 extension ColorSchemeExtension on ColorScheme {

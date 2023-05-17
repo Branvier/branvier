@@ -97,6 +97,22 @@ extension ContextExt on BuildContext {
   }
 }
 
+extension BuildContextNavigationX on BuildContext {
+  /// The closest [Navigator] up.
+  NavigatorState get navigator => Navigator.of(this);
+
+  /// Same as [navigator], but searches down before going up in the tree.
+  /// ! Use this only when you are sure to have navigator below this context!
+  NavigatorState get navigatorLeaf {
+    Element? element;
+    visitAll<Navigator>(onElement: (_, e) => element = e);
+    return Navigator.of(element ?? this);
+  }
+
+  /// The furthest [Navigator] is given.
+  NavigatorState get navigatorRoot => Navigator.of(this, rootNavigator: true);
+}
+
 extension ColorSchemeExtension on ColorScheme {
   ///Tells if the current theme in this is dark.
   bool get isDark => brightness == Brightness.dark;
@@ -191,6 +207,4 @@ extension MaterialColorGenerator on Color {
       return this;
     });
   }
-
 }
-

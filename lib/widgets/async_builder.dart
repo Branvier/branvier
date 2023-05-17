@@ -113,7 +113,7 @@ class AsyncBuilder<T> extends HookWidget {
     Widget error(String e) => states.onError?.call(e) ?? Center(child: Text(e));
 
     //On data.
-    Widget child() => builder(snap.data as T).fill();
+    Widget child() => builder(snap.data as T).withFill();
     Widget reloading() {
       if (states.onReloading == null) return states.onLoading;
       return Stack(children: [child(), states.onReloading!]);

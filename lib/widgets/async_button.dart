@@ -6,8 +6,8 @@ void main() {
 }
 
 Future<void> fakeThrow() async {
-  await 5.seconds();
-  print('fui chamado');
+  await 5.seconds.delay;
+  // print('fui chamado');
   // ignore: only_throw_errors
   throw '1234512345123451234512345123456';
 }
@@ -25,7 +25,7 @@ class Buttons extends HookWidget {
           ),
       child: FormX(
         onSubmit: (form) async {
-          await 3.seconds();
+          await 3.seconds.delay;
         },
         child: Center(
           child: Column(
@@ -115,7 +115,7 @@ class ButtonController {
       _stackTrace = s;
     } finally {
       _isLoading?.value = false;
-      await errorDuration();
+      await errorDuration.delay;
       _hasError?.value = false;
     }
   }

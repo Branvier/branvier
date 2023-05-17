@@ -76,19 +76,19 @@ class ReassemblePath with ReassembleMixin {
 
 ///Custom Transitions for Modular.
 mixin TransitionCustom {
-  static CustomTransition get topLevel => CustomTransition(
+  static final topLevel = CustomTransition(
         transitionBuilder: (context, anim1, anim2, child) {
           return const ZoomPageTransitionsBuilder()
               .buildTransitions(null, context, anim1, anim2, child);
         },
       );
-  static CustomTransition get openUpwards => CustomTransition(
+  static final openUpwards = CustomTransition(
         transitionBuilder: (context, anim1, anim2, child) {
           return const OpenUpwardsPageTransitionsBuilder()
               .buildTransitions(null, context, anim1, anim2, child);
         },
       );
-  static CustomTransition get fadeUpwards => CustomTransition(
+  static final fadeUpwards = CustomTransition(
         transitionBuilder: (context, anim1, anim2, child) {
           return const FadeUpwardsPageTransitionsBuilder()
               .buildTransitions(null, context, anim1, anim2, child);

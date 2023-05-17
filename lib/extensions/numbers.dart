@@ -1,3 +1,5 @@
+// ignore_for_file: deprecated_member_use_from_same_package
+
 part of '/branvier.dart';
 
 extension IntExt on int {
@@ -12,7 +14,6 @@ extension IntExt on int {
   ///Calls [action] this many times. Callbacks index for each time.
   @Deprecated('Use for instead, for clarity')
   void forEach(void Function(int i) action) {
-    1.seconds;
     for (var i = 0; i < this; i++) {
       action(i);
     }
@@ -25,5 +26,9 @@ extension IntExt on int {
     forEach((i) => list.add(toElement(i)));
     return list;
   }
+}
 
+extension NumberOperations on num {
+  double divide(double by) => this / by;
+  double multiply(double by) => this * by;
 }

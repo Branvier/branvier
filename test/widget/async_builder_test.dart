@@ -23,8 +23,8 @@ void main2() {
         AppScaffold(
           child: AsyncBuilder<String>(
             future: () async {
-                if (response == 'error') throw Exception('error');
-                return 1.seconds.set(response);
+              if (response == 'error') throw Exception('error');
+              return Future.delayed(1.seconds, () => response);
             },
             builder: (data) {
               return Text(data);

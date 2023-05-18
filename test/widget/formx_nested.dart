@@ -25,7 +25,6 @@ class PaymentForm extends StatelessWidget {
           constraints: const BoxConstraints(maxHeight: 50),
           labelText: 'form.label.$tag'.tr,
         ),
-        fieldWrapper: (tag, child) => child.pad(all: 8),
         onChange: print,
         onSubmit: print,
         child: SingleChildScrollView(
@@ -46,14 +45,14 @@ class PaymentForm extends StatelessWidget {
                       children: [
                         Field.required('street_number', mask: '####'),
                         Field.required('neighborhood'),
-                      ].list((e) => e.expand()),
+                      ].withExpandedAll(),
                     ),
                     Row(
                       children: [
                         Field.required('zipcode', mask: '#####-###'),
                         Field.required('city'),
                         Field.required('state'),
-                      ].list((e) => e.expand()),
+                      ].withExpandedAll(),
                     ),
                     FormX(
                       tag: 'phone',
@@ -61,7 +60,7 @@ class PaymentForm extends StatelessWidget {
                         children: [
                           Field.required('ddd', mask: '##'),
                           Field.required('numer', mask: '# ####-####'),
-                        ].list((e) => e.expand()),
+                        ].withExpandedAll(),
                       ),
                     ),
                   ],

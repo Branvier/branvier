@@ -55,7 +55,7 @@ class ReassemblePath with ReassembleMixin {
     final slash = !isLast || path.endsWith('/') ? '/' : '';
 
     //Add to stack.
-    
+
     Modular.to.pushNamed(Modular.to.path + paths[count++] + slash);
 
     //Completes after reading all.
@@ -77,27 +77,87 @@ class ReassemblePath with ReassembleMixin {
 ///Custom Transitions for Modular.
 mixin TransitionCustom {
   static final topLevel = CustomTransition(
-        transitionBuilder: (context, anim1, anim2, child) {
-          return const ZoomPageTransitionsBuilder()
-              .buildTransitions(null, context, anim1, anim2, child);
-        },
-      );
+    transitionBuilder: (context, anim1, anim2, child) {
+      return const ZoomPageTransitionsBuilder()
+          .buildTransitions(null, context, anim1, anim2, child);
+    },
+  );
   static final openUpwards = CustomTransition(
-        transitionBuilder: (context, anim1, anim2, child) {
-          return const OpenUpwardsPageTransitionsBuilder()
-              .buildTransitions(null, context, anim1, anim2, child);
-        },
-      );
+    transitionBuilder: (context, anim1, anim2, child) {
+      return const OpenUpwardsPageTransitionsBuilder()
+          .buildTransitions(null, context, anim1, anim2, child);
+    },
+  );
   static final fadeUpwards = CustomTransition(
-        transitionBuilder: (context, anim1, anim2, child) {
-          return const FadeUpwardsPageTransitionsBuilder()
-              .buildTransitions(null, context, anim1, anim2, child);
-        },
-      );
+    transitionBuilder: (context, anim1, anim2, child) {
+      return const FadeUpwardsPageTransitionsBuilder()
+          .buildTransitions(null, context, anim1, anim2, child);
+    },
+  );
   static CustomTransition cupertino(PageRoute route) => CustomTransition(
         transitionBuilder: (context, anim1, anim2, child) {
           return const CupertinoPageTransitionsBuilder()
               .buildTransitions(route, context, anim1, anim2, child);
         },
       );
+}
+
+class NavigationListenerX extends StatefulWidget {
+  /// Same as [NavigationListener] but gives the [BuildContext] of any [Navigator] below it.
+  /// Additionally waits for navigation frame complete when listening.
+  const NavigationListenerX({
+    Key? key,
+    required this.builder,
+    this.child,
+  }) : super(key: key);
+  final Widget Function(BuildContext context, Widget? child) builder;
+  final Widget? child;
+
+  @override
+  NavigationListenerXState createState() => NavigationListenerXState();
+}
+
+class NavigationListenerXState extends State<NavigationListenerX> {
+  void listener() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) setState(() {});
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    Modular.to.addListener(listener);
+
+    // Waiting for the [BuildContext] to build.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _getRouterOutletContext();
+    });
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    Modular.to.removeListener(listener);
+  }
+
+  /// Looks for the furthest [Navigator] down in the tree.
+  void _getRouterOutletContext() {
+    void visit(Element element) {
+      if (element.widget is Navigator) routerOutletContext = element;
+      element.visitChildren(visit);
+    }
+
+    (context as Element).visitChildren(visit);
+  }
+
+  BuildContext? routerOutletContext;
+
+  @override
+  Widget build(BuildContext context) {
+    return widget.builder(
+      routerOutletContext ?? context,
+      widget.child,
+    );
+  }
 }

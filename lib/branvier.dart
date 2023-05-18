@@ -106,34 +106,7 @@ bool get kIsDark =>
 
 /// A dart:ui access point. Obs: It's immutable! For adaptativeness use context [MediaQuery].
 mixin Ui {
-  /// The window to which this binding is bound.
-  static ui.FlutterView get window => ui.window;
 
-  ///System's [Locale].
-  static Locale? get deviceLocale => ui.window.locale;
-
-  ///The number of device pixels for each logical pixel.
-  static double get pixelRatio => ui.window.devicePixelRatio;
-
-  ///The [Size] of this device in logical pixels.
-  static Size get size => ui.window.physicalSize / pixelRatio;
-
-  ///The horizontal extent of this size.
-  static double get width => size.width;
-
-  ///The vertical extent of this size
-  static double get height => size.height;
-
-  ///The distance from the top edge to the first unpadded pixel,
-  ///in physical pixels.
-  static double get statusBarHeight => ui.window.padding.top;
-
-  ///The distance from the bottom edge to the first unpadded pixel,
-  ///in physical pixels.
-  static double get bottomBarHeight => ui.window.padding.bottom;
-
-  ///The system-reported text scale.
-  static double get textScaleFactor => ui.window.textScaleFactor;
 }
 
 extension UriExtension on Uri {

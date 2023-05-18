@@ -128,3 +128,85 @@ class AsyncBuilder<T> extends HookWidget {
     return Stack(children: [child()]);
   }
 }
+
+typedef ReBuilderCallback = void Function(ReBuilderState state);
+
+class ReBuilder extends StatefulWidget {
+  /// Controls rebuilds states.
+  ///
+  /// - You can set [interval] duration between [rebuilds].
+  /// - You can acces [ReBuilderState] on any callback.
+  const ReBuilder({
+    Key? key,
+    this.interval = Duration.zero,
+    this.rebuilds = 0,
+    this.onInit,
+    this.onDispose,
+    this.onBuild,
+    this.onRebuild,
+    required this.builder,
+  }) : super(key: key);
+
+  final ReBuilderCallback? onInit;
+  final ReBuilderCallback? onDispose;
+  final ReBuilderCallback? onBuild;
+  final ReBuilderCallback? onRebuild;
+  final Widget Function(ReBuilderState state) builder;
+
+  /// The interval between rebuilds.
+  final Duration interval;
+
+  /// How many times it will rebuild. Default is 1 extra rebuild.
+  final int rebuilds;
+
+  @override
+  ReBuilderState createState() => ReBuilderState();
+}
+
+class ReBuilderState extends State<ReBuilder> {
+  var rebuilds = 0;
+
+  @override
+  void initState() {
+    // On init.
+    widget.onInit?.call(this);
+    super.initState();
+
+    // On build.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      widget.onBuild?.call(this);
+    });
+  }
+
+  /// Resets the [rebuilds] to zero.
+  void reset() {
+    rebuilds = 0;
+  }
+
+  /// Immediatly adds a rebuild.
+  void rebuild() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) setState(() => rebuilds++);
+      widget.onRebuild?.call(this);
+    });
+  }
+
+  /// The [_rebuilder] is never a infite loop. When the widget.rebuilds reaches, it stops.
+  void _rebuilder() {
+    if (rebuilds >= widget.rebuilds) return reset();
+    Future.delayed(widget.interval, rebuild);
+  }
+
+  @override
+  void dispose() {
+    // On dispose.
+    widget.onDispose?.call(this);
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    _rebuilder();
+    return widget.builder(this);
+  }
+}

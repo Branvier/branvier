@@ -14,6 +14,9 @@ extension ContextExt on BuildContext {
   /// desktop window)
   double get width => mediaQuerySize.width;
 
+  /// Shortcut for View.of(context).
+  ui.FlutterView get view => View.maybeOf(this) ?? ui.window;
+
   ///Ensure the context widget is entirely visible. Defaults to scroll center.
   Future<void> ensureVisible({
     Duration duration = const Duration(milliseconds: 600),
@@ -95,6 +98,38 @@ extension ContextExt on BuildContext {
     dev.log('Types: ${list.toSet().map((e) => e.runtimeType)}');
     return list;
   }
+
+  /// Visits the first [T] found and returns its [Element].
+  ///
+  /// If [last] is true, then it will return the last [Element] found.
+  /// Visiting last is O(N), avoid using [last] = true.
+  ///
+  Element? visit<T extends Widget>({bool last = false}) {
+    Element? found;
+
+    void visit(Element element) {
+      if (element.widget is T) {
+        found = element;
+        if (!last) return;
+      }
+      element.visitChildren(visit);
+    }
+
+    (this as Element).visitChildren(visit);
+    return found;
+  }
+}
+
+extension FlutterViewExtension on ui.FlutterView {
+  ///The [Size] of this device in logical pixels.
+  Size get size => physicalSize / devicePixelRatio;
+
+  ///The horizontal extent of this size.
+  double get width => size.width;
+
+  ///The vertical extent of this size
+  double get height => size.height;
+
 }
 
 extension BuildContextNavigationX on BuildContext {

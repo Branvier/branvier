@@ -98,9 +98,9 @@ extension MapNotifier<K, V> on ValueNotifier<Map<K, V>> {
     return response;
   }
 
-  void forEach(void action(K, V)) => update((e) => e.forEach(action));
+  void forEach(void action(K k, V v)) => update((e) => e.forEach(action));
 
-  Map<K2, V2> map<K2, V2>(MapEntry<K2, V2> action(K, V)) =>
+  Map<K2, V2> map<K2, V2>(MapEntry<K2, V2> action(K k, V v)) =>
       update((e) => e.map(action));
 
   //Operators

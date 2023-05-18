@@ -248,7 +248,7 @@ class SnackbarController {
 
   /// The animation controller that the route uses to drive the transitions.
   ///
-  /// The animation itself is exposed by the [animation] property.
+  /// The animation itself is exposed by the animation property.
   late final AnimationController _controller;
 
   SnackbarStatus? _currentStatus;

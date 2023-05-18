@@ -11,21 +11,21 @@ extension WidgetToDeprecate on Widget {
   @Deprecated('Use .centered() instead')
   Align toCenter() => Align(child: this);
   @Deprecated('Use .withAligment.topLeft() instead')
-  Align toTopLeft() => Align(alignment: _To.topLeft, child: this);
+  Align toTopLeft() => Align(alignment: _Align.topLeft, child: this);
   @Deprecated('Use .withAligment.topCenter() instead')
-  Align toTopCenter() => Align(alignment: _To.topCenter, child: this);
+  Align toTopCenter() => Align(alignment: _Align.topCenter, child: this);
   @Deprecated('Use .withAligment.topRight() instead')
-  Align toTopRight() => Align(alignment: _To.topRight, child: this);
+  Align toTopRight() => Align(alignment: _Align.topRight, child: this);
   @Deprecated('Use .withAligment.centerLeft() instead')
-  Align toCenterLeft() => Align(alignment: _To.centerLeft, child: this);
+  Align toCenterLeft() => Align(alignment: _Align.centerLeft, child: this);
   @Deprecated('Use .withAligment.centerRight() instead')
-  Align toCenterRight() => Align(alignment: _To.centerRight, child: this);
+  Align toCenterRight() => Align(alignment: _Align.centerRight, child: this);
   @Deprecated('Use .withAligment.bottomLeft() instead')
-  Align toBottomLeft() => Align(alignment: _To.bottomLeft, child: this);
+  Align toBottomLeft() => Align(alignment: _Align.bottomLeft, child: this);
   @Deprecated('Use .withAligment.bottomCenter() instead')
-  Align toBottomCenter() => Align(alignment: _To.bottomCenter, child: this);
+  Align toBottomCenter() => Align(alignment: _Align.bottomCenter, child: this);
   @Deprecated('Use .withAligment.bottomRight() instead')
-  Align toBottomRight() => Align(alignment: _To.bottomRight, child: this);
+  Align toBottomRight() => Align(alignment: _Align.bottomRight, child: this);
   @Deprecated('Use .withPadding() instead')
   Padding pad({
     double? all,
@@ -102,13 +102,8 @@ extension WidgetEffects on Widget {
     }
   }
 
-  /// Control whether this widget is visible.
-  Widget withVisibility([bool visible = true]) {
-    return Visibility(visible: visible, child: this);
-  }
-
   /// Adds [Opacity] to this widget.
-  Widget withOpacity([double opacity = 1.0]) {
+  Widget withOpacity(double opacity) {
     return Opacity(opacity: opacity, child: this);
   }
 
@@ -152,11 +147,6 @@ extension WidgetEffects on Widget {
         child: this,
       );
 
-  /// Adds [Decoration] to this widget.
-  Widget withDecoration(Decoration decoration) {
-    return DecoratedBox(decoration: decoration, child: this);
-  }
-
   /// Sizes this widget.
   /// Where [height] and [width] overrides [size] respective values.
   Widget withSize({
@@ -190,6 +180,11 @@ extension WidgetEffects on Widget {
 }
 
 extension WidgetPositioning on Widget {
+  /// Returns null or [fallback] when [condition] is not met.
+  T? withCondition<T extends Widget>(bool? condition, {T? fallback}) {
+    return condition != null && condition == true ? (this as T) : fallback;
+  }
+
   /// This child expanded in a [Row], [Column], or [Flex].
   Widget withExpanded([int flex = 1]) => Expanded(flex: flex, child: this);
 
@@ -218,32 +213,6 @@ extension WidgetPositioning on Widget {
         alignment: aligment,
         child: this,
       );
-
-  /// Rotates this widget clockwise by [angle], in radians.
-  Widget withAngle(
-    double angle, {
-    Offset? origin,
-    Alignment? aligment = Alignment.center,
-  }) =>
-      Transform.rotate(
-        angle: angle,
-        origin: origin,
-        alignment: aligment,
-        child: this,
-      );
-
-  /// This widget flipped in [x]/[y] (horizontally/vertically).
-  ///
-  /// You can either use this called or:
-  /// - withFlip.x()
-  /// - withFlip.y()
-  Widget withFlip({
-    bool x = false,
-    bool y = false,
-    Offset? origin,
-  }) {
-    return Transform.flip(flipX: x, flipY: y, origin: origin, child: this);
-  }
 
   /// Moves this wiget with [Offset].
   Widget withOffset({Offset? offset, double dx = 0, double dy = 0}) =>
@@ -297,7 +266,7 @@ extension WidgetPositioning on Widget {
 }
 
 // ignore: avoid_private_typedef_functions, camel_case_types
-typedef _To = Alignment;
+typedef _Align = Alignment;
 
 extension AlignmentFunction on Align Function(
   Alignment alignment, {
@@ -306,16 +275,16 @@ extension AlignmentFunction on Align Function(
 }) {
   Widget? get _child => this(Alignment.center).child;
 
-  @Deprecated('Use .centered() instead')
+  @Deprecated('Use .withCenter() directly instead')
   Align center() => Align(child: _child);
-  Align topLeft() => Align(alignment: _To.topLeft, child: _child);
-  Align topCenter() => Align(alignment: _To.topCenter, child: _child);
-  Align topRight() => Align(alignment: _To.topRight, child: _child);
-  Align centerLeft() => Align(alignment: _To.centerLeft, child: _child);
-  Align centerRight() => Align(alignment: _To.centerRight, child: _child);
-  Align bottomLeft() => Align(alignment: _To.bottomLeft, child: _child);
-  Align bottomCenter() => Align(alignment: _To.bottomCenter, child: _child);
-  Align bottomRight() => Align(alignment: _To.bottomRight, child: _child);
+  Align topLeft() => Align(alignment: _Align.topLeft, child: _child);
+  Align topCenter() => Align(alignment: _Align.topCenter, child: _child);
+  Align topRight() => Align(alignment: _Align.topRight, child: _child);
+  Align centerLeft() => Align(alignment: _Align.centerLeft, child: _child);
+  Align centerRight() => Align(alignment: _Align.centerRight, child: _child);
+  Align bottomLeft() => Align(alignment: _Align.bottomLeft, child: _child);
+  Align bottomCenter() => Align(alignment: _Align.bottomCenter, child: _child);
+  Align bottomRight() => Align(alignment: _Align.bottomRight, child: _child);
 }
 
 extension WidgetListX on Iterable<Widget> {

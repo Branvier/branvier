@@ -157,6 +157,7 @@ extension WidgetEffects on Widget {
     return SizedBox(
       height: height ?? size?.height,
       width: width ?? size?.width,
+      child: this,
     );
   }
 

@@ -2,20 +2,20 @@
 
 part of '/branvier.dart';
 
-///An [IBox] used for secure storage.
-abstract class ISafeBox implements IBox {}
+///An [IBoxBase] used for secure storage.
+abstract class ISafeBox implements IBoxBase {}
 
-///An [IBox] used for accessible storage.
-abstract class IOpenBox implements IBox {
+///An [IBoxBase] used for accessible storage.
+abstract class IBox implements IBoxBase {
   @override
   T? read<T>(String key, {T? or});
   @override
   Json readAll();
 }
 
-///A storage interface for key/value databases. Use [ISafeBox] or [IOpenBox]
+///A storage interface for key/value databases. Use [ISafeBox] or [IBox]
 @protected
-abstract class IBox {
+abstract class IBoxBase {
   ///Reads [key], if null, sets and gets [or].
   FutureOr<T?> read<T>(String key, {T? or});
 
@@ -33,7 +33,7 @@ abstract class IBox {
 }
 
 ///Storage extension.
-extension StorageExtension on IBox {
+extension StorageExtension on IBoxBase {
   ///Gets current data and sets with [update].
   Future<void> update<T>(String key, T update(T? data)) async {
     final newData = update(await read(key));
@@ -42,7 +42,7 @@ extension StorageExtension on IBox {
 } // tested
 
 ///Simple fake key/value storage.
-class FakeBox extends Mock implements IOpenBox, ISafeBox, IBox {
+class FakeBox extends Mock implements IBox, ISafeBox, IBoxBase {
   ///Functional FakeBox. You can start with [initialData] content.
   FakeBox([this.initialData = const {}]) {
     storage.addAll(initialData);
@@ -60,11 +60,11 @@ class FakeBox extends Mock implements IOpenBox, ISafeBox, IBox {
   Json readAll() => storage;
 
   @override
-  Future<void> delete(key) => storage.remove(key);
+  Future<void> delete(key) async => storage.remove(key);
 
   @override
   Future<void> deleteAll() async => storage.clear();
 
   @override
-  Future<void> write(key, data) => storage[key] = data;
+  Future<void> write(key, data) async => storage[key] = data;
 }

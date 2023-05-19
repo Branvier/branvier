@@ -127,7 +127,6 @@ class NavigationListenerXState extends State<NavigationListenerX> {
   @override
   void initState() {
     super.initState();
-    routerOutletContext = null;
     Modular.to.addListener(listener);
 
     // Waiting for the [BuildContext] to build.
@@ -140,7 +139,6 @@ class NavigationListenerXState extends State<NavigationListenerX> {
   void dispose() {
     super.dispose();
     Modular.to.removeListener(listener);
-    routerOutletContext = null;
   }
 
   /// Looks for the furthest [Navigator] down in the tree.
@@ -154,11 +152,12 @@ class NavigationListenerXState extends State<NavigationListenerX> {
   }
 
   BuildContext? routerOutletContext;
-
-  /// Making sure this context has a valid [NavigatorState].
   BuildContext? get _context {
-    if (routerOutletContext == null) return null;
-    return Navigator.maybeOf(routerOutletContext!)?.context;
+    try {
+      return Navigator.of(routerOutletContext!).context;
+    } catch (e) {
+      return null;
+    }
   }
 
   @override

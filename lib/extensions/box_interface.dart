@@ -5,6 +5,9 @@ part of '/branvier.dart';
 ///An [IBoxBase] used for secure storage.
 abstract class ISafeBox implements IBoxBase {}
 
+@Deprecated('Use just IBox')
+abstract class IOpenBox implements IBoxBase {}
+
 ///An [IBoxBase] used for accessible storage.
 abstract class IBox implements IBoxBase {
   @override

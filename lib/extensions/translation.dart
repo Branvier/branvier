@@ -219,10 +219,8 @@ class _TranslationLocalizations extends LocalizationsDelegate {
     } else {
       await to._loadByLocale(to.locale);
     }
-
-    postFrame(() {
-      Branvier.context?.visitAll(rebuild: true);
-    });
+    
+    Branvier.context?.visitAll(rebuild: true);
     return Translation.instance;
   }
 

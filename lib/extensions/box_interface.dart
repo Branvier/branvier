@@ -5,10 +5,13 @@ part of '/branvier.dart';
 ///An [_IBoxBase] used for secure storage.
 abstract class ISafeBox implements _IBoxBase {}
 
-@Deprecated('Use just IBox')
+///An [_IBoxBase] used for accessible asynchronous storage.
+abstract class IAsyncBox implements _IBoxBase {}
+
+@Deprecated('Use just IBox for synchronous storage. for async use IAsyncBox')
 abstract class IOpenBox implements _IBoxBase {}
 
-///An [_IBoxBase] used for accessible storage.
+///An [_IBoxBase] used for accessible synchronous storage.
 abstract class IBox implements _IBoxBase {
   @override
   T? read<T>(String key, {T? or});
@@ -45,7 +48,7 @@ extension StorageExtension on _IBoxBase {
 } // tested
 
 ///Simple fake key/value storage.
-class FakeBox extends Mock implements IBox, ISafeBox, _IBoxBase {
+class FakeBox extends Mock implements IBox, ISafeBox, IAsyncBox, _IBoxBase {
   ///Functional FakeBox. You can start with [initialData] content.
   FakeBox([this.initialData = const {}]) {
     storage.addAll(initialData);

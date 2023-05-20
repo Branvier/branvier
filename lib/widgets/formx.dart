@@ -136,7 +136,7 @@ class FormX extends StatelessWidget {
         fieldPadding: fieldPadding,
         onChange: onChange,
         onSubmit: onSubmit,
-        onErrorText: onErrorText,
+        onErrorText: onErrorText ?? (tag, error) => error.tr,
         decoration: decoration ??
             (tag) => InputDecoration(
                   hintText: 'form.hint.$tag'.tr,

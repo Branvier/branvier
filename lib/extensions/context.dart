@@ -93,9 +93,6 @@ extension ContextExt on BuildContext {
     }
 
     parent.visitChildren(visit);
-
-    dev.log('${list.length} $T widgets ${rebuild ? 'rebuilt' : 'found'}');
-    dev.log('Types: ${list.toSet().map((e) => e.runtimeType)}');
     return list;
   }
 

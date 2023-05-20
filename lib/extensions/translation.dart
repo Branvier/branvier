@@ -134,13 +134,6 @@ class Translation {
     if (_lazyLoad) await _loadByLocale(locale);
     if (_logger && _lazyLoad) dev.log('[Tr]: isLazy = true. Loaded!');
 
-    //Refresh UI.
-    final context = Branvier.context?..visitAll(rebuild: true);
-    if (context == null && _logger) {
-      dev.log('[Tr]: Currently running is read mode. In order to update the UI '
-          'while changing language, set Branvier.navigatorKey on MaterialApp');
-    }
-
     //Log missing translations.
     postFrame(
       () {
@@ -154,8 +147,17 @@ class Translation {
 
           final percent = (1 - (n / total.length)) * 100;
 
+          //Refresh UI.
+          final context = Branvier.context?..visitAll(rebuild: true);
+          if (context == null && _logger) {
+            dev.log(
+                '[Tr]: Currently running is read mode. In order to update the UI '
+                'while changing language, set Branvier.navigatorKey on MaterialApp');
+          }
+
           dev.log('[Tr]: There are $n missing keys. Progress: $percent%');
           dev.log('[Tr]: Missing keys: $missingTranslations');
+
         }
       },
     );

@@ -118,15 +118,20 @@ class NavigationListenerX extends StatefulWidget {
 }
 
 class NavigationListenerXState extends State<NavigationListenerX> {
+  late final String initialPath;
+
+  /// Listens only while [initialPath] is part of the navigation stack.
+  /// This is intended to avoid unnecessary rebuilds and dispose problems.
   void listener() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) setState(() {});
+      if (Modular.to.path.contains(initialPath) && mounted) setState(() {});
     });
   }
 
   @override
   void initState() {
     super.initState();
+    initialPath = Modular.to.path;
     Modular.to.addListener(listener);
 
     // Waiting for the [BuildContext] to build.

@@ -1,44 +1,5 @@
 part of '../branvier.dart';
 
-/// Just a [FutureBuilder] wrapper for [Modular].isModuleReady().
-class ModuleBuilder<M extends Module> extends StatelessWidget {
-  /// Shows [loader] while [M] is not ready.
-  ///
-  /// Type [M] with your [Module] and it will wait for isModuleReady().
-  const ModuleBuilder({
-    this.loader = const Center(child: CircularProgressIndicator()),
-    this.onLoad,
-    this.builder,
-    Key? key,
-  }) : super(key: key);
-
-  ///Called when isModuleReady() is done.
-  final void Function()? onLoad;
-
-  ///The widget to build when done.
-  final WidgetBuilder? builder;
-
-  ///The widget to show while not done.
-  final Widget loader;
-
-  @override
-  Widget build(BuildContext context) {
-    return FutureBuilder(
-      future: Modular.isModuleReady<M>(),
-      builder: (context, snapshot) {
-        // Returns [loader] while loading.
-        if (snapshot.connectionState != ConnectionState.done) return loader;
-
-        // Calls [onLoad] when it's done.
-        WidgetsBinding.instance.addPostFrameCallback((_) => onLoad?.call());
-
-        // The widget to build.
-        return builder?.call(context) ?? loader;
-      },
-    );
-  }
-}
-
 ///Use [ReassembleMixin] when you need to recover navigation stack upon hot reload.
 ///
 ///Ex: Useful for [RouterOutlet] that can't auto cache routes on reload.

@@ -15,27 +15,43 @@ class AsyncController<T> {
     this.onState = onState;
   }
 }
+
 typedef AsyncListener<T> = void Function(AsyncSnap<T> state);
 
 class AsyncStates {
   const AsyncStates({
-    this.onError,
-    this.onNull = const Center(child: Text('null.data')),
-    this.onEmpty = const Center(child: Text('-')),
-    this.onLoading = const Center(child: CircularProgressIndicator()),
+    this.center = true,
+    this.onError = Text.new,
+    this.onNull = const Text('null.data'),
+    this.onEmpty = const Text('-'),
+    this.onLoading = const CircularProgressIndicator.adaptive(),
     this.onReloading = const Align(
       alignment: Alignment.topCenter,
       child: LinearProgressIndicator(),
     ),
   });
 
+  AsyncStates.none({
+    this.center = false,
+    this.onError,
+    this.onNull = const SizedBox.shrink(),
+    this.onEmpty = const SizedBox.shrink(),
+    this.onLoading = const SizedBox.shrink(),
+    this.onReloading = const SizedBox.shrink(),
+  });
+
+  @Deprecated('User center = false instead or .none()')
   const AsyncStates.min({
+    this.center = false,
     this.onError,
     this.onNull = const SizedBox.shrink(),
     this.onEmpty = const SizedBox.shrink(),
     this.onLoading = const CircularProgressIndicator(),
     this.onReloading = const SizedBox.shrink(),
   });
+
+  /// Whether to put [Center] in all states (except [onReloading]).
+  final bool center;
 
   ///The builder with [AsyncSnapshot] error message.
   final Widget Function(String errorText)? onError;
@@ -110,7 +126,8 @@ class AsyncBuilder<T> extends HookWidget {
     controller?.onState?.call(snap);
 
     //On error.
-    Widget error(String e) => states.onError?.call(e) ?? Center(child: Text(e));
+    Widget error(String e) =>
+        states.onError?.call(e) ?? const SizedBox.shrink();
 
     //On data.
     Widget child() => builder(snap.data as T).withFill();
@@ -120,13 +137,17 @@ class AsyncBuilder<T> extends HookWidget {
     }
 
     if (snap.isUpdating) return reloading();
-    if (snap.isLoading) return states.onLoading;
-    if (snap.hasError) return error(snap.e.toString());
-    if (snap.data == null) return states.onNull;
-    if (snap.isEmpty) return states.onEmpty;
+    if (snap.isLoading) return states.onLoading._center(states.center);
+    if (snap.hasError) return error('${snap.e}')._center(states.center);
+    if (snap.data == null) return states.onNull._center(states.center);
+    if (snap.isEmpty) return states.onEmpty._center(states.center);
 
     return Stack(children: [child()]);
   }
+}
+
+extension on Widget {
+  Widget _center(bool will) => will ? Center(child: this) : this;
 }
 
 typedef ReBuilderCallback = void Function(ReBuilderState state);

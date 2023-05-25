@@ -111,7 +111,7 @@ class FormX extends StatelessWidget {
   ///
   /// Just add thoses translations keys, it will auto translate:
   ///
-  /// hintText: 'form.hint.$tag'.tr, \ <- forced translation.
+  /// hintText: 'form.hint.$tag'.tr, <- forced translation. \
   /// labelText: 'form.label.$tag'.trn, if (onField == null) \
   /// helperText: 'form.helper.$tag'.trn, \
   /// prefixText: 'form.prefix.$tag'.trn, \
@@ -140,7 +140,7 @@ class FormX extends StatelessWidget {
         decoration: decoration ??
             (tag) => InputDecoration(
                   hintText: 'form.hint.$tag'.tr,
-                  labelText: onField == null ? 'form.label.$tag'.trn : null,
+                  labelText: onField == null ? 'form.label.$tag'.tr : null,
                   helperText: 'form.helper.$tag'.trn,
                   prefixText: 'form.prefix.$tag'.trn,
                   suffixText: 'form.suffix.$tag'.trn,
@@ -265,7 +265,6 @@ class Field extends StatefulWidget {
     this.tag, {
     this.controller,
     this.obscure = false,
-    this.options,
     this.decoration,
     this.validator,
     this.keyboardType,
@@ -284,7 +283,6 @@ class Field extends StatefulWidget {
     String? requiredText,
     FieldController? controller,
     bool obscure = false,
-    List<String>? options,
     InputDecoration? decoration,
     FormFieldValidator<String>? validator,
     TextInputType? keyboardType,
@@ -297,7 +295,6 @@ class Field extends StatefulWidget {
         tag,
         obscure: obscure,
         controller: controller,
-        options: options,
         decoration: decoration,
         validator: (value) {
           if (value == null) return null;
@@ -316,7 +313,6 @@ class Field extends StatefulWidget {
   final bool obscure;
   final FutureOr Function(String)? onSubmit;
   final FieldController? controller;
-  final List<String>? options;
   final InputDecoration? decoration;
   final FormFieldValidator<String>? validator;
   final TextInputType? keyboardType;
@@ -357,6 +353,7 @@ class FieldController {
 class _FieldState extends State<Field> {
   late var obscure = widget.obscure;
   late final controller = widget.controller ?? FieldController();
+  var autoValidate = AutovalidateMode.disabled;
 
   @override
   Widget build(BuildContext context) {
@@ -372,8 +369,8 @@ class _FieldState extends State<Field> {
       final chars = widget.mask?.removeChars('A#') ?? '';
       if (!widget.keepMask) text = value.removeChars(chars);
 
-      //Assures the map keys to have only lowercases characters.
-      scope?.form[widget.tag.toLowerCase()] = text;
+      //Save current value on form.
+      scope?.form[widget.tag] = text;
 
       //Cleans map, if empty value.
       if (value.isEmpty) scope?.form.remove(widget.tag);
@@ -390,47 +387,21 @@ class _FieldState extends State<Field> {
       );
     }
 
-    Widget dropDownIcon() {
-      DropdownMenuItem<T> item<T>(T i) =>
-          DropdownMenuItem(value: i, child: Text(i.toString()));
-
-      return DropdownButtonHideUnderline(
-        child: DropdownButton<String>(
-          value: controller.text.isEmpty ? null : controller.text,
-          onChanged: (i) {
-            setState(() => onChanged(controller.text = i!));
-            controller.requestFocus();
-          },
-          onTap: () => Future.delayed(Duration.zero, controller.requestFocus),
-          items: widget.options!.map(item).toList(),
-          selectedItemBuilder: (_) =>
-              widget.options!.map((_) => const SizedBox.shrink()).toList(),
-          isDense: true,
-          borderRadius: BorderRadius.circular(8),
-          icon: const Padding(
-            padding: EdgeInsets.all(8),
-            child: Icon(Icons.arrow_drop_down),
-          ),
-        ),
-      );
-    }
-
     Widget? icon() {
       if (widget.obscure) return obscureIcon();
-      if (widget.options != null) return dropDownIcon();
       return null;
     }
 
     final field = TextFormField(
       focusNode: controller.focus,
-      readOnly: widget.options != null,
       controller: controller.edit,
+      autovalidateMode: autoValidate,
       inputFormatters: [MaskTextInputFormatter(mask: widget.mask)],
       keyboardType: widget.keyboardType,
       key: scope?.fields[widget.tag] = controller.key,
       obscureText: obscure,
       obscuringCharacter: '*',
-      onChanged: widget.options == null ? onChanged : null,
+      onChanged: onChanged,
       validator: (value) {
         var text = value;
 
@@ -440,6 +411,11 @@ class _FieldState extends State<Field> {
         //Callbacks to onChanged(value)
         final errorText = widget.validator?.call(text);
         if (errorText == null) return null;
+
+        //If there is an error, starts autovalidating.
+        if (autoValidate == AutovalidateMode.disabled) {
+          setState(() => autoValidate = AutovalidateMode.always);
+        }
 
         //Called only when there is an errorText.
         return scope?.onErrorText?.call(widget.tag, errorText) ?? errorText;
@@ -455,6 +431,7 @@ class _FieldState extends State<Field> {
           await scope?.onSubmit?.call(scope.form);
         }
         scope?.isLoading.value = false;
+
       },
       decoration: decoration.copyWith(suffixIcon: icon()),
     );
@@ -473,7 +450,7 @@ extension FormExt on FormState {
     return scope!;
   }
 
-  ///Gets a [FormMap] containing all values from all descendents [Field].
+  ///Gets a [FormController] containing [Field] data in one place.
   FormController get controller => _scope.controller;
 }
 

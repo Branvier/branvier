@@ -23,48 +23,51 @@ class Buttons extends HookWidget {
           // visualDensity: VisualDensity.adaptivePlatformDensity,
 
           ),
-      child: FormX(
+      child: FormX.tr(
         onSubmit: (form) async {
           await 3.seconds.delay;
         },
-        child: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Field('test'),
-              const ElevatedButtonX(
-                // hasFormX: true, // todo: looses bind on hot reload.
-                onPressed: fakeThrow,
-                onLongPress: fakeThrow,
-                // onHover: (isHovering) async => fun(),
-                // on: fun,
-                child: SizedBox.shrink(),
-                // error: Text.new,
+        child: ListView(
+          children: [
+            Field.required('test', validator: Validators.email),
+            Field.required('a'),
+            Field.required('b'),
+            Field.required('c'),
+            Field.required('d'),
+            Field.required('e'),
+            Field.required('f'),
+            const ElevatedButtonX(
+              // hasFormX: true, // todo: looses bind on hot reload.
+              onPressed: fakeThrow,
+              onLongPress: fakeThrow,
+              // onHover: (isHovering) async => fun(),
+              // on: fun,
+              child: SizedBox.shrink(),
+              // error: Text.new,
+            ),
+            const ColoredBox(
+              color: Colors.red,
+              child: SizedBox.square(
+                dimension: 60,
               ),
-              const ColoredBox(
-                color: Colors.red,
-                child: SizedBox.square(
-                  dimension: 60,
-                ),
-              ),
-              const OutlinedButtonX(
-                // hasFormX: true,
+            ),
+            const OutlinedButtonX(
+              // hasFormX: true,
 
-                onPressed: fakeThrow,
-                onLongPress: fakeThrow,
-                child: Text('Iran Neto'),
-                // error: (_) => Text('Falha ao logar, tente mais tarde'),
-              ),
-              TextButtonX(
-                // hasFormX: true,
-                controller: ctrl,
-                onPressed: fakeThrow,
-                onLongPress: fakeThrow,
-                child: const Text('Juan Alesson'),
-              ),
-              ElevatedButton(onPressed: ctrl.tap, child: const Text('tap'))
-            ],
-          ),
+              onPressed: fakeThrow,
+              onLongPress: fakeThrow,
+              child: Text('Iran Neto'),
+              // error: (_) => Text('Falha ao logar, tente mais tarde'),
+            ),
+            TextButtonX(
+              // hasFormX: true,
+              controller: ctrl,
+              onPressed: fakeThrow,
+              onLongPress: fakeThrow,
+              child: const Text('Juan Alesson'),
+            ),
+            ElevatedButton(onPressed: ctrl.tap, child: const Text('tap'))
+          ],
         ),
       ),
     );

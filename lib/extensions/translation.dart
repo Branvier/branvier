@@ -82,6 +82,9 @@ class Translation {
     Translation.instance.translations.addAll(translations);
   }
 
+  /// Force reload of the project json files. Useful for hot reload.
+  Future<void> reloadAll() => _loadAll();
+
   ///Translation loader. Loads all if [_lazyLoad] = false.
   Future<void> _loadAll() async {
     final translations = <String, StringMap>{};

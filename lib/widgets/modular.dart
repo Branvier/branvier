@@ -1,10 +1,10 @@
 part of '../branvier.dart';
 
-///Use [ReassembleMixin] when you need to recover navigation stack upon hot reload.
+///Use ReassembleMixin when you need to recover navigation stack upon hot reload.
 ///
 ///Ex: Useful for [RouterOutlet] that can't auto cache routes on reload.
 @Deprecated('Use State.reassemble instead')
-class ReassemblePath with ReassembleMixin {
+class ReassemblePath {
   late String path;
   late Completer completer;
   var count = 0;
@@ -24,7 +24,7 @@ class ReassemblePath with ReassembleMixin {
     if (isLast) completer.complete();
   }
 
-  @override
+  // @override
   void reassemble() async {
     count = 0;
     path = Modular.to.path; //current path
@@ -34,11 +34,6 @@ class ReassemblePath with ReassembleMixin {
     await completer.future;
     Modular.to.removeListener(_reassemblePath);
   }
-}
-
-@Deprecated('Use State.reassemble instead')
-mixin ReassembleMixin {
-  void reassemble();
 }
 
 ///Custom Transitions for Modular.

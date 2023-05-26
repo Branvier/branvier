@@ -6,25 +6,25 @@ extension WidgetToDeprecate on Widget {
       Opacity(opacity: value ?? false ? 0 : 1, child: this);
   @Deprecated('Use .withOpacity() instead.')
   Widget opacity([double value = 1.0]) => Opacity(opacity: value, child: this);
-  @Deprecated('Use .expanded() instead.')
+  @Deprecated('Use .withExpanded() instead.')
   Widget expand([int flex = 1]) => Expanded(flex: flex, child: this);
-  @Deprecated('Use .centered() instead')
+  @Deprecated('Use .withCenter() instead')
   Align toCenter() => Align(child: this);
-  @Deprecated('Use .withAligment.topLeft() instead')
+  @Deprecated('Use .withAligment() instead')
   Align toTopLeft() => Align(alignment: _Align.topLeft, child: this);
-  @Deprecated('Use .withAligment.topCenter() instead')
+  @Deprecated('Use .withAligment() instead')
   Align toTopCenter() => Align(alignment: _Align.topCenter, child: this);
-  @Deprecated('Use .withAligment.topRight() instead')
+  @Deprecated('Use .withAligment() instead')
   Align toTopRight() => Align(alignment: _Align.topRight, child: this);
-  @Deprecated('Use .withAligment.centerLeft() instead')
+  @Deprecated('Use .withAligment() instead')
   Align toCenterLeft() => Align(alignment: _Align.centerLeft, child: this);
-  @Deprecated('Use .withAligment.centerRight() instead')
+  @Deprecated('Use .withAligment() instead')
   Align toCenterRight() => Align(alignment: _Align.centerRight, child: this);
-  @Deprecated('Use .withAligment.bottomLeft() instead')
+  @Deprecated('Use .withAligment() instead')
   Align toBottomLeft() => Align(alignment: _Align.bottomLeft, child: this);
-  @Deprecated('Use .withAligment.bottomCenter() instead')
+  @Deprecated('Use .withAligment() instead')
   Align toBottomCenter() => Align(alignment: _Align.bottomCenter, child: this);
-  @Deprecated('Use .withAligment.bottomRight() instead')
+  @Deprecated('Use .withAligment() instead')
   Align toBottomRight() => Align(alignment: _Align.bottomRight, child: this);
   @Deprecated('Use .withPadding() instead')
   Padding pad({

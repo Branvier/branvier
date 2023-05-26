@@ -148,15 +148,17 @@ extension WidgetEffects on Widget {
       );
 
   /// Sizes this widget.
-  /// Where [height] and [width] overrides [size] respective values.
+  /// Where [height] and [width] overrides other values.
   Widget withSize({
     Size? size,
     double? height,
     double? width,
+    double? dimension,
+    double? radius,
   }) {
     return SizedBox(
-      height: height ?? size?.height,
-      width: width ?? size?.width,
+      height: height ?? size?.height ?? dimension ?? radius?.multiply(2),
+      width: width ?? size?.width ?? dimension ?? radius?.multiply(2),
       child: this,
     );
   }
@@ -181,13 +183,13 @@ extension WidgetEffects on Widget {
 }
 
 extension WidgetPositioning on Widget {
-  /// Returns null or [fallback] when [condition] is not met.
-  T? withCondition<T extends Widget>(bool? condition, {T? fallback}) {
-    return condition != null && condition == true ? (this as T) : fallback;
+  /// Returns null or [or] when [condition] is not met.
+  T? withCondition<T extends Widget>(bool? condition, {T? or}) {
+    return condition != null && condition == true ? (this as T) : or;
   }
 
   /// This child expanded in a [Row], [Column], or [Flex].
-  Widget withExpanded([int flex = 1]) => Expanded(flex: flex, child: this);
+  Expanded withExpanded([int flex = 1]) => Expanded(flex: flex, child: this);
 
   /// This child centered with [Center].
   Center withCenter({
@@ -202,23 +204,38 @@ extension WidgetPositioning on Widget {
 
   /// Scales this widget by [scale].
   ///
-  /// You can either use this caller, or withScale.only() for custom axis.
+  /// You can use [x] or [y] to overried [scale] in that axis.
   Transform withScale(
     double scale, {
+    double? x,
+    double? y,
     Offset? origin,
     Alignment? aligment = Alignment.center,
+    bool transformHitTests = true,
+    FilterQuality? filterQuality,
   }) =>
       Transform.scale(
-        scale: scale,
+        scaleX: x ?? scale,
+        scaleY: y ?? scale,
         origin: origin,
         alignment: aligment,
+        transformHitTests: transformHitTests,
+        filterQuality: filterQuality,
         child: this,
       );
 
   /// Moves this wiget with [Offset].
-  Widget withOffset({Offset? offset, double dx = 0, double dy = 0}) =>
+  Transform withOffset({
+    Offset? offset,
+    double dx = 0,
+    double dy = 0,
+    bool transformHitTests = true,
+    FilterQuality? filterQuality,
+  }) =>
       Transform.translate(
         offset: offset ?? Offset(dx, dy),
+        transformHitTests: transformHitTests,
+        filterQuality: filterQuality,
         child: this,
       );
 
@@ -243,22 +260,14 @@ extension WidgetPositioning on Widget {
   /// Aligns this widget.
   ///
   /// You can either use this caller or shortcuts:
-  /// - withAlignment.center(),
-  /// - withAlignment.topLeft(),
-  /// - withAlignment.topCenter(),
-  /// - withAlignment.topRight(),
-  /// - withAlignment.centerLeft(),
-  /// - withAlignment.centerRight(),
-  /// - withAlignment.bottomLeft(),
-  /// - withAlignment.bottomCenter(),
-  /// - withAlignment.bottomRight();
   Align withAlignment(
-    alignment, {
+    // ignore: avoid_types_as_parameter_names
+    Alignment, {
     double? widthFactor,
     double? heightFactor,
   }) {
     return Align(
-      alignment: alignment,
+      alignment: Alignment,
       widthFactor: widthFactor,
       heightFactor: heightFactor,
       child: this,
@@ -266,27 +275,9 @@ extension WidgetPositioning on Widget {
   }
 }
 
+
 // ignore: avoid_private_typedef_functions, camel_case_types
 typedef _Align = Alignment;
-
-extension AlignmentFunction on Align Function(
-  Alignment alignment, {
-  double? heightFactor,
-  double? widthFactor,
-}) {
-  Widget? get _child => this(Alignment.center).child;
-
-  @Deprecated('Use .withCenter() directly instead')
-  Align center() => Align(child: _child);
-  Align topLeft() => Align(alignment: _Align.topLeft, child: _child);
-  Align topCenter() => Align(alignment: _Align.topCenter, child: _child);
-  Align topRight() => Align(alignment: _Align.topRight, child: _child);
-  Align centerLeft() => Align(alignment: _Align.centerLeft, child: _child);
-  Align centerRight() => Align(alignment: _Align.centerRight, child: _child);
-  Align bottomLeft() => Align(alignment: _Align.bottomLeft, child: _child);
-  Align bottomCenter() => Align(alignment: _Align.bottomCenter, child: _child);
-  Align bottomRight() => Align(alignment: _Align.bottomRight, child: _child);
-}
 
 extension WidgetListX on Iterable<Widget> {
   @Deprecated('Use .withPaddingAll')
@@ -341,30 +332,6 @@ extension WidgetListX on Iterable<Widget> {
   @Deprecated('Use withExpandedAll() instead')
   List<Widget> expandAll() => map((e) => e.withExpanded()).toList();
 }
-
-extension TransformFunction on Transform Function(
-  double, {
-  Alignment? aligment,
-  Offset? origin,
-}) {
-  Widget? get _child => this(0).child;
-
-  /// Scales this widget [x]/[y] axis.
-  Transform only({
-    double? x,
-    double? y,
-    Offset? origin,
-    Alignment? aligment = Alignment.center,
-  }) =>
-      Transform.scale(
-        scaleX: x,
-        scaleY: y,
-        origin: origin,
-        alignment: aligment,
-        child: _child,
-      );
-}
-
 extension IterableWidgetX<T extends Object> on Iterable<T> {
   ///Maps to List of [Widget].
   List<Widget> builder(Widget toWidget(T item, int i)) {

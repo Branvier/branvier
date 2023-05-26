@@ -46,22 +46,27 @@ extension JsonString on String {
   T parse<T>() {
     final parsed = const JsonDecoder().convert(this);
 
-    if (T == Strings) return Strings.from(parsed) as T;
-    if (T == Nums) return Nums.from(parsed) as T;
-    if (T == Ints) return Nums.from(parsed).toInt() as T;
-    if (T == Doubles) return Nums.from(parsed).toDouble() as T;
-    if (T == Bools) return Bools.from(parsed) as T;
-    if (T == Lists) return Lists.from(parsed) as T;
-    if (T == Maps) return Maps.from(parsed) as T;
+    try {
+      if (T == Strings) return Strings.from(parsed) as T;
+      if (T == Nums) return Nums.from(parsed) as T;
+      if (T == Ints) return Nums.from(parsed).toInt() as T;
+      if (T == Doubles) return Nums.from(parsed).toDouble() as T;
+      if (T == Bools) return Bools.from(parsed) as T;
+      if (T == Lists) return Lists.from(parsed) as T;
+      if (T == Maps) return Maps.from(parsed) as T;
+      if (T == Map) return Map.from(parsed) as T;
 
-    if (T == StringMap) return StringMap.from(parsed) as T;
-    if (T == NumMap) return NumMap.from(parsed) as T;
-    if (T == IntMap) return NumMap.from(parsed).toInt() as T;
-    if (T == DoubleMap) return NumMap.from(parsed).toDouble() as T;
-    if (T == BoolMap) return BoolMap.from(parsed) as T;
-    if (T == JsonMap) return JsonMap.from(parsed) as T;
-    if (T == ListMap) return ListMap.from(parsed) as T;
-
+      if (T == StringMap) return StringMap.from(parsed) as T;
+      if (T == NumMap) return NumMap.from(parsed) as T;
+      if (T == IntMap) return NumMap.from(parsed).toInt() as T;
+      if (T == DoubleMap) return NumMap.from(parsed).toDouble() as T;
+      if (T == BoolMap) return BoolMap.from(parsed) as T;
+      if (T == JsonMap) return JsonMap.from(parsed) as T;
+      if (T == ListMap) return ListMap.from(parsed) as T;
+      if (T == List) return List.from(parsed) as T;
+    } catch (e) {
+      throw ArgumentError.value(parsed, T.toString());
+    }
     //For complex objects or [T] absent, dynamic cast.
     return parsed as T;
   }

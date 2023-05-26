@@ -54,7 +54,6 @@ extension JsonString on String {
       if (T == Bools) return Bools.from(parsed) as T;
       if (T == Lists) return Lists.from(parsed) as T;
       if (T == Maps) return Maps.from(parsed) as T;
-      if (T == Map) return Map.from(parsed) as T;
 
       if (T == StringMap) return StringMap.from(parsed) as T;
       if (T == NumMap) return NumMap.from(parsed) as T;
@@ -63,7 +62,7 @@ extension JsonString on String {
       if (T == BoolMap) return BoolMap.from(parsed) as T;
       if (T == JsonMap) return JsonMap.from(parsed) as T;
       if (T == ListMap) return ListMap.from(parsed) as T;
-      if (T == List) return List.from(parsed) as T;
+
     } catch (e) {
       throw ArgumentError.value(parsed, T.toString());
     }

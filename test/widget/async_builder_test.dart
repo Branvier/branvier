@@ -48,29 +48,28 @@ void main() {
       ///Emptying the data.
       response = '';
       controller.reload();
+      await tester.pump();
 
       ///Updating data.
-      await tester.pump();
+      await tester.pump(0.5.seconds);
       expect(find.byType(LinearProgressIndicator), findsOneWidget);
 
-      await tester.pump(0.5.seconds);
-
       ///Data updated and empty.
-      // await tester.pump(1.seconds);
-      // expect(find.byType(Text), findsOneWidget);
-      // expect(find.text('-'), findsOneWidget);
+      await tester.pump(0.5.seconds);
+      expect(find.byType(Text), findsOneWidget);
+      expect(find.text(''), findsOneWidget);
 
-      // ///Added error.
-      // response = 'error';
-      // controller.reload();
+      ///Added error.
+      response = 'error';
+      controller.reload();
+      await tester.pump();
 
-      // //With throw, changes to updating for 1 frame.
-      // await tester.pump();
-      // expect(find.byType(LinearProgressIndicator), findsOneWidget);
+      //Shows Linear for 1 frame, just to compute the throw.
+      expect(find.byType(LinearProgressIndicator), findsOneWidget);
+      await tester.pump();
 
-      // //Show error in next frame, AsyncBuilder sends initial data.
-      // await tester.pump();
-      // expect(find.text('initial is here'), findsOneWidget);
+      //Show error in next frame, AsyncBuilder sends initial data.
+      expect(find.text('Exception: error'), findsOneWidget);
     },
   );
 }

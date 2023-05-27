@@ -40,6 +40,9 @@ extension IApiExt on IApi {
   set token(String? token) => token == null
       ? headers.remove('authorization')
       : headers['authorization'] = token;
+
+  ///Wheter this api has an authorization header.
+  bool get isAuthenticated => token != null;
 }
 
 ///Simple http client Mocker using mocktail.

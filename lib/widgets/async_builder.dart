@@ -1,19 +1,21 @@
 part of '/branvier.dart';
 
 class AsyncController<T> {
-  AsyncController({this.interval});
+  AsyncController({
+    this.interval,
+    this.onReassemble,
+    this.onAppLifecycleStateChange,
+    this.onAsyncState,
+  });
 
   final Duration? interval;
-  VoidCallback? _resync;
-  void Function(AsyncSnap<T> state)? onState;
+  final VoidCallback? onReassemble;
+  final LifecycleCallback? onAppLifecycleStateChange;
+  final void Function(AsyncSnap<T> state)? onAsyncState;
 
   ///Calls the async callback again. Rebuilds AsyncBuilder.
   void reload() => _resync?.call();
-
-  // ignore: use_setters_to_change_properties
-  void listen(AsyncListener<T> onState) {
-    this.onState = onState;
-  }
+  VoidCallback? _resync;
 }
 
 typedef AsyncListener<T> = void Function(AsyncSnap<T> state);
@@ -110,6 +112,13 @@ class AsyncBuilder<T> extends HookWidget {
   Widget build(BuildContext context) {
     late final AsyncSnap<T> snap;
 
+    if (controller?.onAppLifecycleStateChange != null) {
+      useOnAppLifecycleStateChange(controller!.onAppLifecycleStateChange);
+    }
+    if (controller?.onReassemble != null) {
+      useReassemble(controller!.onReassemble!);
+    }
+
     if (_future != null) {
       snap = useAsyncFuture(_future!, initialData: initialData);
     } else {
@@ -120,10 +129,12 @@ class AsyncBuilder<T> extends HookWidget {
     useInterval(snap.retry, controller?.interval);
 
     //Called once. Attaches on build. Closes on widget dispose.
-    useInit(() => controller?._resync = snap.retry);
+    useInit(() {
+      controller?._resync = snap.retry;
+    });
 
     //Called on every build. Keeps controller synced to the widget.
-    controller?.onState?.call(snap);
+    controller?.onAsyncState?.call(snap);
 
     //On error.
     Widget error(String e) =>

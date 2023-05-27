@@ -83,13 +83,13 @@ AsyncSnap<T> useAsyncStream<T>(
 
 ///If [delay] != null, calls the callback in each [delay] interval.
 void useInterval(void Function() callback, Duration? delay) {
-  Timer? timer;
+  final timer = useRef<Timer?>(null);
 
   useEffect(
     () {
-      if (delay == null) return timer?.cancel;
-      timer = Timer.periodic(delay, (_) => callback());
-      return timer?.cancel;
+      if (delay == null) return timer.value?.cancel;
+      timer.value = Timer.periodic(delay, (_) => callback());
+      return timer.value?.cancel;
     },
     [delay],
   );

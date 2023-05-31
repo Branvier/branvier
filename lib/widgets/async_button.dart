@@ -1,7 +1,11 @@
+// ignore_for_file: use_setters_to_change_properties
+
 part of '../branvier.dart';
 
 void main() {
   // timeDilation = 4;
+  LeButton.setConfig(ButtonConfig(
+      delegate: LeButtonCollapsable(), onLoading: CircularProgressIndicator()));
   runApp(MaterialApp(home: Scaffold(body: Buttons())));
 }
 
@@ -18,6 +22,13 @@ class Buttons extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
+    return Center(
+      child: LeFilledButton(
+          onPressed: () async {
+            await 3.seconds.delay;
+          },
+          child: Text('lets go00000')),
+    );
     return Theme(
       data: ThemeData(
           // visualDensity: VisualDensity.adaptivePlatformDensity,
@@ -59,11 +70,10 @@ class Buttons extends HookWidget {
               child: Text('Iran Neto'),
               // error: (_) => Text('Falha ao logar, tente mais tarde'),
             ),
-            TextButtonX(
-              // hasFormX: true,
-              controller: ctrl,
-              onPressed: fakeThrow,
-              onLongPress: fakeThrow,
+            LeButton(
+              onPressed: () async {
+                await 3.seconds.delay;
+              },
               child: const Text('Juan Alesson'),
             ),
             ElevatedButton(onPressed: ctrl.tap, child: const Text('tap'))
@@ -605,90 +615,371 @@ class SizeTransform extends StatelessWidget {
   }
 }
 
-// abstract class ButtonX extends ButtonStyleButton {
-//   const ButtonX({
-//     //Extended.
-//     this.controller,
-//     this.hasFormx = false,
-//     this.error = Text.new,
-//     this.errorLength = 30,
-//     this.loader = const CircularProgressIndicator(color: Colors.white),
+class LeElevatedButton extends LeButton<ElevatedButton> {
+  static ButtonConfig? _config;
 
-//     //ElevatedButton.
-//     super.key,
-//     required super.onPressed,
-//     super.onLongPress,
-//     super.onHover,
-//     super.onFocusChange,
-//     super.style,
-//     super.focusNode,
-//     super.autofocus = false,
-//     super.clipBehavior = Clip.none,
-//     super.statesController,
-//     required super.child,
-//   });
+  /// The default [ButtonConfig] for [LeElevatedButton].
+  static void setConfig(ButtonConfig config) => _config = config;
 
-//   ///Controls this button programatically. -> controller.tap().
-//   final ButtonController? controller;
+  const LeElevatedButton({
+    super.config, // * <- le config
+    super.key,
+    required super.onPressed,
+    super.onLongPress,
+    super.onHover,
+    super.onFocusChange,
+    super.style,
+    super.focusNode,
+    super.autofocus = false,
+    super.clipBehavior = Clip.none,
+    super.statesController,
+    required super.child,
+  });
+}
 
-//   ///In the presence of a [FormX] above, animates loading.
-//   final bool hasFormx;
+class LeOutlinedButton extends LeButton<OutlinedButton> {
+  static ButtonConfig? _config;
 
-//   ///The widget to show on loading.
-//   final Widget loader;
+  /// The default [ButtonConfig] for [LeOutlinedButton].
+  static void setConfig(ButtonConfig config) => _config = config;
 
-//   ///The widget with error as string.
-//   final Widget Function(String e) error;
+  const LeOutlinedButton({
+    //Extended.
+    super.config, // * <- le config
+    super.key,
+    required super.onPressed,
+    super.onLongPress,
+    super.onHover,
+    super.onFocusChange,
+    super.style,
+    super.focusNode,
+    super.autofocus = false,
+    super.clipBehavior = Clip.none,
+    super.statesController,
+    required super.child,
+  });
+}
 
-//   ///The length limit of characters allowed in this error.
-//   final int errorLength;
+class LeTextButton extends LeButton<TextButton> {
+  static ButtonConfig? _config;
 
-//   @override
-//   State<ButtonX> createState() => ButtonXState();
-// }
+  /// The default [ButtonConfig] for [LeTextButton].
+  static void setConfig(ButtonConfig config) => _config = config;
 
-// class ButtonXState extends State<ButtonX> {
-//   @override
-//   Widget build(BuildContext context) {
-//     final ctrl = useFinal(widget.controller ?? ButtonController());
-//     ctrl._isLoading = useState(false);
-//     ctrl._hasError = useState(false);
-//     ctrl._press = widget.onPressed;
-//     ctrl._longPress = widget.onLongPress;
-//     ctrl._hover = widget.onHover;
+  const LeTextButton({
+    super.config, // * <- le config
+    super.key,
+    required super.onPressed,
+    super.onLongPress,
+    super.onHover,
+    super.onFocusChange,
+    super.style,
+    super.focusNode,
+    super.autofocus = false,
+    super.clipBehavior = Clip.none,
+    super.statesController,
+    required super.child,
+  });
+}
 
-//     useFormxLoading(widget.hasFormx, (value) => ctrl._isLoading?.value = value);
+class LeFilledButton extends LeButton<FilledButton> {
+  static ButtonConfig? _config;
 
-//     final animationStyle = ElevatedButton.styleFrom(
-//       minimumSize: Size.zero,
-//       padding: EdgeInsets.zero,
-//       backgroundColor: ctrl.hasError ? context.colors.error : null,
-//     );
+  /// The default [ButtonConfig] for [LeFilledButton].
+  static void setConfig(ButtonConfig config) => _config = config;
 
-//     return ElevatedButton(
-//       key: widget.key,
-//       onPressed: (widget.onPressed != null && ctrl.isEnabled) ? ctrl.tap : null,
-//       onLongPress:
-//           (widget.onLongPress != null && ctrl.isEnabled) ? ctrl.hold : null,
-//       onHover: ctrl.hover,
-//       autofocus: widget.autofocus,
-//       clipBehavior: widget.clipBehavior,
-//       focusNode: widget.focusNode,
-//       onFocusChange: widget.onFocusChange,
-//       statesController: widget.statesController,
+  const LeFilledButton({
+    super.config, // * <- le config
+    super.key,
+    required super.onPressed,
+    super.onLongPress,
+    super.onHover,
+    super.onFocusChange,
+    super.style,
+    super.focusNode,
+    super.autofocus = false,
+    super.clipBehavior = Clip.none,
+    super.statesController,
+    required super.child,
+  });
+}
 
-//       //inherited style
-//       style: animationStyle.merge(widget.style),
+class LeButton<T extends ButtonStyleButton> extends ButtonStyleButton {
+  static var _config = const ButtonConfig();
 
-//       //load animation
-//       child: _ButtonAnimations(
-//         loader: widget.loader,
-//         style: widget.style ?? context.theme.elevatedButtonTheme.style,
-//         ctrl: ctrl,
-//         error: widget.error,
-//         errorLength: widget.errorLength,
-//         child: widget.child!,
-//       ),
-//     );
-//   }
-// }
+  /// The default [ButtonConfig] of all LeButtons.
+  static void setConfig(ButtonConfig config) => _config = config;
+
+  const LeButton({
+    //Extended.
+    this.config,
+
+    //LeButton.
+    super.key,
+    required super.onPressed,
+    super.onLongPress,
+    super.onHover,
+    super.onFocusChange,
+    super.style,
+    super.focusNode,
+    super.autofocus = false,
+    super.clipBehavior = Clip.none,
+    super.statesController,
+    required super.child,
+  });
+
+  /// Le configs of [LeButton]
+  final ButtonConfig? config;
+
+  @override
+  State<LeButton<T>> createState() => LeButtonState<T>();
+
+  @override
+  ButtonStyle defaultStyleOf(BuildContext context) {
+    if (this is LeButton<OutlinedButton>) return OutlinedButton.styleFrom();
+    if (this is LeButton<FilledButton>) return FilledButton.styleFrom();
+    if (this is LeButton<TextButton>) return TextButton.styleFrom();
+    return ElevatedButton.styleFrom();
+  }
+
+  @override
+  ButtonStyle? themeStyleOf(BuildContext context) {
+    if (this is LeButton<OutlinedButton>) {
+      return OutlinedButtonTheme.of(context).style;
+    }
+    if (this is LeButton<FilledButton>) {
+      return FilledButtonTheme.of(context).style;
+    }
+    if (this is LeButton<TextButton>) return TextButtonTheme.of(context).style;
+    return ElevatedButtonTheme.of(context).style;
+  }
+}
+
+class LeButtonState<T extends ButtonStyleButton> extends State<LeButton<T>> {
+  //Config by type.
+  ButtonConfig? get typeConfig {
+    if (this is LeButtonState<OutlinedButton>) return LeOutlinedButton._config;
+    if (this is LeButtonState<FilledButton>) return LeFilledButton._config;
+    if (this is LeButtonState<TextButton>) return LeTextButton._config;
+    return LeElevatedButton._config;
+  }
+
+  //Config.
+  ButtonConfig get config => widget.config ?? typeConfig ?? LeButton._config;
+
+  //Async casting.
+  FutureOr<void> Function()? get onPressed => widget.onPressed;
+  FutureOr<void> Function()? get onLongPress => widget.onLongPress;
+
+  //Async states.
+  bool _isLoading = false;
+  bool _isOnError = false;
+
+  //Async refs.
+  Object? _error;
+  StackTrace? _stackTrace;
+
+  //Getters.
+  bool get isLoading => _isLoading;
+  bool get isOnError => _isOnError;
+  bool get isAnimating => isOnError || isLoading;
+
+  Object? get error => _error;
+  StackTrace? get stackTrace => _stackTrace;
+
+  /// Performs custom [action] and trigger animations.
+  FutureOr<void> setAction(FutureOr<void> action()) async {
+    if (_isLoading || _isOnError) return null;
+    _error = null;
+    _stackTrace = null;
+
+    try {
+      setState(() => _isLoading = true);
+      await action(); // * <- action callback
+    } catch (e, s) {
+      setState(() => _isOnError = true);
+      _stackTrace = s;
+      _error = e;
+    } finally {
+      setState(() => _isLoading = false);
+      await Future.delayed(config.errorDuration);
+      setState(() => _isOnError = false);
+    }
+  }
+
+  /// Performs [onPressed] and trigger animations.
+  FutureOr<void> press() {
+    if (onPressed != null) return setAction(() => onPressed!());
+  }
+
+  /// Performs [onLongPress] and trigger animations.
+  FutureOr<void> longPress() {
+    if (onLongPress != null) return setAction(() => onLongPress!());
+  }
+
+  /// We wait first build size before any animation.
+  bool get isFirstBuild => _size == null;
+
+  /// The child of this button.
+  Widget get child => widget.child!;
+
+  /// This button [Size] when not animating.
+  Size get size => _size!;
+  Size? _size;
+
+  @override
+  Widget build(BuildContext context) {
+    /// Gettings widget first size.
+    if (isFirstBuild) {
+      WidgetsBinding.instance
+          .addPostFrameCallback((_) => _size ??= context.size);
+    }
+
+    // Widget styles.
+    final themeStyle = widget.themeStyleOf(context);
+    final style = config.delegate?.style?.merge(themeStyle) ?? themeStyle;
+    final errorStyle = config.delegate?.errorStyle?.merge(style) ?? style;
+    final loadingStyle = config.delegate?.loadingStyle?.merge(style) ?? style;
+
+    // Defining the constructor.
+    return () {
+      if (this is LeButtonState<OutlinedButton>) return OutlinedButton.new;
+      if (this is LeButtonState<FilledButton>) return FilledButton.new;
+      if (this is LeButtonState<TextButton>) return TextButton.new;
+      return ElevatedButton.new;
+    }()(
+      style: () {
+        if (isOnError && errorStyle != null) return errorStyle;
+        if (isLoading && loadingStyle != null) return loadingStyle;
+        return style;
+      }(),
+      child: () {
+        if (isFirstBuild) return child;
+        return config.delegate?.build(this) ?? child;
+      }(),
+      onLongPress: onLongPress != null ? longPress : null,
+      onPressed: onPressed != null ? press : null,
+      statesController: widget.statesController,
+      onFocusChange: widget.onFocusChange,
+      clipBehavior: widget.clipBehavior,
+      focusNode: widget.focusNode,
+      autofocus: widget.autofocus,
+      onHover: widget.onHover,
+      key: widget.key,
+    );
+  }
+}
+
+class ButtonConfig {
+  const ButtonConfig({
+    this.delegate,
+    this.animationDuration = const Duration(milliseconds: 600),
+    this.onLoading = const CircularProgressIndicator.adaptive(),
+    this.onError = Text.new,
+    this.errorLength = 30,
+    this.errorDuration = const Duration(seconds: 5),
+  });
+
+  final LeButtonRawDelegate? delegate;
+
+  ///The widget to show on loading.
+  final Widget onLoading;
+
+  ///The widget with error as string.
+  final Widget Function(String errorText) onError;
+
+  ///The length limit of characters allowed in this error.
+  final int errorLength;
+
+  final Duration animationDuration;
+  final Duration errorDuration;
+}
+
+class LeButtonCollapsable extends LeButtonAnimatedDelegate {
+  String errorMessage(LeButtonState state) {
+    final message = state.error.toString();
+    if (message.length <= state.config.errorLength) return message;
+    return '${message.substring(0, state.config.errorLength)}...';
+  }
+
+  @override
+  Widget onError(LeButtonState<ButtonStyleButton> state) {
+    return AnimatedOpacity(
+      duration: state.config.animationDuration,
+      opacity: state.isOnError ? 1 : 0,
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: state.config.onError(errorMessage(state)),
+      ),
+    );
+  }
+
+  @override
+  Widget onLoading(LeButtonState<ButtonStyleButton> state) {
+    return SizeTransform(
+      size: state.size.height,
+      child: state.config.onLoading,
+    );
+  }
+
+  @override
+  Widget onChild(LeButtonState<ButtonStyleButton> state) {
+    return AnimatedOpacity(
+      duration: state.config.animationDuration,
+      opacity: state.isAnimating ? 0 : 1,
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: state.child,
+      ),
+    );
+  }
+}
+
+abstract class LeButtonRawDelegate {
+  LeButtonRawDelegate({this.style, this.errorStyle, this.loadingStyle});
+
+  /// This button style. It's merged with theme and applied to all states.
+  final ButtonStyle? style;
+
+  /// Overrides button style while on error.
+  final ButtonStyle? errorStyle;
+
+  /// Overrides button style while loading.
+  final ButtonStyle? loadingStyle;
+
+  /// Builds the Button child widget.
+  Widget build(LeButtonState state);
+}
+
+abstract class LeButtonAnimatedDelegate extends LeButtonRawDelegate {
+  @override
+  ButtonStyle? get style => const ButtonStyle(
+      padding: MaterialStatePropertyAll(EdgeInsets.zero),
+      backgroundColor: MaterialStatePropertyAll(Colors.purple));
+
+  @override
+  ButtonStyle? get errorStyle => const ButtonStyle(
+        backgroundColor: MaterialStatePropertyAll(Colors.redAccent),
+      );
+
+  /// The widget to animate size on error.
+  Widget onError(LeButtonState state);
+
+  /// The widget to animate size on loading.
+  Widget onLoading(LeButtonState state);
+
+  /// The child widget of this button.
+  Widget onChild(LeButtonState state);
+
+  @override
+  Widget build(LeButtonState state) {
+    return AnimatedSize(
+      duration: state.config.animationDuration,
+      child: () {
+        if (state.isOnError) return onError(state);
+        if (state.isLoading) return onLoading(state);
+        return state.child;
+      }(),
+    );
+  }
+}

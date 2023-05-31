@@ -486,47 +486,22 @@ class MyModule extends Module {
 
 > To know more about Flutter Modular: [Getting Started](https://github.com/branvier-dev/branvier_template.git)
 
-## Navigation
+## ModuleBuilder
 
 ---
-Modular navigation uses the same POSIX standards used in command lines.
-
-- `/path`: declares a Module.
-- `/path/`: declares a Route. <- *Use this when navigating*
-
-You must always declare and navigate using `/` at the end.
-
-- `/path/`: just `/path/`.
-- `path/`: current path + `path/`.
-- `./path/`: previous path + `path/`.
-- `../path/`: antepenult path + `path/`.
-
-Exemples if you are in the route `home/books/book/`:
-
-- `navigate('/home/')`: -> `/home/`.
-- `navigate('details/')`: -> `/home/books/book/details/`.
-- `navigate('./author/')`: -> `/home/books/author/`.
-- `navigate('../songs/')`: -> `/home/songs/`. *obs
-- `navigate('.../settings/')`: -> `/settings/`. Same as `/settings/` *obs
-
-*Obs: Using two `.` or more is **NOT** recommended. Using one `.` is good because you are just moving to a page within the **SAME** Module. Also using deeply nested Modules adds too much complexity, prefer parallel routes.
-
-### Recommended approach
-
-Keep the routes together in one file using **raw** paths only.
+In case you need to use [AsyncBind]. You'll have to wait your module to be ready.
+You can use `Modular.isModuleReady()` or use the [ModuleBuilder] widget, that automatically waits for it
+and adds a custom loader while loading.
 
 ```dart
-mixin Routes {
-  // * User Module
-  static const home = '/home/';
-  static const books = '/home/books';
-  static String book(String id) => '/home/books/$id/';
-
-  // * Auth Module
-  static const login = '/auth/login/';
-  static const register = '/auth/register/';
-}
-    
+    //just type the Module you want to wait to be ready.
+    ModuleBuilder<AppModule>( //or any other module
+      builder: (context {
+        return MaterialApp.router( //or any other widget
+           {...}
+        );
+      },
+    );
 ```
 
 ## Page

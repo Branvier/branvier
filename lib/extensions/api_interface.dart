@@ -13,6 +13,9 @@ part of '/branvier.dart';
 ///
 /// static final _instance = MyApi._();
 abstract class IApi {
+  IApi(this._box);
+  final IBox _box;
+
   ///Headers to attach to the request. Usually String or List<String>.
   Map<String, dynamic> get headers;
 
@@ -34,12 +37,15 @@ abstract class IApi {
 
 extension IApiExt on IApi {
   ///The current [token].
-  String? get token => headers['authorization'] as String?;
+  String? get token => token = _box.read('token');
 
   ///Sets the current [token]. If null, removes.
-  set token(String? token) => token == null
-      ? headers.remove('authorization')
-      : headers['authorization'] = token;
+  set token(String? token) {
+    token == null
+        ? headers.remove('authorization')
+        : headers['authorization'] = token;
+    _box.write('token', token);
+  }
 
   ///Wheter this api has an authorization header.
   bool get isAuthenticated => token != null;

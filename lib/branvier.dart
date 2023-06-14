@@ -24,9 +24,6 @@ import 'package:mocktail/mocktail.dart';
 import 'widgets/list_builder/list_builder.dart';
 import 'widgets/types/widget_types.dart';
 
-export 'package:dartx/dartx.dart';
-export 'package:flutter_animate/flutter_animate.dart';
-
 part 'extensions/api_interface.dart';
 part 'extensions/box_interface.dart';
 part 'extensions/context.dart';

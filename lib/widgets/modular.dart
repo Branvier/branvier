@@ -68,10 +68,10 @@ class NavigationListenerX extends StatefulWidget {
   /// Same as [NavigationListener] but gives the [BuildContext] of any [Navigator] below it.
   /// Additionally waits for navigation frame complete when listening.
   const NavigationListenerX({
-    Key? key,
+    super.key,
     required this.builder,
     this.child,
-  }) : super(key: key);
+  });
   final Widget Function(BuildContext context, Widget? child) builder;
   final Widget? child;
 

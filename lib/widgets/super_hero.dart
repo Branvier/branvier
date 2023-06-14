@@ -23,6 +23,7 @@ class TestWidget extends StatelessWidget {
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
+                            
                             Text(itemIndex.toString()),
                             Text(flying ? 'Im flying' : 'On ground'),
                           ],

@@ -4,8 +4,12 @@ part of '../branvier.dart';
 
 void main() {
   // timeDilation = 4;
-  LeButton.setConfig(ButtonConfig(
-      delegate: LeButtonCollapsable(), onLoading: CircularProgressIndicator()));
+  RxButton.setConfig(
+    ButtonConfig(
+      delegate: LeButtonType.transforming,
+      onLoading: const CircularProgressIndicator(),
+    ),
+  );
   runApp(MaterialApp(home: Scaffold(body: Buttons())));
 }
 
@@ -17,17 +21,59 @@ Future<void> fakeThrow() async {
 }
 
 class Buttons extends HookWidget {
-  Buttons({Key? key}) : super(key: key);
+  Buttons({super.key});
   final ctrl = ButtonController();
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: LeFilledButton(
-          onPressed: () async {
+    return Transform.scale(
+      scale: 3,
+      child: Center(
+        child: FormX.tr(
+          onSubmit: (form) async {
+            // throw 'yooooooooooooooo';
             await 3.seconds.delay;
           },
-          child: Text('lets go00000')),
+          child: Builder(
+            builder: (context) {
+              return Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Field('name'),
+                  RxElevatedButton(
+                    onPressed: () async {
+                      await 1.seconds.delay;
+                      throw 'This is a error';
+                    },
+                    child: const Text('Click me'),
+                  ),
+                  RxOutlinedButton(
+                    onPressed: () async {
+                      await 1.seconds.delay;
+                      throw 'This is a really long error';
+                    },
+                    child: const Text('Click me'),
+                  ),
+                  RxTextButton(
+                    onPressed: () async {
+                      await 1.seconds.delay;
+                      throw 'This error is more than huge, its';
+                    },
+                    child: const Text('Click me'),
+                  ),
+                  RxFilledButton(
+                    onPressed: () async {
+                      await 1.seconds.delay;
+                      throw 'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA';
+                    },
+                    child: const Text('Click me'),
+                  ),
+                ],
+              );
+            },
+          ),
+        ),
+      ),
     );
     return Theme(
       data: ThemeData(
@@ -69,12 +115,6 @@ class Buttons extends HookWidget {
               onLongPress: fakeThrow,
               child: Text('Iran Neto'),
               // error: (_) => Text('Falha ao logar, tente mais tarde'),
-            ),
-            LeButton(
-              onPressed: () async {
-                await 3.seconds.delay;
-              },
-              child: const Text('Juan Alesson'),
             ),
             ElevatedButton(onPressed: ctrl.tap, child: const Text('tap'))
           ],
@@ -182,7 +222,7 @@ class ElevatedButtonX extends HookWidget {
     this.loader = const CircularProgressIndicator(color: Colors.white),
 
     //ElevatedButton.
-    Key? key,
+    super.key,
     required this.onPressed,
     this.onLongPress,
     this.onHover,
@@ -193,7 +233,7 @@ class ElevatedButtonX extends HookWidget {
     this.clipBehavior = Clip.none,
     this.statesController,
     required this.child,
-  }) : super(key: key);
+  });
 
   //Same as [ElevatedButton].
   final FutureOr<void> Function()? onPressed;
@@ -278,7 +318,7 @@ class OutlinedButtonX extends HookWidget {
     this.loader = const CircularProgressIndicator(),
 
     //ElevatedButton.
-    Key? key,
+    super.key,
     required this.onPressed,
     this.onLongPress,
     this.onHover,
@@ -289,7 +329,7 @@ class OutlinedButtonX extends HookWidget {
     this.clipBehavior = Clip.none,
     this.statesController,
     required this.child,
-  }) : super(key: key);
+  });
 
   //Same as [ElevatedButton].
   final FutureOr<void> Function()? onPressed;
@@ -385,7 +425,7 @@ class TextButtonX extends HookWidget {
     this.loader = const CircularProgressIndicator(),
 
     //ElevatedButton.
-    Key? key,
+    super.key,
     required this.onPressed,
     this.onLongPress,
     this.onHover,
@@ -396,7 +436,7 @@ class TextButtonX extends HookWidget {
     this.clipBehavior = Clip.none,
     this.statesController,
     required this.child,
-  }) : super(key: key);
+  });
 
   //Same as [ElevatedButton].
   final FutureOr<void> Function()? onPressed;
@@ -573,8 +613,8 @@ class SmallIndicator extends StatelessWidget {
     this.size = 24.0,
     this.scale = 0.5,
     this.color,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
   final double size;
   final double scale;
   final Color? color;
@@ -597,8 +637,8 @@ class SizeTransform extends StatelessWidget {
     this.size = 24.0,
     this.scale = 0.5,
     required this.child,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
   final double size;
   final double scale;
   final Widget child;
@@ -615,14 +655,15 @@ class SizeTransform extends StatelessWidget {
   }
 }
 
-class LeElevatedButton extends LeButton<ElevatedButton> {
+class RxElevatedButton extends RxButton<ElevatedButton> {
   static ButtonConfig? _config;
 
-  /// The default [ButtonConfig] for [LeElevatedButton].
+  /// The default [ButtonConfig] for [RxElevatedButton].
   static void setConfig(ButtonConfig config) => _config = config;
 
-  const LeElevatedButton({
+  const RxElevatedButton({
     super.config, // * <- le config
+    super.listenables,
     super.key,
     required super.onPressed,
     super.onLongPress,
@@ -637,15 +678,16 @@ class LeElevatedButton extends LeButton<ElevatedButton> {
   });
 }
 
-class LeOutlinedButton extends LeButton<OutlinedButton> {
+class RxOutlinedButton extends RxButton<OutlinedButton> {
   static ButtonConfig? _config;
 
-  /// The default [ButtonConfig] for [LeOutlinedButton].
+  /// The default [ButtonConfig] for [RxOutlinedButton].
   static void setConfig(ButtonConfig config) => _config = config;
 
-  const LeOutlinedButton({
+  const RxOutlinedButton({
     //Extended.
     super.config, // * <- le config
+    super.listenables,
     super.key,
     required super.onPressed,
     super.onLongPress,
@@ -660,14 +702,15 @@ class LeOutlinedButton extends LeButton<OutlinedButton> {
   });
 }
 
-class LeTextButton extends LeButton<TextButton> {
+class RxTextButton extends RxButton<TextButton> {
   static ButtonConfig? _config;
 
-  /// The default [ButtonConfig] for [LeTextButton].
+  /// The default [ButtonConfig] for [RxTextButton].
   static void setConfig(ButtonConfig config) => _config = config;
 
-  const LeTextButton({
+  const RxTextButton({
     super.config, // * <- le config
+    super.listenables,
     super.key,
     required super.onPressed,
     super.onLongPress,
@@ -682,14 +725,15 @@ class LeTextButton extends LeButton<TextButton> {
   });
 }
 
-class LeFilledButton extends LeButton<FilledButton> {
+class RxFilledButton extends RxButton<FilledButton> {
   static ButtonConfig? _config;
 
-  /// The default [ButtonConfig] for [LeFilledButton].
+  /// The default [ButtonConfig] for [RxFilledButton].
   static void setConfig(ButtonConfig config) => _config = config;
 
-  const LeFilledButton({
+  const RxFilledButton({
     super.config, // * <- le config
+    super.listenables,
     super.key,
     required super.onPressed,
     super.onLongPress,
@@ -704,17 +748,18 @@ class LeFilledButton extends LeButton<FilledButton> {
   });
 }
 
-class LeButton<T extends ButtonStyleButton> extends ButtonStyleButton {
+abstract class RxButton<T extends ButtonStyleButton> extends ButtonStyleButton {
   static var _config = const ButtonConfig();
 
-  /// The default [ButtonConfig] of all LeButtons.
+  /// The default [ButtonConfig] of all RxButton's.
   static void setConfig(ButtonConfig config) => _config = config;
 
-  const LeButton({
+  const RxButton({
     //Extended.
     this.config,
+    this.listenables = const [],
 
-    //LeButton.
+    //RxButton.
     super.key,
     required super.onPressed,
     super.onLongPress,
@@ -728,100 +773,162 @@ class LeButton<T extends ButtonStyleButton> extends ButtonStyleButton {
     required super.child,
   });
 
-  /// Le configs of [LeButton]
+  /// Le configs of [RxButton]. Prefer setting RxButton<Type>.setConfig().
   final ButtonConfig? config;
 
+  /// Animates whenever the notifier callbacks true.
+  final List<ValueListenable<bool>> listenables;
+
   @override
-  State<LeButton<T>> createState() => LeButtonState<T>();
+  State<RxButton<T>> createState() => RxButtonState<T>();
 
   @override
   ButtonStyle defaultStyleOf(BuildContext context) {
-    if (this is LeButton<OutlinedButton>) return OutlinedButton.styleFrom();
-    if (this is LeButton<FilledButton>) return FilledButton.styleFrom();
-    if (this is LeButton<TextButton>) return TextButton.styleFrom();
-    return ElevatedButton.styleFrom();
+    if (this is RxButton<OutlinedButton>) {
+      return const OutlinedButton(onPressed: null, child: Text(''))
+          .defaultStyleOf(context);
+    }
+    if (this is RxButton<FilledButton>) {
+      return const FilledButton(onPressed: null, child: Text(''))
+          .defaultStyleOf(context);
+    }
+    if (this is RxButton<TextButton>) {
+      return const TextButton(onPressed: null, child: Text(''))
+          .defaultStyleOf(context);
+    }
+    return const ElevatedButton(onPressed: null, child: Text(''))
+        .defaultStyleOf(context);
   }
 
   @override
   ButtonStyle? themeStyleOf(BuildContext context) {
-    if (this is LeButton<OutlinedButton>) {
+    if (this is RxButton<OutlinedButton>) {
       return OutlinedButtonTheme.of(context).style;
     }
-    if (this is LeButton<FilledButton>) {
+    if (this is RxButton<FilledButton>) {
       return FilledButtonTheme.of(context).style;
     }
-    if (this is LeButton<TextButton>) return TextButtonTheme.of(context).style;
+    if (this is RxButton<TextButton>) return TextButtonTheme.of(context).style;
     return ElevatedButtonTheme.of(context).style;
   }
 }
 
-class LeButtonState<T extends ButtonStyleButton> extends State<LeButton<T>> {
-  //Config by type.
-  ButtonConfig? get typeConfig {
-    if (this is LeButtonState<OutlinedButton>) return LeOutlinedButton._config;
-    if (this is LeButtonState<FilledButton>) return LeFilledButton._config;
-    if (this is LeButtonState<TextButton>) return LeTextButton._config;
-    return LeElevatedButton._config;
+class RxButtonState<T extends ButtonStyleButton> extends State<RxButton<T>> {
+  ButtonConfig? get _config {
+    if (isElevatedButton) return RxElevatedButton._config;
+    if (isFilledButton) return RxFilledButton._config;
+    if (isOutlinedButton) return RxOutlinedButton._config;
+    if (isTextButton) return RxTextButton._config;
+    return null;
   }
 
-  //Config.
-  ButtonConfig get config => widget.config ?? typeConfig ?? LeButton._config;
-
-  //Async casting.
-  FutureOr<void> Function()? get onPressed => widget.onPressed;
-  FutureOr<void> Function()? get onLongPress => widget.onLongPress;
-
-  //Async states.
+  // State variables.
   bool _isLoading = false;
   bool _isOnError = false;
-
-  //Async refs.
   Object? _error;
   StackTrace? _stackTrace;
 
-  //Getters.
-  bool get isLoading => _isLoading;
-  bool get isOnError => _isOnError;
+  /// The current [ButtonConfig] of this button.
+  ButtonConfig get config => widget.config ?? _config ?? RxButton._config;
+
+  // Button state getters.
+  bool get isElevatedButton => this is RxButtonState<ElevatedButton>;
+  bool get isFilledButton => this is RxButtonState<FilledButton>;
+  bool get isOutlinedButton => this is RxButtonState<OutlinedButton>;
+  bool get isTextButton => this is RxButtonState<TextButton>;
+
+  // State check getters.
+  bool get isLoading => _isLoading && !isInit;
+  bool get isOnError => _isOnError && !isInit;
   bool get isAnimating => isOnError || isLoading;
 
+  // Error getters.
   Object? get error => _error;
   StackTrace? get stackTrace => _stackTrace;
 
+  /// The child of this button.
+  Widget get child => widget.child!;
+
+  /// Same [setState], but with [mounted].
+  void _setState(VoidCallback action) {
+    if (mounted) setState(action);
+  }
+
+  // Loading listener
+  void _setLoading() {
+    _isLoading = widget.listenables.any((listener) => listener.value);
+    _setState(() {});
+  }
+
+  /// Triggers onPressed and animations.
+  FutureOr<void> press() {
+    if (widget.onPressed != null) return setAction(widget.onPressed!);
+  }
+
+  /// Triggers onLongPress and animations.
+  FutureOr<void> longPress() {
+    if (widget.onLongPress != null) return setAction(widget.onLongPress!);
+  }
+
   /// Performs custom [action] and trigger animations.
   FutureOr<void> setAction(FutureOr<void> action()) async {
-    if (_isLoading || _isOnError) return null;
-    _error = null;
-    _stackTrace = null;
+    // Clean resources.
+    _error = _stackTrace = null;
+
+    // Cancels if busy or not ready.
+    if (isAnimating || !mounted) return null;
 
     try {
-      setState(() => _isLoading = true);
-      await action(); // * <- action callback
+      _setState(() => _isLoading = true);
+      await action(); // * <------------------ action callback
     } catch (e, s) {
-      setState(() => _isOnError = true);
+      _setState(() => _isOnError = true);
       _stackTrace = s;
       _error = e;
     } finally {
-      setState(() => _isLoading = false);
-      await Future.delayed(config.errorDuration);
-      setState(() => _isOnError = false);
+      _setState(() => _isLoading = false);
+      if (mounted) await Future.delayed(config.errorDuration);
+      _setState(() => _isOnError = false);
     }
   }
 
-  /// Performs [onPressed] and trigger animations.
-  FutureOr<void> press() {
-    if (onPressed != null) return setAction(() => onPressed!());
+  @override
+  void initState() {
+    super.initState();
+    for (var notifier in widget.listenables) {
+      notifier.addListener(_setLoading);
+    }
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _size ??= context.size;
+      _setLoading();
+    });
   }
 
-  /// Performs [onLongPress] and trigger animations.
-  FutureOr<void> longPress() {
-    if (onLongPress != null) return setAction(() => onLongPress!());
+  @override
+  void dispose() {
+    super.dispose();
+
+    for (var listenable in widget.listenables) {
+      listenable.removeListener(_setLoading);
+    }
   }
+
+  @override
+  void reassemble() {
+    super.reassemble();
+
+    // Checks listenables on hot reload.
+    WidgetsBinding.instance.addPostFrameCallback((_) => _setLoading());
+  }
+
+  late final _style =
+      widget.themeStyleOf(context) ?? widget.defaultStyleOf(context);
+
+  /// The resolved [ButtonStyle] theme.
+  late final style = config.delegate?.onStyle(this, _style) ?? _style;
 
   /// We wait first build size before any animation.
-  bool get isFirstBuild => _size == null;
-
-  /// The child of this button.
-  Widget get child => widget.child!;
+  bool get isInit => _size == null;
 
   /// This button [Size] when not animating.
   Size get size => _size!;
@@ -829,23 +936,15 @@ class LeButtonState<T extends ButtonStyleButton> extends State<LeButton<T>> {
 
   @override
   Widget build(BuildContext context) {
-    /// Gettings widget first size.
-    if (isFirstBuild) {
-      WidgetsBinding.instance
-          .addPostFrameCallback((_) => _size ??= context.size);
-    }
-
     // Widget styles.
-    final themeStyle = widget.themeStyleOf(context);
-    final style = config.delegate?.style?.merge(themeStyle) ?? themeStyle;
-    final errorStyle = config.delegate?.errorStyle?.merge(style) ?? style;
-    final loadingStyle = config.delegate?.loadingStyle?.merge(style) ?? style;
+    final errorStyle = config.delegate?.onErrorStyle(this, style);
+    final loadingStyle = config.delegate?.onLoadingStyle(this, style);
 
-    // Defining the constructor.
+    // Constructor torn-off.
     return () {
-      if (this is LeButtonState<OutlinedButton>) return OutlinedButton.new;
-      if (this is LeButtonState<FilledButton>) return FilledButton.new;
-      if (this is LeButtonState<TextButton>) return TextButton.new;
+      if (isFilledButton) return FilledButton.new;
+      if (isOutlinedButton) return OutlinedButton.new;
+      if (isTextButton) return TextButton.new;
       return ElevatedButton.new;
     }()(
       style: () {
@@ -853,12 +952,10 @@ class LeButtonState<T extends ButtonStyleButton> extends State<LeButton<T>> {
         if (isLoading && loadingStyle != null) return loadingStyle;
         return style;
       }(),
-      child: () {
-        if (isFirstBuild) return child;
-        return config.delegate?.build(this) ?? child;
-      }(),
-      onLongPress: onLongPress != null ? longPress : null,
-      onPressed: onPressed != null ? press : null,
+      // By default it's a pure button. Use [RxButtonBuilder] for custom behavior.
+      child: config.delegate?.build(this) ?? child,
+      onLongPress: widget.onLongPress != null ? longPress : null,
+      onPressed: widget.onPressed != null ? press : null,
       statesController: widget.statesController,
       onFocusChange: widget.onFocusChange,
       clipBehavior: widget.clipBehavior,
@@ -880,106 +977,176 @@ class ButtonConfig {
     this.errorDuration = const Duration(seconds: 5),
   });
 
-  final LeButtonRawDelegate? delegate;
+  final RxButtonDelegate? delegate;
 
-  ///The widget to show on loading.
+  /// The widget to show on loading.
   final Widget onLoading;
 
-  ///The widget with error as string.
+  /// The widget with error as string.
   final Widget Function(String errorText) onError;
 
-  ///The length limit of characters allowed in this error.
+  /// The length limit of characters allowed in this error.
   final int errorLength;
 
   final Duration animationDuration;
   final Duration errorDuration;
 }
 
-class LeButtonCollapsable extends LeButtonAnimatedDelegate {
-  String errorMessage(LeButtonState state) {
+mixin LeButtonType {
+  static String errorMessage(RxButtonState state) {
     final message = state.error.toString();
-    if (message.length <= state.config.errorLength) return message;
-    return '${message.substring(0, state.config.errorLength)}...';
+    int customIndex = 0;
+    int i = 0;
+
+    while (i < message.length) {
+      customIndex += (message[i].toUpperCase() == message[i] &&
+              message[i] != message[i].toLowerCase())
+          ? 2
+          : 1;
+      if (customIndex > state.config.errorLength) {
+        break;
+      }
+      i++;
+    }
+
+    return (i < message.length) ? '${message.substring(0, i)}...' : message;
   }
 
+  static final transforming = LeButtonAnimatedBuilder(
+    onLoading: (state) {
+      final onlyText =
+          state.style.backgroundColor?.resolve({}) == Colors.transparent;
+      return SizedBox(
+        height: state.size.height / 2,
+        width: state.size.height / 2,
+        child: CircularProgressIndicator(
+          color: onlyText ? null : Colors.white,
+          strokeWidth: 2,
+        ),
+      );
+    },
+    onError: (state) {
+      return Text(errorMessage(state));
+    },
+  );
+}
+
+class LeButtonAnimatedBuilder extends RxButtonDelegate {
+  const LeButtonAnimatedBuilder({
+    required this.onLoading,
+    required this.onError,
+    this.alignment = Alignment.center,
+    this.curve = Curves.fastOutSlowIn,
+    this.duration = const Duration(milliseconds: 600),
+    this.errorColor = Colors.redAccent,
+    this.errorLength = 30,
+  });
+
+  final AlignmentGeometry alignment;
+  final Color errorColor;
+  final Duration duration;
+  final Curve curve;
+  final Widget Function(RxButtonState state) onLoading;
+  final Widget Function(RxButtonState state) onError;
+  final double errorLength;
+
   @override
-  Widget onError(LeButtonState<ButtonStyleButton> state) {
+  Widget build(RxButtonState state) {
     return AnimatedOpacity(
-      duration: state.config.animationDuration,
-      opacity: state.isOnError ? 1 : 0,
-      child: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: state.config.onError(errorMessage(state)),
+      duration: duration,
+      curve: curve,
+      opacity: state.isInit ? 0 : 1,
+      child: AnimatedSize(
+        alignment: alignment,
+        duration: duration,
+        curve: curve,
+        child: () {
+          if (state.isOnError) return onError(state);
+          if (state.isLoading) return onLoading(state);
+          return state.child;
+        }(),
       ),
     );
   }
 
   @override
-  Widget onLoading(LeButtonState<ButtonStyleButton> state) {
-    return SizeTransform(
-      size: state.size.height,
-      child: state.config.onLoading,
+  ButtonStyle? onErrorStyle(RxButtonState state, ButtonStyle style) {
+    final onlyText = style.backgroundColor?.resolve({}) == Colors.transparent;
+    final errorMaterial = MaterialStatePropertyAll(errorColor);
+    return style.copyWith(
+      backgroundColor: onlyText ? null : errorMaterial,
+      foregroundColor: onlyText ? errorMaterial : null,
     );
   }
 
   @override
-  Widget onChild(LeButtonState<ButtonStyleButton> state) {
-    return AnimatedOpacity(
-      duration: state.config.animationDuration,
-      opacity: state.isAnimating ? 0 : 1,
-      child: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: state.child,
-      ),
+  ButtonStyle? onLoadingStyle(RxButtonState state, ButtonStyle style) {
+    return style.copyWith(
+      padding: const MaterialStatePropertyAll(EdgeInsets.zero),
     );
+  }
+
+  @override
+  ButtonStyle? onStyle(RxButtonState state, ButtonStyle themeStyle) {
+    return themeStyle;
   }
 }
 
-abstract class LeButtonRawDelegate {
-  LeButtonRawDelegate({this.style, this.errorStyle, this.loadingStyle});
+/// Class that delegates [RxButton] state and styles.
+///
+/// - Use [LeButtonBuilder] for a full control, no presets.
+/// - Use [LeButtonAnimatedBuilder] with animation presets.
+abstract class RxButtonDelegate {
+  const RxButtonDelegate();
 
-  /// This button style. It's merged with theme and applied to all states.
-  final ButtonStyle? style;
+  /// Overrides button [onStyle]. Inherits [themeStyle].
+  ButtonStyle? onStyle(RxButtonState state, ButtonStyle themeStyle);
 
-  /// Overrides button style while on error.
-  final ButtonStyle? errorStyle;
+  /// Overrides error [ButtonStyle]. Inherits [style].
+  ButtonStyle? onErrorStyle(RxButtonState state, ButtonStyle style);
 
-  /// Overrides button style while loading.
-  final ButtonStyle? loadingStyle;
+  /// Overrides loading [ButtonStyle]. Inherits [style].
+  ButtonStyle? onLoadingStyle(RxButtonState state, ButtonStyle style);
 
   /// Builds the Button child widget.
-  Widget build(LeButtonState state);
+  Widget build(RxButtonState state);
 }
 
-abstract class LeButtonAnimatedDelegate extends LeButtonRawDelegate {
-  @override
-  ButtonStyle? get style => const ButtonStyle(
-      padding: MaterialStatePropertyAll(EdgeInsets.zero),
-      backgroundColor: MaterialStatePropertyAll(Colors.purple));
+typedef ButtonStyleCallback = ButtonStyle Function(
+  RxButtonState state,
+  ButtonStyle themeStyle,
+);
+
+/// This class gives you full access to the [RxButton]'s state and styles.
+class LeButtonBuilder extends RxButtonDelegate {
+  const LeButtonBuilder({
+    this.style,
+    this.loadingStyle,
+    this.errorStyle,
+    required this.builder,
+  });
+
+  /// Overrides button [style]. Inherits theme.
+  final ButtonStyleCallback? style;
+
+  /// Overrides button [errorStyle]. Inherits [style].
+  final ButtonStyleCallback? errorStyle;
+
+  /// Overrides button [loadingStyle]. Inherits [style].
+  final ButtonStyleCallback? loadingStyle;
+
+  /// Builds the Button child widget.
+  final Widget Function(RxButtonState state) builder;
 
   @override
-  ButtonStyle? get errorStyle => const ButtonStyle(
-        backgroundColor: MaterialStatePropertyAll(Colors.redAccent),
-      );
-
-  /// The widget to animate size on error.
-  Widget onError(LeButtonState state);
-
-  /// The widget to animate size on loading.
-  Widget onLoading(LeButtonState state);
-
-  /// The child widget of this button.
-  Widget onChild(LeButtonState state);
+  ButtonStyle? onStyle(state, themeStyle) => style?.call(state, themeStyle);
 
   @override
-  Widget build(LeButtonState state) {
-    return AnimatedSize(
-      duration: state.config.animationDuration,
-      child: () {
-        if (state.isOnError) return onError(state);
-        if (state.isLoading) return onLoading(state);
-        return state.child;
-      }(),
-    );
-  }
+  ButtonStyle? onErrorStyle(state, style) => errorStyle?.call(state, style);
+
+  @override
+  ButtonStyle? onLoadingStyle(state, style) => loadingStyle?.call(state, style);
+
+  @override
+  Widget build(RxButtonState state) => builder(state);
 }

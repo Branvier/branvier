@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 import '../../branvier.dart';
-import '../../state.dart';
 
 ///Checks if is Branvier Widget.
 bool isBranvierWidget(Widget widget) {
@@ -10,8 +9,6 @@ bool isBranvierWidget(Widget widget) {
   if (widget is TextButtonX) return true;
   if (widget is ListBuilder) return true;
   if (widget is AsyncBuilder) return true;
-  if (widget is ObxBuilder) return true;
-  if (widget is ObxListBuilder) return true;
   if (widget is FormX) return true;
 
   return false;

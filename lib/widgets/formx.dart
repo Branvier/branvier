@@ -12,7 +12,7 @@ class FormException extends KeyException {
 
 ///Controls the [FormX]. Useful for managing field states in another controller.
 class FormController {
-  ///Where the main state is null.
+  /// All [FormState]. The root FormX.key must be null.
   final _states = <String?, FormState>{};
 
   /// A [Map] of [FormState]. Where key is the [FormX] tag parameter.
@@ -28,6 +28,9 @@ class FormController {
 
   ///The form as [Json]. (includes nested).
   Json? get form => states[null]?._scope.form;
+
+  /// The [FormX] loading listenable.
+  ValueListenable<bool>? get loading => _states[null]?._scope.isLoading;
 
   ///Resets all fields and nested [FormX].
   void reset() {
@@ -92,7 +95,7 @@ class FormController {
 
 class FormX extends StatelessWidget {
   const FormX({
-    Key? key,
+    super.key,
     required this.child,
     this.controller,
     this.tag,
@@ -103,7 +106,7 @@ class FormX extends StatelessWidget {
     this.onSubmit,
     this.onErrorText,
     this.decoration,
-  }) : super(key: key);
+  });
   final Widget child;
   final FormController? controller;
 
@@ -210,6 +213,7 @@ class FormX extends StatelessWidget {
           ///Adds each scope in the scopes map.
           final scope = context.dependOnInheritedWidgetOfExactType<FormScope>();
 
+
           return Form(
             child: Builder(
               builder: (context) {
@@ -228,8 +232,8 @@ class FormX extends StatelessWidget {
 
 class FormScope extends InheritedWidget {
   const FormScope({
-    Key? key,
-    required Widget child,
+    super.key,
+    required super.child,
     required this.form,
     required this.controller,
     required this.fields,
@@ -240,7 +244,7 @@ class FormScope extends InheritedWidget {
     required this.onField,
     required this.fieldPadding,
     required this.isLoading,
-  }) : super(key: key, child: child);
+  });
 
   final ValueNotifier<bool> isLoading;
   final Json form;
@@ -271,8 +275,8 @@ class Field extends StatefulWidget {
     this.mask,
     this.keepMask = false,
     this.onSubmit,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   ///Aditionally validates if the value is empty.
   ///Returns 'form.empty.$tag' if requiredText is null.
@@ -452,6 +456,8 @@ extension FormExt on FormState {
 
   ///Gets a [FormController] containing [Field] data in one place.
   FormController get controller => _scope.controller;
+
+  ValueNotifier<bool> get loading => _scope.isLoading;
 }
 
 extension InputExt on InputDecoration {
@@ -890,8 +896,8 @@ class AppDropdownInput<T> extends StatelessWidget {
     this.getLabel,
     required this.value,
     this.onChanged,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {

@@ -167,11 +167,11 @@ class ShimmerState extends State<Shimmer> with SingleTickerProviderStateMixin {
 @immutable
 class _Shimmer extends SingleChildRenderObjectWidget {
   const _Shimmer({
-    Widget? child,
+    super.child,
     required this.percent,
     required this.direction,
     required this.gradient,
-  }) : super(child: child);
+  });
   final double percent;
   final ShimmerDirection direction;
   final Gradient gradient;

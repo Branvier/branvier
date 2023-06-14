@@ -78,10 +78,9 @@ class AsyncBuilder<T> extends HookWidget {
     this.initialData,
     this.controller,
     this.states = const AsyncStates(),
-    Key? key,
+    super.key,
   })  : _future = future,
-        _stream = null,
-        super(key: key);
+        _stream = null;
 
   const AsyncBuilder.stream({
     required Stream<T> Function() stream,
@@ -89,10 +88,9 @@ class AsyncBuilder<T> extends HookWidget {
     this.initialData,
     this.controller,
     this.states = const AsyncStates(),
-    Key? key,
+    super.key,
   })  : _stream = stream,
-        _future = null,
-        super(key: key);
+        _future = null;
 
   ///The main async function. Useful for fetching data.
   final Future<T> Function()? _future;
@@ -169,7 +167,7 @@ class ReBuilder extends StatefulWidget {
   /// - You can set [interval] duration between [rebuilds].
   /// - You can acces [ReBuilderState] on any callback.
   const ReBuilder({
-    Key? key,
+    super.key,
     this.interval = Duration.zero,
     this.rebuilds = 0,
     this.onInit,
@@ -177,7 +175,7 @@ class ReBuilder extends StatefulWidget {
     this.onBuild,
     this.onRebuild,
     required this.builder,
-  }) : super(key: key);
+  });
 
   final ReBuilderCallback? onInit;
   final ReBuilderCallback? onDispose;

@@ -73,8 +73,8 @@ class ListBuilder<T extends Object> extends StatelessWidget {
     required this.list,
     required this.builder,
     this.config = const ListConfig(),
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   ///Your list of items.
   final List<T> list;

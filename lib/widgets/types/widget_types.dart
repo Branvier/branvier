@@ -4,9 +4,6 @@ import '../../branvier.dart';
 
 ///Checks if is Branvier Widget.
 bool isBranvierWidget(Widget widget) {
-  if (widget is ElevatedButtonX) return true;
-  if (widget is OutlinedButtonX) return true;
-  if (widget is TextButtonX) return true;
   if (widget is ListBuilder) return true;
   if (widget is AsyncBuilder) return true;
   if (widget is FormX) return true;

@@ -19,6 +19,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_modular/flutter_modular.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:mocktail/mocktail.dart';
 
 import 'widgets/list_builder/list_builder.dart';
@@ -45,7 +46,7 @@ part 'hooks/use_lifecycle.dart';
 part 'hooks/use_size.dart';
 part 'utils/transparent_image.dart';
 part 'widgets/async_builder.dart';
-part 'widgets/async_button.dart';
+part 'widgets/rx_button.dart';
 part 'widgets/formx.dart';
 part 'widgets/list_builder.dart';
 part 'widgets/modular.dart';
@@ -101,20 +102,12 @@ WidgetsBinding get engine => WidgetsFlutterBinding.ensureInitialized();
 bool get kIsDark =>
     engine.platformDispatcher.platformBrightness == Brightness.dark;
 
-/// A dart:ui access point. Obs: It's immutable! For adaptativeness use context [MediaQuery].
-mixin Ui {
-
-}
-
 extension UriExtension on Uri {
   ///Returns a parsed and decoded parameters from the Url.
-  Json get args {
+  Map<String, String> get args {
     var uri = this;
     if (queryParameters.isEmpty) uri = Uri.parse(uri.fragment);
 
-    final map = <String, dynamic>{};
-    uri.queryParameters.forEach((key, value) => map[key] = jsonDecode(value));
-
-    return map;
+    return uri.queryParameters;
   }
 }

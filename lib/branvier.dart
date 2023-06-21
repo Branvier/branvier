@@ -22,6 +22,7 @@ import 'package:mocktail/mocktail.dart';
 
 import 'widgets/list_builder/list_builder.dart';
 import 'widgets/types/widget_types.dart';
+export 'widgets/rx_button/rx_button.dart';
 
 part 'extensions/api_interface.dart';
 part 'extensions/box_interface.dart';

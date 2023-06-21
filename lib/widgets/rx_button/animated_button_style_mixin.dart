@@ -61,7 +61,7 @@ mixin AnimatedButtonStyleMixin<T extends ButtonStyleButton>
 
     _buttonStyle = newStyle;
 
-    controller.forward(from: 0.0);
+    if (mounted) controller.forward(from: 0.0);
   }
 
   void _rebuild() {

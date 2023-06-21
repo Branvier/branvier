@@ -99,9 +99,9 @@ class SuperHero extends StatelessWidget {
                 ),
               );
             },
-            // transitionsBuilder: (context, animation, _, child) {
-            //   return FadeTransition(opacity: animation, child: child);
-            // },
+            transitionsBuilder: (context, animation, _, child) {
+              return FadeTransition(opacity: animation, child: child);
+            },
           ),
         );
       },

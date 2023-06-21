@@ -6,7 +6,6 @@
 // tree, read text, and verify that the values of widget properties are correct.
 
 import 'package:branvier/branvier.dart';
-import 'package:dartx/dartx.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -27,7 +26,7 @@ void main() {
             initialData: 'initial is here',
             future: () async {
               if (response == 'error') throw Exception('error');
-              return Future.delayed(1.seconds, () => response);
+              return Future.delayed(Duration(seconds: 1), () => response);
             },
             builder: (data) {
               return Text(data);
@@ -38,11 +37,11 @@ void main() {
       await tester.pump();
       expect(find.byType(LinearProgressIndicator), findsOneWidget);
 
-      await tester.pump(0.5.seconds);
+      await tester.pump(Duration(milliseconds: 500));
       expect(find.byType(Text), findsOneWidget);
       expect(find.text('initial is here'), findsOneWidget);
 
-      await tester.pump(0.5.seconds);
+      await tester.pump(Duration(milliseconds: 500));
       expect(find.byType(Text), findsOneWidget);
       expect(find.text('the future is here'), findsOneWidget);
 
@@ -52,11 +51,11 @@ void main() {
       await tester.pump();
 
       ///Updating data.
-      await tester.pump(0.5.seconds);
+      await tester.pump(Duration(milliseconds: 500));
       expect(find.byType(LinearProgressIndicator), findsOneWidget);
 
       ///Data updated and empty.
-      await tester.pump(0.5.seconds);
+      await tester.pump(Duration(milliseconds: 500));
       expect(find.byType(Text), findsOneWidget);
       expect(find.text(''), findsOneWidget);
 

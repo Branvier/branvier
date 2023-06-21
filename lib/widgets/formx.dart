@@ -183,6 +183,10 @@ class FormX extends StatelessWidget {
   ///Access to [FormController].
   static FormController of(BuildContext context) => Form.of(context).controller;
 
+  ///Whether any descendant is loading.
+  static final ValueListenable<bool> loading = _loading;
+  static final _loading = ValueNotifier(false);
+
   @override
   Widget build(BuildContext context) {
     //Tries to inherits from other FormX.
@@ -212,7 +216,6 @@ class FormX extends StatelessWidget {
         builder: (context) {
           ///Adds each scope in the scopes map.
           final scope = context.dependOnInheritedWidgetOfExactType<FormScope>();
-
 
           return Form(
             child: Builder(
@@ -360,6 +363,12 @@ class _FieldState extends State<Field> {
   var autoValidate = AutovalidateMode.disabled;
 
   @override
+  void dispose() {
+    FormX._loading.value = false;
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final scope = context.dependOnInheritedWidgetOfExactType<FormScope>();
     final dec = scope?.decoration?.call(widget.tag) ?? const InputDecoration();
@@ -425,17 +434,22 @@ class _FieldState extends State<Field> {
         return scope?.onErrorText?.call(widget.tag, errorText) ?? errorText;
       },
       onFieldSubmitted: (value) async {
-        scope?.isLoading.value = true;
+        try {
+          scope?.isLoading.value = FormX._loading.value = true;
+        
         if (widget.onSubmit != null && controller.validate()) {
-          await widget.onSubmit?.call(value);
-          scope?.isLoading.value = false;
-          return;
+            return await widget.onSubmit?.call(value);
         }
+
         if (scope?.controller.validate() ?? false) {
           await scope?.onSubmit?.call(scope.form);
         }
-        scope?.isLoading.value = false;
-
+          
+        } catch (_) {
+          
+        } finally {
+          scope?.isLoading.value = FormX._loading.value = false;
+        }
       },
       decoration: decoration.copyWith(suffixIcon: icon()),
     );

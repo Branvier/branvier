@@ -51,10 +51,12 @@ class SuperHero extends StatelessWidget {
   final Curve heroCurve;
   final Color barrierColor;
   final void Function(bool flying)? onChange;
+  final bool rootNavigator;
 
   const SuperHero({
     required this.builder,
     this.onChange,
+    this.rootNavigator = false,
     this.scrollCurve = Curves.fastOutSlowIn,
     this.heroCurve = Curves.easeOut,
     this.duration = const Duration(seconds: 1),
@@ -78,7 +80,7 @@ class SuperHero extends StatelessWidget {
           duration: duration,
           curve: scrollCurve,
         );
-        Navigator.of(context, rootNavigator: true).push(
+        Navigator.of(context, rootNavigator: rootNavigator).push(
           PageRouteBuilder(
             opaque: false,
             transitionDuration: const Duration(seconds: 1),
@@ -98,9 +100,6 @@ class SuperHero extends StatelessWidget {
                   child: builder(context, setValue(true)),
                 ),
               );
-            },
-            transitionsBuilder: (context, animation, _, child) {
-              return FadeTransition(opacity: animation, child: child);
             },
           ),
         );

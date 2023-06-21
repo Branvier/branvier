@@ -50,17 +50,21 @@ class SuperHero extends StatelessWidget {
   final Curve scrollCurve;
   final Curve heroCurve;
   final Color barrierColor;
+  final BorderRadius borderRadius;
   final void Function(bool flying)? onChange;
+  final void Function(bool hovering)? onHover;
   final bool rootNavigator;
 
   const SuperHero({
     required this.builder,
     this.onChange,
-    this.rootNavigator = false,
+    this.onHover,
+    this.borderRadius = BorderRadius.zero,
     this.scrollCurve = Curves.fastOutSlowIn,
     this.heroCurve = Curves.easeOut,
     this.duration = const Duration(seconds: 1),
     this.barrierColor = Colors.black38,
+    this.rootNavigator = false,
   });
 
   @override
@@ -72,7 +76,9 @@ class SuperHero extends StatelessWidget {
       return value;
     }
 
-    return GestureDetector(
+    return InkWell(
+      onHover: onHover,
+      borderRadius: borderRadius,
       onTap: () {
         Scrollable.ensureVisible(
           context,

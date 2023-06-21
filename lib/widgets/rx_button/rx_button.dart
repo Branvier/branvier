@@ -5,7 +5,7 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
-import 'color_style_animate_test.dart';
+import 'animated_button_style_mixin.dart';
 
 part 'rx_button_config.dart';
 part 'rx_button_impl.dart';
@@ -77,7 +77,7 @@ abstract class RxButton<T extends ButtonStyleButton> extends ButtonStyleButton {
 }
 
 class RxButtonState<T extends ButtonStyleButton> extends State<RxButton<T>>
-    with TickerProviderStateMixin, AnimatedButtonMixin<RxButton<T>> {
+    with TickerProviderStateMixin, AnimatedButtonStyleMixin<RxButton<T>> {
   /// Resolves the default [ButtonConfig] of this [T].
   ButtonConfig? get _config {
     final config = () {

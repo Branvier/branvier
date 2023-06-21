@@ -23,7 +23,6 @@ class TestWidget extends StatelessWidget {
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            
                             Text(itemIndex.toString()),
                             Text(flying ? 'Im flying' : 'On ground'),
                           ],
@@ -48,12 +47,16 @@ class SuperHero extends StatelessWidget {
 
   /// The 'fly' animation duration.
   final Duration duration;
-  final Curve curve;
+  final Curve scrollCurve;
+  final Curve heroCurve;
   final Color barrierColor;
+  final void Function(bool flying)? onChange;
 
   const SuperHero({
     required this.builder,
-    this.curve = Curves.ease,
+    this.onChange,
+    this.scrollCurve = Curves.fastOutSlowIn,
+    this.heroCurve = Curves.easeOut,
     this.duration = const Duration(seconds: 1),
     this.barrierColor = Colors.black38,
   });
@@ -62,13 +65,18 @@ class SuperHero extends StatelessWidget {
   Widget build(BuildContext context) {
     final tag = builder(context, false).hashCode.toString();
 
+    bool setValue(bool value) {
+      onChange?.call(value);
+      return value;
+    }
+
     return GestureDetector(
       onTap: () {
         Scrollable.ensureVisible(
           context,
           alignment: 0.5,
           duration: duration,
-          curve: curve,
+          curve: scrollCurve,
         );
         Navigator.of(context).push(
           PageRouteBuilder(
@@ -84,11 +92,10 @@ class SuperHero extends StatelessWidget {
                     return CurveRectTween(
                       begin: begin,
                       end: end,
-                      arcEffect: 500,
-                      curve: curve,
+                      curve: heroCurve,
                     );
                   },
-                  child: builder(context, true),
+                  child: builder(context, setValue(true)),
                 ),
               );
             },
@@ -104,10 +111,10 @@ class SuperHero extends StatelessWidget {
           return CurveRectTween(
             begin: begin,
             end: end,
-            curve: curve,
+            curve: heroCurve,
           );
         },
-        child: builder(context, false),
+        child: builder(context, setValue(false)),
       ),
     );
   }
@@ -115,19 +122,18 @@ class SuperHero extends StatelessWidget {
 
 class CurveRectTween extends RectTween {
   final Curve curve;
-  final double arcEffect;
+  // final double arcEffect;
 
   CurveRectTween({
-    required Rect? begin,
-    required Rect? end,
+    required super.begin,
+    required super.end,
     required this.curve,
-    this.arcEffect = 0.0,
-  }) : super(begin: begin, end: end);
+    // this.arcEffect = 0.0,
+  });
 
   @override
   Rect lerp(double t) {
     final easedT = curve.transform(t); // interpolation
-
     return super.lerp(easedT)!;
 
     // Calculate the arc offset

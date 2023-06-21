@@ -2,7 +2,7 @@
 
 import 'package:flutter/material.dart';
 
-mixin AnimatedButtonMixin<T extends ButtonStyleButton>
+mixin AnimatedButtonStyleMixin<T extends ButtonStyleButton>
     on State<T>, TickerProviderStateMixin<T> {
   late final controller = AnimationController(vsync: this);
 

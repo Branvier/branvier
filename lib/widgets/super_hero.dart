@@ -78,7 +78,7 @@ class SuperHero extends StatelessWidget {
           duration: duration,
           curve: scrollCurve,
         );
-        Navigator.of(context).push(
+        Navigator.of(context, rootNavigator: true).push(
           PageRouteBuilder(
             opaque: false,
             transitionDuration: const Duration(seconds: 1),
@@ -99,9 +99,9 @@ class SuperHero extends StatelessWidget {
                 ),
               );
             },
-            transitionsBuilder: (context, animation, _, child) {
-              return FadeTransition(opacity: animation, child: child);
-            },
+            // transitionsBuilder: (context, animation, _, child) {
+            //   return FadeTransition(opacity: animation, child: child);
+            // },
           ),
         );
       },

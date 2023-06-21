@@ -131,7 +131,8 @@ class RxButtonState<T extends ButtonStyleButton> extends State<RxButton<T>>
 
   /// Same [setState], but with [mounted].
   void _setState(VoidCallback action) {
-    if (mounted) setState(action);
+    if (!mounted) return;
+    setState(action);
     changeButtonStyle(_buttonStyle());
   }
 

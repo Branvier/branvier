@@ -41,7 +41,7 @@ class TestWidget extends StatelessWidget {
 }
 
 // ? work in progress
-class SuperHero extends StatelessWidget {
+class SuperHero extends StatefulWidget {
   // Builder function that creates a widget based on the 'flying' state.
   final Widget Function(BuildContext context, bool flying) builder;
 
@@ -68,30 +68,35 @@ class SuperHero extends StatelessWidget {
   });
 
   @override
+  State<SuperHero> createState() => _SuperHeroState();
+}
+
+class _SuperHeroState extends State<SuperHero> {
+  late final tag = widget.builder.hashCode.toString();
+
+  bool setValue(bool value) {
+    widget.onChange?.call(value);
+    return value;
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final tag = builder(context, false).hashCode.toString();
-
-    bool setValue(bool value) {
-      onChange?.call(value);
-      return value;
-    }
-
     return InkWell(
-      onHover: onHover,
-      borderRadius: borderRadius,
+      onHover: widget.onHover,
+      borderRadius: widget.borderRadius,
       onTap: () {
         Scrollable.ensureVisible(
           context,
           alignment: 0.5,
-          duration: duration,
-          curve: scrollCurve,
+          duration: widget.duration,
+          curve: widget.scrollCurve,
         );
-        Navigator.of(context, rootNavigator: rootNavigator).push(
+        Navigator.of(context, rootNavigator: widget.rootNavigator).push(
           PageRouteBuilder(
             opaque: false,
             transitionDuration: const Duration(seconds: 1),
             barrierDismissible: true,
-            barrierColor: barrierColor,
+            barrierColor: widget.barrierColor,
             pageBuilder: (context, animation, secondaryAnimation) {
               return Center(
                 child: Hero(
@@ -100,10 +105,10 @@ class SuperHero extends StatelessWidget {
                     return CurveRectTween(
                       begin: begin,
                       end: end,
-                      curve: heroCurve,
+                      curve: widget.heroCurve,
                     );
                   },
-                  child: builder(context, setValue(true)),
+                  child: widget.builder(context, setValue(true)),
                 ),
               );
             },
@@ -116,10 +121,10 @@ class SuperHero extends StatelessWidget {
           return CurveRectTween(
             begin: begin,
             end: end,
-            curve: heroCurve,
+            curve: widget.heroCurve,
           );
         },
-        child: builder(context, setValue(false)),
+        child: widget.builder(context, setValue(false)),
       ),
     );
   }

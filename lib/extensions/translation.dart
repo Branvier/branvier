@@ -2,6 +2,32 @@ part of '/branvier.dart';
 
 typedef Translations = Map<String, Map<String, String>>;
 
+VoidCallback? _refreshApp;
+
+/// See: https://stackoverflow.com/a/58513635/3411681
+void _rebuildAllChildren(BuildContext context) {
+  void rebuild(Element el) {
+    el.markNeedsBuild();
+    el.visitChildren(rebuild);
+  }
+
+  (context as Element).visitChildren(rebuild);
+}
+
+extension TranslationInstall on BuildContext {
+  ///Set this on [MaterialApp].localizationsDelegates.
+  List<LocalizationsDelegate> get localizationsDelegates {
+    _refreshApp = () => _rebuildAllChildren(this);
+
+    return [
+      _TranslationLocalizations.delegate,
+      GlobalMaterialLocalizations.delegate,
+      GlobalWidgetsLocalizations.delegate,
+      GlobalCupertinoLocalizations.delegate,
+    ];
+  }
+}
+
 ///Mini [Translation] package for translation.
 ///
 ///Reads translations maps in the format {'locale': {'key': 'translation'}, ... }.
@@ -138,10 +164,12 @@ class Translation {
     if (_logger && _lazyLoad) dev.log('[Tr]: isLazy = true. Loaded!');
 
     //Refresh UI.
-    final context = Branvier.context?..visitAll(rebuild: true);
-    if (context == null && _logger) {
+    _refreshApp?.call();
+    // final context = Branvier.context?..visitAll(rebuild: true);
+
+    if (_refreshApp == null && _logger) {
       dev.log('[Tr]: Currently running is read mode. In order to update the UI '
-          'while changing language, set Branvier.navigatorKey on MaterialApp');
+          'while changing language, set context.localizationsDelegates on MaterialApp');
     }
 
     //Log missing translations.

@@ -102,11 +102,6 @@ extension WidgetEffects on Widget {
     }
   }
 
-  /// Adds [Opacity] to this widget.
-  Widget withOpacity(double opacity) {
-    return Opacity(opacity: opacity, child: this);
-  }
-
   /// Pads this widget in order: Only > Symmetrical > All > Zero.
   Padding withPadding({
     double? all,
@@ -147,22 +142,6 @@ extension WidgetEffects on Widget {
         child: this,
       );
 
-  /// Sizes this widget.
-  /// Where [height] and [width] overrides other values.
-  Widget withSize({
-    Size? size,
-    double? height,
-    double? width,
-    double? dimension,
-    double? radius,
-  }) {
-    return SizedBox(
-      height: height ?? size?.height ?? dimension ?? radius?.multiply(2),
-      width: width ?? size?.width ?? dimension ?? radius?.multiply(2),
-      child: this,
-    );
-  }
-
   /// Adds [Constraints] to this widget.
   Widget withConstraints({
     double minWidth = 0.0,
@@ -179,6 +158,15 @@ extension WidgetEffects on Widget {
       ),
       child: this,
     );
+  }
+}
+
+class MyWidget extends StatelessWidget {
+  const MyWidget({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return const Placeholder();
   }
 }
 
@@ -240,7 +228,26 @@ extension WidgetPositioning on Widget {
       );
 
   /// Fills and controls this widget position under a [Stack].
+  @Deprecated('Use withPositioned instead.')
   Positioned withFill({
+    double? all,
+    double? left,
+    double? top,
+    double? right,
+    double? bottom,
+    double? horizontal,
+    double? vertical,
+  }) =>
+      Positioned.fill(
+        left: left ?? horizontal ?? all,
+        top: top ?? vertical ?? all,
+        right: right ?? horizontal ?? all,
+        bottom: bottom ?? vertical ?? all,
+        child: this,
+      );
+
+  /// Fills and controls this widget position under a [Stack].
+  Positioned withPositioned({
     double? all,
     double? left,
     double? top,
@@ -274,7 +281,6 @@ extension WidgetPositioning on Widget {
     );
   }
 }
-
 
 // ignore: avoid_private_typedef_functions, camel_case_types
 typedef _Align = Alignment;
@@ -332,6 +338,7 @@ extension WidgetListX on Iterable<Widget> {
   @Deprecated('Use withExpandedAll() instead')
   List<Widget> expandAll() => map((e) => e.withExpanded()).toList();
 }
+
 extension IterableWidgetX<T extends Object> on Iterable<T> {
   ///Maps to List of [Widget].
   List<Widget> builder(Widget toWidget(T item, int i)) {

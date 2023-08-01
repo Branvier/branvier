@@ -7,16 +7,16 @@ extension Validators on String {
   bool get hasSpecial => RegExp(r'[!@#\$&*~]').hasMatch(this);
   bool get isLength8 => length >= 6;
   bool get isPassword => hasNumber && isLength8;
-  bool get isEmail => Utils.isEmail(this);
-  bool get isUrl => Utils.isUrl(this);
-  bool get isCpf => Utils.isCpf(this);
-  bool get isCnpj => Utils.isCnpj(this);
-  bool get isPhone => Utils.isPhone(this);
-  bool get isCurrency => Utils.isCurrency(this);
-  bool get isDateTime => Utils.isDateTime(this);
-  bool get isPassport => Utils.isPassport(this);
-  bool get isBinary => Utils.isBinary(this);
-  bool get isHexadecimal => Utils.isHexadecimal(this);
+  bool get isEmail => Validations.isEmail(this);
+  bool get isUrl => Validations.isUrl(this);
+  bool get isCpf => Validations.isCpf(this);
+  bool get isCnpj => Validations.isCnpj(this);
+  bool get isPhone => Validations.isPhone(this);
+  bool get isCurrency => Validations.isCurrency(this);
+  bool get isDateTime => Validations.isDateTime(this);
+  bool get isPassport => Validations.isPassport(this);
+  bool get isBinary => Validations.isBinary(this);
+  bool get isHexadecimal => Validations.isHexadecimal(this);
 
   static String? password(String? text) => text?.test(text.isPassword, true);
   static String? email(String? text) => text?.test(text.isEmail, true);
@@ -43,7 +43,10 @@ extension Validators on String {
   }
 }
 
-mixin Utils {
+@Deprecated('Use Validations instead')
+typedef Utils = Validations;
+
+mixin Validations {
   static bool isEmail(String value) => RegExp(
         r'^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$',
       ).hasMatch(value);

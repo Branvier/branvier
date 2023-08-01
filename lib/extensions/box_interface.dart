@@ -59,8 +59,11 @@ class FakeBox extends Mock implements IBox, ISafeBox, IAsyncBox, _IBoxBase {
   final Json initialData;
 
   @override
-  T? read<T>(key, {or}) =>
-      storage[key] ?? write(key, or).then((_) => or);
+  T? read<T>(key, {or}) {
+    final data = storage[key];
+    if (data != null && or != null) write(key, or);
+    return data ?? or;
+  }
 
   @override
   Json readAll() => storage;

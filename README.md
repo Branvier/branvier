@@ -1,48 +1,39 @@
 # Architecture
 
-## MVC with Clean Architecture 🫧
-
->Flutter Modular + Getx* approach:
-
-*Getx Reactive State Management only (included in this package).
-
-- The "Model" is broken into Source/Repository/Models.
-- All the global and data business-related operations goes to the Service.
-- All the local and view business-related operations goes to the Controller.
-- The View stays on the presentation layer.
+## Modular with Clean Architecture 🫧
 
 ```md
 - /lib
-  - main.dart
   - /app
-    - /data
+    - /data (always global)
       - /models
       - /repositories
       - /source
-    - /services
-      - /app (front-services: theme, translation)
-      - /data (back-services: manages entities, ex: user)
     - /modules
-      - /module
-        - /widgets (local)
-        - controller.dart
+      - /module (local domain)
+        - /services
+        - /views
+          - controller.dart
+          - page.dart
+        - /widgets
         - module.dart
-        - page.dart
-    - /utils
-    - /widgets (shared)
-    - theme.dart
-    - routes.dart
+    - /shared (shared domain)
+      - /services
+      - /utils 
+      - /widgets
+    - app_module.dart
+    - app_routes.dart
+    - app_widget.dart
+  - main.dart
 ```
 
 - To know more about Flutter Modular: [Getting Started](https://github.com/branvier-dev/branvier_template.git)
 
 ## Getting Started 🔥
 
----
-
 ### Download Branvier's [Project Template](https://github.com/branvier-dev/branvier_template.git)
 
-The Branvier's **Project Template** already comes with everything you need, core packages, linter and some examples. Now you just have to install the architecture's core snippets.
+The Branvier's **Project Template** already comes with core packages, linter and some examples. Now you just have to install the architecture's core snippets.
 
 Installing Snippets
 
@@ -54,8 +45,7 @@ Installing Snippets
 |-----------------|-------------------------------------|
 | gextension      | Generates a Extension on class      |
 | grepository     | Generates a Repository class        |
-| gserviceapp     | Generates a App Service class       |
-| gservicedata    | Generates a Data Service class      |
+| gserviceapp     | Generates a Service class           |
 | gcontroller     | Generates a Controller class        |
 | gpage           | Generates a Page class              |
 | gmodule         | Generates a Module class            |
@@ -72,15 +62,15 @@ A object that represents a entity.
 
 ```dart
 class User {
-  final int? id; //prefer nullable
-  final String? name;
-  final String? email;
+  final int id;
+  final String name;
+  final String? avatar_url; // nullable for optional fields
 
   User.fromMap(...); //serilializing utils.
 }
 ```
 
-### Extension: [Dart Data Class Generator](https://marketplace.visualstudio.com/items?itemName=ricardo-emerson.dart-data-class-tools)
+### Extension: [Dart Safe Data Class](https://marketplace.visualstudio.com/items?itemName=ArthurMiranda.dart-safe-data-class)
 
 ---
 
@@ -96,34 +86,33 @@ With **Dart**
 
 ## Source
 
----
 The source usually expose simple APIs to perform **CRUD** operations (Create, Read, Update, Delete).
   
 ```dart
 class DioApi extends IApi {// http clint
-  final _storage = Dio(); //source
+  final _api = Dio(); //source
 
   @override
-  Future<T> get<T>(String path) async {
+  Future get(String path) async {
     //get from client.
   }
 }
 
-class SharedBox extends IBox {// key/value storage
-  final _storage = SharedPreferences(); //source
+class HiveBox extends IBox {// key/value storage
+  final _box = HiveBox(); //source
 
   @override
-  Future<String> read(String key) async {
+  Future read(String key) async {
     //read from storage.
   }
 }
 ```
 
-> The project already has an interface for http and key/value sources: `IApi` & `IBox`. They are included in this package.
+> The `base app` project already has an interface for http and key/value sources: `IApi` & `IBox`. They are included in the template.
 
 ## Source Testing
 
-> This package includes `MockApi` and `FakeBox`.
+> This template includes `MockApi` and `FakeBox`.
 
 ### MockApi
 
@@ -155,23 +144,23 @@ final data = await api.post('/path', {...}); // -> {'status': 'sucess'}
 ### FakeBox
 
 ---
-> `Fake` is a full implementation, functional, but simplified for testing.
+> `Fake` is a full functional implementation for quick testing.
 
 ```dart
-// use initialData map when a default configuration is needed.
+// use initialData param when a initial storage is needed.
 final box = FakeBox({
   'language': 'pt',
   'theme': 'dark',
 });
 
-// use `storage` to check the contents.
+// use `storage` param to check the contents.
 print(box.storage['theme']) // -> 'dark'.
 
 // reading/writing is fully functional.
 final repository = BookRepository(MockApi(),box);
 ```
 
-> Both Mock/Fake implements `IApi` & `IBox`. They are included in this package.
+> Both Mock/Fake implements `IApi` & `IBox`. They are included in this template.
 
 ### Api Integration Test
 
@@ -195,7 +184,7 @@ void main() {
 }
 ```
 
-> Use this as starting point when implementing a new repository.
+> Use this as quick diagnosis for your repositories.
 >
 ## Repository
 
@@ -267,38 +256,30 @@ final isIntegrationTest = false;
 }
 ```
 
-## State Management
-
----
-
-The package includes GetX reactivity. We added `.obn` and widgets: `ObxBuilder` and `ObxListBuilder`.
-
-### Getx Reactivity
-
----
-
-> The extension `.obn` is the same as `.obs` with `null` as initial value.
+## State Management - ASP (Atomic State Pattern)
 
 **Logic:** Controller/Service
 
 ```dart
-// private, must only be modified here.
-final _count = 0.obs;
-final _book = Book().obn; // init with null
-final _books = <Book>[].obs;
+/// For primitives (num, bool, enum), use `Atom()`:
+final _count = Atom(0);
+final _loading = Atom(false);
+final _book = Atom<Book?>(null); // init with null
 
-// always use getters.
+/// For collections (list, set, map), use `.asAtom()`:
+final _books = <Book>[].asAtom();
+final _library = <String, List<Book>>[].asAtom();
+
+// expose with getters.
 int get count => _count.value; 
 Book? get book => _user.value; // nullable
-
-// RxList is Iterable, just convert toList.
-List<Book> get books => _user.toList();
+List<Book> get books => _user.value;
 
 // setting state.
 void increment() => _count.value++; 
 
 // always void.
-Future<void> fetchBooks() async {
+Future<void> getBooks() async {
   _books.value = await {...}; // _repository.getBooks();
 }
 ```
@@ -306,66 +287,28 @@ Future<void> fetchBooks() async {
 **View:** Page/Widget
 
 ```dart
-Obx(()=> Text(controller.count)); // reacts to _count.value changes
+// reacts to _count.value changes
+RxBuilder(
+  builder: (context) => Text(controller.count),
+); 
 ```
 
-### ObxListBuilder
+### AsyncBuilder
 
 ---
-> Use `ObxListBuilder` for building reactive lists.
+> Use `AsyncBuilder` for quick building any async value.
 
 ```dart
-// reacts to list changes, build items and show async states.
-ObxListBuilder(
-  obx: () => controller.books,
-
-  // easily control your void async function. 
-  // refactor in your controller/service. -> controller.asyncBooks
-  async: Async.future(controller.fetchBooks, interval: 30.seconds),
-
-  // easily refactor all the possible states of your list.
-  states: const MyListStates(), // loading, reloading, error, null, empty
-
-  // all the configs you may need in one place.
-  config: ListConfig<Book>(
-    scrollDirection: Axis.horizontal,
-    shrinkWrap: true,
-  ),
-
-  // an auto animated list that animates on list changes (add, remove).
-  // your model must have equality operator '==' for this to work.
-  builder: (book, i) {
-    return ListTile(title: Text('${book.id}'));
+// Build model and show async states (loading, error, success).
+AsyncBuilder(
+  future: controller.getBooks,
+  builder: (books) {
+    return ListView.builder(...);
   },
 )
 ```
 
-> You don't need to configure anything, it already comes with default states and animations. Most of the time we'll only use the parameters `obx` and `builder`. 🫧
-
-```dart
-// You can also use `ObxBuilder` for any other types.
-ObxBuilder(
-  obx: () => controller.book, // nullable
-  states: AsyncStates(onNull: const BookNull()),
-  builder: (book) { // non-nullable
-    return BookWidget(book);
-  },
-)
-```
-
-> Use `ObxBuilder` for complex reactive states. Otherwise use `Obx()`.
-
-### Extension: [GetX Light Bulb](https://marketplace.visualstudio.com/items?itemName=HyLun.getx-light-bulb)
-
----
-Adds these to the context menu (cmd + .):
-
-- Wrap with Obx
-- Remove this Obx
-
-> Tip: User **Wrap with Builder** when you want to use `ObxListBuilder` or `ObxBuilder`.
-
-## Service
+## WORK IN PROGRESS - Service
 
 ---
 The Service manages the global business logic of a source.
@@ -377,29 +320,30 @@ Reponsabilities:
 - Save and manage the state of the data globally.
 
 ```dart
-//Any operation related to [User] must only be done here.
-class UserService {
-  UserService(this._repository);
+class UserService extends Disposable { // <-- optional, adds `dispose`
+  UserService(this._repository) {
+    init();
+  }
 
-  //The state of the user is private.
-  final _state = User().obn; // inits with null.
+  //The user of the user is private.
+  final _user = User(); // inits with null.
 
   //It value can be acessed globally.
-  User? get value => _state.value;
+  User? get user => _user.value;
 
   ///Initializer for async dependencies.
   Future<void> init() async { //Loads from cache, if any.
-    _state.value = await repository.load();
+    _user.value = await repository.getUser();
   }
 
-  ///Logs the user. Sets the state.
+  ///Logs the user. Sets the user.
   Future<void> login(Json map, {bool remember = false}) async {
-    _state.value = await repository.login(map);
+    _user.value = await repository.login(map);
     if (remember) await repository.savePassword(map['password']);
   }
 
-  //Useful for clearing state.
-  //void onMyPageDispose() {}
+  void dispose() {} // <- optional
+
 }
 ```
 
@@ -412,22 +356,21 @@ The Controller manages the local business logic of a view.
 
 - Handle input: gather inputs, validate, clean and send to services.
 - Handle outputs: navigation, nests, dialogs, snackbars and bottomsheets.
-- Receive requests and treat possible errors/exceptions from services to the ui.
-- Single reponsability. Will handle business logic of components. 1 for each business logic.
 
 ```dart
-//You can extends [Disposable] in case you need to dispose anything when the controller dies.
-class LoginController extends Disposable { // <- optional
+
+class LoginController {
 
   //Dependencies.
-  UserService _user = Modular.get();
+  UserService _userService = Modular.get();
 
   //States
   final formx = FormController(); // component controller.
-  final _isRememberChecked = false.obs; // component state.
+  final _isRememberChecked = Atom(false); // component state.
 
   //Inputs
   bool get isCheck => _isRememberChecked.value; // component getter.
+  User get user => _userService.user;
 
   //Events
   Future<void> onLoginTap() async { // tapped button
@@ -456,10 +399,6 @@ class LoginController extends Disposable { // <- optional
     }
   }
   
-  @override
-  void dispose() { <- optional [Disposable]
-    // _myService.onLoginDispose();
-  }
 }
 ```
 
@@ -471,16 +410,19 @@ The module binds the business **logic** (Service/Controller) to the **global** v
 ```dart
 ///Binds [MyController] to [MyPage].
 class MyModule extends Module {
-  @override
-  final List<Bind> binds = [
-    AsyncBind<MyService>((i) => MyService().init()),
-    Bind<MyController>((i) => MyController()),
-  ];
 
   @override
-  final List<ModularRoute> routes = [
-    ChildRoute('/', child: (_, args) => const MyPage()),
-  ];
+  void binds(i) {
+    i.addSingleton<IApi>(DioApi.new);
+    i.addSingleton<IBox>(HiveBox.new);
+    i.addLazySingleton<IUserRepository>(UserRepository.new);
+  }
+
+  @override
+  void routes(r) {
+    r.child('/', child: (context) => HomePage(data: r.args.data));
+    r.module('/user', module: UserModule());
+  }
 }
 ```
 
@@ -489,38 +431,15 @@ class MyModule extends Module {
 ## Navigation
 
 ---
-Modular navigation uses the same POSIX standards used in command lines.
 
-- `/path`: declares a Module.
-- `/path/`: declares a Route. <- *Use this when navigating*
-
-You must always declare and navigate using `/` at the end.
-
-- `/path/`: just `/path/`.
-- `path/`: current path + `path/`.
-- `./path/`: previous path + `path/`.
-- `../path/`: antepenult path + `path/`.
-
-Exemples if you are in the route `home/books/book/`:
-
-- `navigate('/home/')`: -> `/home/`.
-- `navigate('details/')`: -> `/home/books/book/details/`.
-- `navigate('./author/')`: -> `/home/books/author/`.
-- `navigate('../songs/')`: -> `/home/songs/`. *obs
-- `navigate('.../settings/')`: -> `/settings/`. Same as `/settings/` *obs
-
-*Obs: Using two `.` or more is **NOT** recommended. Using one `.` is good because you are just moving to a page within the **SAME** Module. Also using deeply nested Modules adds too much complexity, prefer parallel routes.
-
-### Recommended approach
-
-Keep the routes together in one file using **raw** paths only.
+In the `app_routes.dart` files lies all the app routes.
 
 ```dart
-mixin Routes {
+mixin AppRoutes {
   // * User Module
   static const home = '/home/';
   static const books = '/home/books';
-  static String book(String id) => '/home/books/$id/';
+  static final book = (id) => '/home/books/$id/';
 
   // * Auth Module
   static const login = '/auth/login/';
@@ -536,15 +455,18 @@ The page manages the global view **ui** and **events**.
 
 - Binded to a route.
 - Must have a Scaffold.
-- Expose business logic parameters (events and inputs).
-- Omit non-business logic parameters (styling and layout).
 
 ```dart
-class LoginPage extends StatelessWidget {
+class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
 
-  /// Get instance of [LoginController].
-  LoginController get controller => Modular.get();
+  @override
+  State createState() => LoginPageState();
+}
+
+
+class LoginPageState extends State {
+  final controller = LoginController();
 
   @override
   Widget build(BuildContext context) {
@@ -556,20 +478,20 @@ class LoginPage extends StatelessWidget {
           children: [
             const ThemeButtonWidget(), // widget view (not a component)
             const AppLogo(), // leaf component
-            FormX(
+            Formx(
               controller: controller.formx, // export state to controller
               onSubmit: controller.onLoginSubmit, // event
               child: Column(
                 children: [
-                  Field.required('email'),
-                  Field.required('password'),
+                  Fieldx.required('email'),
+                  Fieldx.required('password'),
                 ],
               ),
             ),
-            ElevatedButtonX(
+            ElevatedButton(
               onTap: controller.onLoginTap, // event
               child: Text('login.form.button'.tr),
-            ),
+            ).async(),
           ],
         ),
       ),
@@ -578,59 +500,40 @@ class LoginPage extends StatelessWidget {
 }
 ```
 
-## WidgetModule
-
----
-The widget module binds the business **logic** (Service/Controller) to the **local** view (Widget).
-
-```dart
-class ThemeButtonModule extends WidgetModule {
-  ThemeButtonModule({super.key}); // add super constructor
-
-  @override
-  final List<Bind> binds = [
-    Bind((i) => ThemeButtonController()),
-  ];
-
-  @override
-  Widget get view => ThemeButtonWidget(); // use 'Widget' as suffix.
-}
-```
-
-> To know more about Flutter Modular: [Getting Started](https://github.com/branvier-dev/branvier_template.git)
->
 ## Widget
 
 ---
 The widget manages the local view **ui** and **events**.
 
-- Not binded to any route.
-- No Scaffold: can be used by any page.
-- Expose business logic parameters (events and inputs).
-- Omit non-business logic parameters (styling and layout).
+- Not binded to any route and can be used by any page.
+- When having a `Controller` add the suffix `Widget`
 
 ```dart
-class ThemeButtonWidget extends ThemeButtonModule {
+class ThemeButtonWidget extends StatefulWidget {
   ThemeButtonWidget({super.key});
 
-  ThemeButtonController get controller => Modular.get();
+  @override
+  State createState() => ThemeButtonState();
+}
+
+class ThemeButtonState extends State {
+
+  // local instance
+  final controller = ThemeButtonController();
 
   @override
   Widget build(BuildContext context) {
-    return ElevatedButtonX(
+    return ElevatedButton(
       style: ElevatedButton.styleFrom(
         minimumSize: Size(54, 180),
         backgroundColor: Colors.purple,
       ),
       onTap: controller.onThemeTap,
       child: Text('theme.button.change'.tr),
-    );
+    ).async(); // <- flutter_async library
   }
 }
 ```
-
-> This is really useful when your page gets **too many** features.
-> TODO: Add Snippet.
 
 ## Components
 
@@ -706,73 +609,58 @@ Your json files have to be named in the Locale format. Any separator will work. 
 - `.trn` Pattern: 'a.b.c' -> 'a.b' -> 'a' -> returns null if no pattern found.
 
 ```dart
-  ElevatedButtonX(
+  ElevatedButton(
     onTap: controller.onIncrement,
     child: Text('home.button.increment'.tr), // 'Somar 1'
-  ),
+  ).async(),
   ElevatedButton(
     onTap: controller.onIncrement,
     // Since there is no .decrement. It fallbacks to 'home.button'.tr
     child: Text('home.button.decrement'.tr), // 'Aperte'
-  ),
+  ).async(),
 
 ```
 
 ### Change Language with `Translate.to.changeLanguage()`
 
 ```dart
-  ElevatedButtonX(
+  ElevatedButton(
     onTap: () async => Translate.to.changeLanguage('en'),
     child: Text('home.button'.tr), // 'Aperte' -> 'Press'
-  ),
+  ).async(),
 
 ```
 
 ## Naming Conventions
 
----
+### - Variables
 
-## Data Functions
+Simply use the `class name`:
 
-The *verb-noun* convention will be used.
-Starting a function name with a verb helps to indicate the function action, while the noun indicates the type of data returned.
-This convention can make function names more intuitive and easier to understand.
-Ex:
+- userService
+- bookRepository
 
-### Controller functions
+For states, use the getter as private:
 
-- fetchStories() for Future <List.<Story.>>
-- streamStories() for Stream <List.<Story.>>
+- State: final `_user` = ...;
+- Getter: get `user` => _user.value;
 
-### Service functions
+### - Functions
 
-- From local source: loadUser() / saveUser()
-- From external source: getUser() / getUsers()
+Use `get<Value>` when returning data and `on<Value>` on callback events.
 
-### Repository function
+For async getter functions: `Future<T> Function()`
 
-If the repository only deals with books, then it may be reasonable to use getAll instead of getAllBooks.
-Using getAll is specific enough and helps differentiate repository from services functions.
+- getStories() when T is `<List<Story>>`
+- getStory() when T is `<Story>`
 
-- If the class already defines the entity:
-  - From local source: load() / save()
-  - From external source:
-    - getById(), getAll()
-    - add(), update()
-    - deleteById(), deleteAll()
+For callback functions: `void Function(T value)`
 
-## Callback Functions
+- onRegisterTap() -> void onRegisterTap()
+- onStoryTap() -> void onStoryTap(Story story)
 
-The *noun-verb* convention with 'on' preposition will be used.
-The 'on' suggests that the action will happen after an event.
-The noun describes the entity and the verb describes the action.
+For `Repository`, use CRUD base conventions:
 
-## Widget callbacks
-
-- onTap() for VoidCallback aka void Function()
-
-Controller callbacks:
-
-- onStoryTap() for void Function(Story story)
-- onFormSubmit() for void Function(Map form)
-- onNameChange() for void Function(String name)
+- getById(), getAll()
+- add(), update()
+- deleteById(), deleteAll()
